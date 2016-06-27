@@ -13,3 +13,4 @@ TODO:
 * Handling linking concerns--particularly shared libraries
 * Format for metadata?
 * /usr/share-like data
+* Debug information as optional
