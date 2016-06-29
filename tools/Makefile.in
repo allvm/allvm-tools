@@ -1,0 +1,6 @@
+prefix/bin/bc2allvm: $(srcdir)/bc2allvm prefix/bin/.mkdir.done
+	cp $< $@
+
+libs:: prefix/bin/bc2allvm
+
+DIRS += alley
