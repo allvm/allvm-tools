@@ -1,2 +1,3 @@
 BINARIES += alley
 alley_SOURCES += ExecutorMain.cpp
+alley_LIBRARIES += archive-rw

@@ -4,16 +4,21 @@
 # libs should be the default
 libs::
 
+CFLAGS += -fPIC
 CXXFLAGS += -fPIC # XXX: need this only for things in shared libraries
 
 ifeq ($(DEBUG), 1)
 CXXFLAGS += -DDEBUG
+CFLAGS += -DDEBUG
 else
 CXXFLAGS += -DNDEBUG
+CFLAGS += -DNDEBUG
 endif
 
 CXXFLAGS += $(DEBUGFLAGS) $(OPTFLAGS)
+CFLAGS += $(DEBUGFLAGS) $(OPTFLAGS)
 
+CXXFLAGS += -I$(topsrcdir)/include
 CXXFLAGS += $(filter-out -O%,$(shell $(LLVMCONFIG) --cxxflags))
 LDFLAGS += $(shell $(LLVMCONFIG) --ldflags --libs)
 
@@ -70,10 +75,16 @@ BUILT_BINARIES := $(patsubst %,prefix/bin/%,$(BINARIES))
 
 libs:: $(BUILT_LIBRARIES) $(BUILT_RTLIBRARIES) $(BUILT_BINARIES)
 
+all_cobjs :=
+all_cxxobjs :=
+
 define LinkLibrary
-$(1)_objects := $(patsubst %.cpp,%.o,$($(1)_SOURCES))
+csrcs := $(filter %.c,$($(1)_SOURCES))
+cxxsrcs := $(filter %.cpp,$($(1)_SOURCES))
+all_cobjs += $$(csrcs:%.c=%.o)
+all_cxxobjs += $$(cxxsrcs:%.cpp=%.o)
+$(1)_objects := $$(csrcs:%.c=%.o) $$(cxxsrcs:%.cpp=%.o)
 $(1)_objects += $$(foreach l,$$($(1)_LIBRARIES),$$($$(l)_objects))
-all_objects += $$($(1)_objects)
 prefix/lib/lib$(1).so: $$($(1)_objects) prefix/lib/.mkdir.done
 	$$(CXX) -shared -o $$@ $$(CXXFLAGS) $$(LDFLAGS) $$($(1)_objects)
 
@@ -82,9 +93,12 @@ clean::
 endef
 
 define LinkRuntimeLibrary
-$(1)_objects := $(patsubst %.cpp,%.o,$($(1)_SOURCES))
+csrcs := $(filter %.c,$($(1)_SOURCES))
+cxxsrcs := $(filter %.cpp,$($(1)_SOURCES))
+all_cobjs += $$(csrcs:%.c=%.o)
+all_cxxobjs += $$(cxxsrcs:%.cpp=%.o)
+$(1)_objects := $$(csrcs:%.c=%.o) $$(cxxsrcs:%.cpp=%.o)
 $(1)_objects += $$(foreach l,$$($(1)_LIBRARIES),$$($$(l)_objects))
-all_objects += $$($(1)_objects)
 prefix/lib/lib$(1).a: $$($(1)_objects) prefix/lib/.mkdir.done
 	ar cr $$@ $$($(1)_objects)
 
@@ -94,10 +108,14 @@ endef
 llvmlibdir := $(shell $(LLVMCONFIG) --libdir)
 
 define LinkBinary
-$(1)_objects := $(patsubst %.cpp,%.o,$($(1)_SOURCES))
-all_objects += $$($(1)_objects)
+csrcs := $(filter %.c,$($(1)_SOURCES))
+cxxsrcs := $(filter %.cpp,$($(1)_SOURCES))
+all_cobjs += $$(csrcs:%.c=%.o)
+all_cxxobjs += $$(cxxsrcs:%.cpp=%.o)
+$(1)_objects := $$(csrcs:%.c=%.o) $$(cxxsrcs:%.cpp=%.o)
+$(1)_objects += $$(foreach l,$$($(1)_LIBRARIES),$$($$(l)_objects))
 prefix/bin/$(1): $$($(1)_objects) prefix/bin/.mkdir.done
-	$$(CXX) -o $$@ $$(CXXFLAGS) $$($(1)_objects) $$(LDFLAGS) $(shell $(LLVMCONFIG) --system-libs)
+	$$(CXX) -o $$@ $$(CXXFLAGS) $$($(1)_objects) $$(LDFLAGS) $(shell $(LLVMCONFIG) --system-libs) $$($(1)_LDFLAGS)
 
 clean::
 	rm -rf prefix/bin/$(1) $$($(1)_objects)
@@ -110,15 +128,18 @@ $(foreach lib,$(LIBRARIES),$(eval $(call LinkLibrary,$(lib))))
 $(foreach lib,$(RTLIBRARIES),$(eval $(call LinkRuntimeLibrary,$(lib))))
 $(foreach bin,$(BINARIES),$(eval $(call LinkBinary,$(bin))))
 
-all_objects := $(sort $(all_objects))
+all_objects := $(sort $(all_cobjs) $(all_cxxobjs))
 
 -include $(patsubst %,.deps/%.pp,$(notdir $(all_objects)))
 
 ################################################################################
 # Auxiliary rules
 
-$(all_objects): %.o: $(topsrcdir)/%.cpp .deps/.mkdir.done
+$(all_cxxobjs): %.o: $(topsrcdir)/%.cpp .deps/.mkdir.done
 	$(CXX) -o $@ -c $(CXXFLAGS) $(LAZY_CXXFLAGS) $(abspath $<)
+
+$(all_cobjs): %.o: $(topsrcdir)/%.c .deps/.mkdir.done
+	$(CC) -o $@ -c $(CFLAGS) $(LAZY_CXXFLAGS) $(abspath $<)
 
 %/.mkdir.done:
 	@mkdir -p $*
