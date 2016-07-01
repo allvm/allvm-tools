@@ -1,3 +1,4 @@
+#include <llvm/ExecutionEngine/MCJIT.h>
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Module.h>
 #include <llvm/IRReader/IRReader.h>
@@ -5,7 +6,9 @@
 #include <llvm/Support/MemoryBuffer.h>
 #include <llvm/Support/raw_os_ostream.h>
 #include <llvm/Support/SourceMgr.h>
+#include <llvm/Support/TargetSelect.h>
 
+#include "ImageExecutor.h"
 #include "ZipArchive.h"
 
 using namespace allvm;
@@ -17,7 +20,11 @@ static cl::opt<std::string> InputFilename(
 static cl::list<std::string> InputArgv(cl::ConsumeAfter,
   cl::desc("<program arguments>..."));
 
-int main(int argc, const char **argv) {
+int main(int argc, const char **argv, const char **envp) {
+  // Link in necessary libraries
+  InitializeNativeTarget();
+  InitializeNativeTargetAsmPrinter();
+  InitializeNativeTargetAsmParser();
   cl::ParseCommandLineOptions(argc, argv, "allvm runtime executor");
 
   LLVMContext context; 
@@ -43,5 +50,7 @@ int main(int argc, const char **argv) {
     return 1;
   }
 
-  return 0;
+  std::unique_ptr<ImageExecutor> executor(new ImageExecutor(std::move(M)));
+  InputArgv.insert(InputArgv.begin(), InputFilename);
+  return executor->runBinary(InputArgv, envp);
 }
