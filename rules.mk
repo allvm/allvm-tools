@@ -7,10 +7,7 @@ libs::
 CFLAGS += -fPIC
 CXXFLAGS += -fPIC # XXX: need this only for things in shared libraries
 
-ifeq ($(DEBUG), 1)
-CXXFLAGS += -DDEBUG
-CFLAGS += -DDEBUG
-else
+ifneq ($(DEBUG), 1)
 CXXFLAGS += -DNDEBUG
 CFLAGS += -DNDEBUG
 endif
