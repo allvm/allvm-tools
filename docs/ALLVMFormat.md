@@ -146,6 +146,25 @@ or doing incremental updates.  Format decisions
 accomodating package manager goals are possible
 down the road but for now are not important.
 
+### Architecture Portability
+
+While the nature of the ALLVM platform provides some measure
+of portability, in no way is this in an effort to make
+it possible to run the same `allexe` everywhere.
+
+### Security
+
+While `allexe` provides many features that are helpful for
+security purposes, the core system itself does not attempt
+to make any guarantees about enforcing these properties.
+
+Rather, these are asssumptions made to ease analysis
+for 'most' software.
+
+That said, security enforcement may be a useful
+optional feature to build into execution
+engines operating on `allexe` files down the road.
+
 # Zip Contents
 
 ## Bitcode
