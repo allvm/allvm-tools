@@ -37,9 +37,31 @@ to be linked into `main.bc` in an unspecified manner.
 
 ## Non-bitcode
 
-Other files in the container contain analysis summaries,
-executable code caches, optimized file dependencies, etc.
-Most of these files are optional.
+### Software Data
+
+Files other than code may reside in the package,
+and all read-only data required by the application
+for execution should be included.
+
+Additionally, configuration files are encouraged
+to be shipped as well.  Users may modify the configuration
+but do so sparingly, generating a new package instance
+by doing so.
+
+### ALLVM data
+
+Other files in the container may be used for various
+ALLVM-specific ends:
+
+* analysis summaries,
+* executable code caches
+* optimized file dependencies
+
+These are optional (although certain components may
+require them), and it might make more sense to ship these
+results outside of the package, more work on use cases is needed.
+
+For now, both models are supported.
 
 ## Metadata
 
