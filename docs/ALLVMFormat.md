@@ -120,6 +120,26 @@ only sacrificing that when the requirements are too strict
 for use with common 'reasonable' software.  This is nebulous,
 but hopefully can be defined more concretely in the future.
 
+### Package Manager Features
+
+For now anyway, this format is probably better called
+something other than a 'package', as it doesn't attempt to
+solve or be suitable for:
+
+* Installation
+* Expressing cross-package dependencies
+  * Other formats my address this, however.
+* Efficient distribution
+
+That said, it is my hope that we can provide an ALLVM
+Package Manager around this format.  For example, an
+efficient distribution system could be built to provide
+`allexe` files on-site, for example by using knowledge of
+individual bitcode files that appear in many packages,
+or doing incremental updates.  Format decisions
+accomodating package manager goals are possible
+down the road but for now are not important.
+
 # Zip Contents
 
 ## Bitcode
