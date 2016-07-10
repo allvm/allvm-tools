@@ -20,4 +20,9 @@ An explanation of why belongs here :).
 * TODO: Leverage existing ABI specifications if can find a
   suitable one to build on?
 
+## Technical Details
+
+* Single entry point: `main.bc` defines function `main`.
+* Static constructors/destructors supported as usual.
+* Limited filesystem view
 

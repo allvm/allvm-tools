@@ -69,6 +69,15 @@ is not yet determined, but for now includes:
 
 ## Reproduction and Caching
 
+Packages and components within are described with identifiers
+that uniquely describe their derivation tree for use in
+reproduction, caching, and reproducion-with-transform
+operations.
+
+The purity model of these derivation trees is not yet determined,
+but for now it should be expected to be strong in theory,
+but in practice assume it's weak.
+
 ## Simple by Default
 
 Capture the majority of use cases with what's simplest,
