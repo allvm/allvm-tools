@@ -178,6 +178,11 @@ Assets, resources, $PREFIX/share/*
 
 ## Why is this needed
 
+Just in case it's not clear, we unfortunately cannot
+reasonably avoid specifying this IMO.
+
+An explanation of why belongs here :).
+
 ## Summary
 
 * C: musl
@@ -186,6 +191,10 @@ Assets, resources, $PREFIX/share/*
 * C++: libc++/libc++abi
 * compiler runtime: compiler-rt instead of libgcc
 * No syscalls directly, use musl interface
+* "POSIX"?
+  * libpthread, etc.?
+* TODO: Leverage existing ABI specifications if can find a
+  suitable one to build on?
 
 # TODO
 
