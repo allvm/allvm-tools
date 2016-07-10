@@ -19,7 +19,7 @@ The format's primary design goal is to represent common
 
 The next section expands on the design goals further.
 
-## [Design Goals](ALLVMFormat-Design)
+## [Design Goals](ALLVMFormat-Design.md)
 
 (Follow link to section contents)
 
@@ -51,6 +51,6 @@ Contains following mandatory and optional fields:
 
 Assets, resources, $PREFIX/share/*
 
-# [Platform Interface](ALLVMFormat-Platform)
+# [Platform Interface](ALLVMFormat-Platform.md)
 
-# [TODO](ALLVMFormat-TODO)
+# [TODO](ALLVMFormat-TODO.md)
