@@ -95,10 +95,6 @@ is not yet determined, but for now includes:
 Capture the majority of use cases with what's simplest,
 introduce complexities only as-needed (if at all).
 
-### Compatibility?
-
-(This could mean many things, what did you mean? :))
-
 ### Suitable for Analysis and Transforms
 
 TODO: What does this mean? For now trying to stub out.
