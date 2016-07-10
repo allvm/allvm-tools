@@ -21,6 +21,8 @@ The next section expands on the design goals further.
 
 ## [Design Goals](ALLVMFormat-Design.md)
 
+## [Non-Goals](ALLVMFormat-NonGoals.md)
+
 (Follow link to section contents)
 
 # Zip Contents
