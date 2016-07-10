@@ -1,15 +1,17 @@
 # ALLVM Package Format Design
 
 # Overview
-The basic format of the `.allexe` is a zip container that contains various files.
+
+The basic format of the `.allexe` is a zip container that
+contains various files.
 
 ## Purpose
 
-The ALLVM Package Format is used by the ALLVM tools and built by the ALLVM
-build system automation.
+The ALLVM Package Format is used by the ALLVM tools and
+built by the ALLVM build system automation.
 
-The format's primary design goal is to represent common 'software' components
-in a way that is:
+The format's primary design goal is to represent common
+'software' components in a way that is:
 
 * Easy to generate from reasonably organized software
 * Sufficient for execution of typical user workloads
@@ -29,15 +31,17 @@ We provide tools to operate on the format of course,
 but the format is designed to be easily created, inspected,
 and consumed for the cases our tools don't cover.
 
-This is important for our own sanity, but also to ease adoption
-and construction of tools interacting with the format.
+This is important for our own sanity, but also to ease
+adoption and construction of tools interacting with the
+format.
 
 ### Completeness
 
-Software in this format is captured in sufficient completeness that
-it may be executed by the ALLVM Execution Engine without
-additional code components.  It is encouraged to also include
-key resources as well, including configuration files.
+Software in this format is captured in sufficient
+completeness that it may be executed by the ALLVM Execution
+Engine without additional code components.
+It is encouraged to also include key resources as well,
+including configuration files.
 
 This has important implications regarding dynamically
 linked libraries:
@@ -61,9 +65,10 @@ in later versions of the format.
 
 ### Dynamic behavior is Statically Predictable
 
-As much as possible.  Software requiring this is encouraged
-to evalute if it really needs the flexibility, and if so
-may elect to indicate this need with a flag.
+(As much as possible!)
+Software requiring this is encouraged to evalute if it
+really needs the flexibility, and if so may elect to
+indicate this need with a flag.
 
 ### Isolated-By-Default
 
@@ -117,8 +122,9 @@ TODO: What does this mean? For now trying to stub out.
 
 Foremost goal is to enable compiler techniques for software,
 only sacrificing that when the requirements are too strict
-for use with common 'reasonable' software.  This is nebulous,
-but hopefully can be defined more concretely in the future.
+for use with common 'reasonable' software.
+This is nebulous, but hopefully can be defined more
+concretely in the future.
 
 ### Package Manager Features
 
@@ -143,20 +149,22 @@ down the road but for now are not important.
 # Zip Contents
 
 ## Bitcode
-The main relevant file in the container is the `main.bc` file, that contains the
-main bitcode for the executable. This file is always required.
+The main relevant file in the container is the `main.bc`
+file, that contains the main bitcode for the executable.
+This file is always required.
 
-Additional bitcode files may be provided, which are expected to be linked into main.bc
-in an unspecified manner.
+Additional bitcode files may be provided, which are expected
+to be linked into `main.bc` in an unspecified manner.
 
 ## Non-bitcode
 
-Other files in the container contain analysis summaries, executable code caches,
-optimized file dependencies, etc. Most of these files are optional.
+Other files in the container contain analysis summaries,
+executable code caches, optimized file dependencies, etc.
+Most of these files are optional.
 
 ## Metadata
 
-Mandatory file with fixed name 'metadata.inf'.
+Mandatory file with fixed name `metadata.inf`.
 
 Contains following mandatory and optional fields:
 
@@ -167,6 +175,10 @@ Contains following mandatory and optional fields:
 Assets, resources, $PREFIX/share/*
 
 # Platform Interface
+
+## Why is this needed
+
+## Summary
 
 * C: musl
   * musl interface provided by runtime
