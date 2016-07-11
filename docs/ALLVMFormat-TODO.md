@@ -14,4 +14,5 @@
 * headers? Can ALLVMexe's be used as build-time dependencies?
 * Format specifiation versioning?
   * compliance checking, backwards-compat, etc.
+* Integrate documentation building with existing build system?
 
