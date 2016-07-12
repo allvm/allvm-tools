@@ -163,6 +163,8 @@ def processArgument(options, arg):
                 opt.setValue(True)
     elif arg == "--help":
         printHelp()
+    elif arg.startswith("--prefix"):
+        sys.stderr.write("Ignoring --prefix flag...\n")
     else:
         sys.stderr.write("Unknown option: " + arg + '\n')
         printHelp()
