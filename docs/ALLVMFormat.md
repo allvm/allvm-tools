@@ -1,33 +1,14 @@
 ALLVM Package Format Design
 ===========================
 
-The basic format of the `.allexe` is a zip container that contains various files.
+# [Overview](ALLVMFormat-Overview.md)
 
-Zip Contents
-============
+# [Design Goals](ALLVMFormat-Design.md)
 
-Bitcode
--------
-The main relevant file in the container is the `main.bc` file, that contains the
-main bitcode for the executable. This file is always required.
+# [Non-Goals](ALLVMFormat-NonGoals.md)
 
-Additional bitcode files may be provided, which are expected to be linked into main.bc
-in an unspecified manner.
+# [Zip Contents](ALLVMFormat-Contents.md)
 
+# [Platform Interface](ALLVMFormat-Platform.md)
 
-Non-bitcode
------------
-
-Other files in the container contain analysis summaries, executable code caches,
-optimized file dependencies, etc. Most of these files are optional.
-
-
-TODO
-====
-* Pick names for the executable
-* Enforce filenames in a particular order? Affects performance, etc.
-* Format for codegen flags
-* Handling linking concerns--particularly shared libraries
-* Format for metadata?
-* /usr/share-like data
-* Debug information as optional
+# [TODO](ALLVMFormat-TODO.md)
