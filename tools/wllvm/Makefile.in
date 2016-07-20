@@ -1,0 +1,2 @@
+BINARIES += wllvm-dump
+wllvm-dump_SOURCES += wllvm-dump.cpp
