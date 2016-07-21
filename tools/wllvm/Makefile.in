@@ -1,2 +1,3 @@
-BINARIES += wllvm-dump
+BINARIES += wllvm-dump wllvm-extract
 wllvm-dump_SOURCES += wllvm-dump.cpp WLLVMFile.cpp
+wllvm-extract_SOURCES += wllvm-extract.cpp WLLVMFile.cpp
