@@ -8,48 +8,21 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "llvm/Object/Archive.h"
-#include "llvm/Object/ObjectFile.h"
+#include "Error.h"
+
+#include <llvm/Object/Archive.h>
+#include <llvm/Object/ObjectFile.h>
 #include <llvm/Support/CommandLine.h>
 #include <llvm/Support/raw_os_ostream.h>
-#include "llvm/Support/LineIterator.h"
-#include "llvm/Support/PrettyStackTrace.h"
-#include "llvm/Support/Signals.h"
+#include <llvm/Support/LineIterator.h>
+#include <llvm/Support/PrettyStackTrace.h>
+#include <llvm/Support/Signals.h>
 
+using namespace allvm;
 using namespace llvm;
 using namespace object;
 
 const StringRef WLLVMSectionName = ".llvm_bc";
-
-// TODO: This is almost certainly overkill for our tool,
-// taken from llvm-readobj/llvm-objdump for the time being.
-LLVM_ATTRIBUTE_NORETURN void reportError(Twine Msg) {
-  errs() << "\nError reading file: " << Msg << ".\n";
-  errs().flush();
-  exit(1);
-}
-static void reportError(StringRef Input, std::error_code EC) {
-  if (Input == "-")
-    Input = "<stdin>";
-
-  reportError(Twine(Input) + ": " + EC.message());
-}
-static void reportError(StringRef Input, StringRef Message) {
-  if (Input == "-")
-    Input = "<stdin>";
-
-  reportError(Twine(Input) + ": " + Message);
-}
-static void reportError(StringRef Input, Error Err) {
-  if (Input == "-")
-    Input = "<stdin>";
-  std::string ErrMsg;
-  {
-    raw_string_ostream ErrStream(ErrMsg);
-    logAllUnhandledErrors(std::move(Err), ErrStream, Input + ": ");
-  }
-  reportError(ErrMsg);
-}
 
 static cl::opt<std::string> InputFilename(
   cl::Positional, cl::Required, cl::desc("<input file built with wllvm>"));
