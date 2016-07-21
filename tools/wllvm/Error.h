@@ -19,27 +19,27 @@
 namespace allvm {
 using namespace llvm;
 
-LLVM_ATTRIBUTE_NORETURN void reportError(Twine Msg) {
+LLVM_ATTRIBUTE_NORETURN static void inline reportError(Twine Msg) {
   errs() << "\nError reading file: " << Msg << ".\n";
   errs().flush();
   exit(1);
 }
 
-static void reportError(StringRef Input, std::error_code EC) {
+static void inline reportError(StringRef Input, std::error_code EC) {
   if (Input == "-")
     Input = "<stdin>";
 
   reportError(Twine(Input) + ": " + EC.message());
 }
 
-static void reportError(StringRef Input, StringRef Message) {
+static void inline reportError(StringRef Input, StringRef Message) {
   if (Input == "-")
     Input = "<stdin>";
 
   reportError(Twine(Input) + ": " + Message);
 }
 
-static void reportError(StringRef Input, Error Err) {
+static void inline reportError(StringRef Input, Error Err) {
   if (Input == "-")
     Input = "<stdin>";
   std::string ErrMsg;
