@@ -8,11 +8,8 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "Error.h"
 #include "WLLVMFile.h"
 
-#include <llvm/Object/Archive.h>
-#include <llvm/Object/ObjectFile.h>
 #include <llvm/Support/CommandLine.h>
 #include <llvm/Support/PrettyStackTrace.h>
 #include <llvm/Support/Signals.h>
@@ -20,7 +17,6 @@
 
 using namespace allvm;
 using namespace llvm;
-using namespace object;
 
 static cl::opt<std::string>
     InputFilename(cl::Positional, cl::Required,
