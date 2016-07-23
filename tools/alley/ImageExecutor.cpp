@@ -32,4 +32,9 @@ int ImageExecutor::runBinary(const std::vector<std::string> &argv,
   // XXX: lli runs exit to make sure atexit() stuff gets handled properly.
   return result;
 }
+
+void ImageExecutor::addModule(std::unique_ptr<llvm::Module> M) {
+  EE->addModule(std::move(M));
 }
+
+} // end namespace allvm

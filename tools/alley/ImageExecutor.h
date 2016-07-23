@@ -18,6 +18,7 @@ class ImageExecutor final {
 public:
   ImageExecutor(std::unique_ptr<llvm::Module> &&mainModule);
   ~ImageExecutor();
+  void addModule(std::unique_ptr<llvm::Module> M);
 
   int runBinary(const std::vector<std::string> &argv, const char **envp);
 };

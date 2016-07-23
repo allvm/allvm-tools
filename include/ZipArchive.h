@@ -1,6 +1,7 @@
 #ifndef ALLVM_ARCHIVE_ZIPARCHIVE_H
 #define ALLVM_ARCHIVE_ZIPARCHIVE_H
 
+#include "llvm/ADT/ArrayRef.h"
 #include "llvm/Support/ErrorOr.h"
 
 #include <memory>
@@ -29,7 +30,7 @@ public:
     openForReading(const llvm::Twine &Filename);
 
   std::unique_ptr<llvm::MemoryBuffer> getEntry(const llvm::Twine &Entry);
-  const std::vector<std::string> & listFiles() const;
+  llvm::ArrayRef<std::string> listFiles() const;
 };
 
 }

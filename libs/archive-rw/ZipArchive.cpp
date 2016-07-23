@@ -58,7 +58,5 @@ std::unique_ptr<MemoryBuffer> ZipArchive::getEntry(const Twine &entryName) {
   return buf;
 }
 
-const std::vector<std::string> & ZipArchive::listFiles() const {
-  return files;
-}
+ArrayRef<std::string> ZipArchive::listFiles() const { return files; }
 }
