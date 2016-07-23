@@ -1,4 +1,5 @@
 BINARIES += alley
 alley_SOURCES += ExecutorMain.cpp \
-								 ImageExecutor.cpp
+								 ImageExecutor.cpp \
+								 HostedImageExecutor.cpp
 alley_LIBRARIES += archive-rw

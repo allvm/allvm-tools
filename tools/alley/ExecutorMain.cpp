@@ -14,11 +14,13 @@
 using namespace allvm;
 using namespace llvm;
 
-static cl::opt<std::string> InputFilename(
-  cl::Positional, cl::Required, cl::desc("<input allvm file>"));
+static cl::opt<std::string> LibNone("libnone", cl::desc("Path of libnone.a"));
+
+static cl::opt<std::string> InputFilename(cl::Positional, cl::Required,
+                                          cl::desc("<input allvm file>"));
 
 static cl::list<std::string> InputArgv(cl::ConsumeAfter,
-  cl::desc("<program arguments>..."));
+                                       cl::desc("<program arguments>..."));
 
 const StringRef ALLEXE_MAIN = "main.bc";
 
@@ -87,5 +89,9 @@ int main(int argc, const char **argv, const char **envp) {
 
   // Add name of file as argv[0]
   InputArgv.insert(InputArgv.begin(), InputFilename);
-  return executor->runBinary(InputArgv, envp);
+
+  if (LibNone.empty())
+    return executor->runBinary(InputArgv, envp);
+
+  return executor->runHostedBinary(InputArgv, envp, LibNone);
 }

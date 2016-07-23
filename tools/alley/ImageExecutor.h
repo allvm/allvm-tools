@@ -8,6 +8,7 @@
 namespace llvm {
 class ExecutionEngine;
 class Module;
+class StringRef;
 }
 
 namespace allvm {
@@ -21,6 +22,8 @@ public:
   void addModule(std::unique_ptr<llvm::Module> M);
 
   int runBinary(const std::vector<std::string> &argv, const char **envp);
+  int runHostedBinary(const std::vector<std::string> &argv, const char **envp,
+                      llvm::StringRef LibNone);
 };
 
 }
