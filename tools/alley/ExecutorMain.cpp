@@ -31,7 +31,7 @@ int main(int argc, const char **argv, const char **envp) {
   InitializeNativeTargetAsmParser();
   cl::ParseCommandLineOptions(argc, argv, "allvm runtime executor");
 
-  LLVMContext context; 
+  LLVMContext context;
 
   auto exezip = ZipArchive::openForReading(InputFilename);
   if (!exezip) {
