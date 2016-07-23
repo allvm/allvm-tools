@@ -1,5 +1,7 @@
 LIBRARIES += archive-rw
 
+LDFLAGS += -lz
+
 archive-rw_SOURCES += \
 	ZipArchive.cpp \
 	zip_source_file.c \
