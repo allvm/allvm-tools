@@ -13,11 +13,15 @@ class StringRef;
 
 namespace allvm {
 
+class ImageCache;
+
 class ImageExecutor final {
   llvm::Module *M;
   std::unique_ptr<llvm::ExecutionEngine> EE;
+  std::unique_ptr<ImageCache> Cache;
 public:
-  ImageExecutor(std::unique_ptr<llvm::Module> &&mainModule);
+  ImageExecutor(std::unique_ptr<llvm::Module> &&mainModule,
+                bool UseCache = true);
   ~ImageExecutor();
   void addModule(std::unique_ptr<llvm::Module> M);
 

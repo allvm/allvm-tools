@@ -24,6 +24,17 @@ static cl::list<std::string> InputArgv(cl::ConsumeAfter,
 
 const StringRef ALLEXE_MAIN = "main.bc";
 
+void nameModule(Module *M, StringRef File, StringRef Entry) {
+  // Make up a naming scheme for caching
+  // TODO: Use more meaningful ID's
+  // * Use module hashes like used in ThinLTO?
+  // * Reflect what optimizations have/haven't been done
+  // * etc.
+
+  std::string ID = ("allexe:" + File + ":" + Entry).str();
+  M->setModuleIdentifier(ID);
+}
+
 int main(int argc, const char **argv, const char **envp) {
   // Link in necessary libraries
   InitializeNativeTarget();
@@ -68,6 +79,7 @@ int main(int argc, const char **argv, const char **envp) {
     err.print(argv[0], errs());
     return 1;
   }
+  nameModule(M.get(), InputFilename, ALLEXE_MAIN);
 
   auto executor = make_unique<ImageExecutor>(std::move(M));
 
@@ -84,6 +96,7 @@ int main(int argc, const char **argv, const char **envp) {
       err.print(argv[0], errs());
       return 1;
     }
+    nameModule(LibM.get(), InputFilename, lib);
     executor->addModule(std::move(LibM));
   }
 
