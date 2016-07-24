@@ -108,7 +108,10 @@ int main(int argc, const char **argv, const char **envp) {
   }
 
   // Add name of file as argv[0]
-  InputArgv.insert(InputArgv.begin(), InputFilename);
+  StringRef ProgName = InputFilename;
+  if (sys::path::has_extension(InputFilename))
+    ProgName = ProgName.drop_back(sys::path::extension(ProgName).size());
+  InputArgv.insert(InputArgv.begin(), ProgName);
 
   if (LibNone.empty())
     return executor->runBinary(InputArgv, envp);
