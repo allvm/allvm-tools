@@ -35,9 +35,8 @@ void nameModule(Module *M, StringRef File, StringRef Entry, uint32_t crc) {
 
   // For now, use the crc from the allexe zip to at least recognize
   // a different module with same name.
-  StringRef FileStem = sys::path::stem(File);
   std::string crcHex = utohexstr(crc);
-  std::string ID = ("allexe:" + FileStem + "/" + crcHex + "-" + Entry).str();
+  std::string ID = ("allexe:" + crcHex + "-" + Entry).str();
   M->setModuleIdentifier(ID);
 }
 
