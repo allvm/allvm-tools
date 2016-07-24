@@ -29,7 +29,8 @@ public:
   static llvm::ErrorOr<std::unique_ptr<ZipArchive>>
     openForReading(const llvm::Twine &Filename);
 
-  std::unique_ptr<llvm::MemoryBuffer> getEntry(const llvm::Twine &Entry);
+  std::unique_ptr<llvm::MemoryBuffer> getEntry(const llvm::Twine &Entry,
+                                               uint32_t *CrcOut = nullptr);
   llvm::ArrayRef<std::string> listFiles() const;
 };
 

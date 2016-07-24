@@ -33,7 +33,8 @@ ErrorOr<std::unique_ptr<ZipArchive>> ZipArchive::openForReading(
   return std::move(zip);
 }
 
-std::unique_ptr<MemoryBuffer> ZipArchive::getEntry(const Twine &entryName) {
+std::unique_ptr<MemoryBuffer> ZipArchive::getEntry(const Twine &entryName,
+                                                   uint32_t *crcOut) {
   SmallVector<char, 256> str;
   StringRef name = entryName.toStringRef(str);
   auto entry = std::find_if(files.begin(), files.end(),
@@ -53,6 +54,8 @@ std::unique_ptr<MemoryBuffer> ZipArchive::getEntry(const Twine &entryName) {
   // Decompress the file into the buffer.
   zip_file_t *fd = zip_fopen_index(archive, index, 0);
   zip_fread(fd, const_cast<char*>(buf->getBufferStart()), statinfo.size);
+  if (crcOut)
+    *crcOut = statinfo.crc;
   zip_fclose(fd);
 
   return buf;
