@@ -116,8 +116,8 @@ the need for ALLVM tools that can operate across arbitrary software
 boundaries.
 
 
-#### Associating and Storing Analysis Results for Software
+### Associating and Storing Analysis Results for Software
 
-#### Offline Compiler Techniques
+### Offline Compiler Techniques
 
-#### Online Compiler Techniques
+### Online Compiler Techniques
