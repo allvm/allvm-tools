@@ -22,15 +22,19 @@ solve or be suitable for:
 
 * Installation
 * Expressing cross-package dependencies
-  * Other formats my address this, however.
+  * Other formats may address this, however.
 * Efficient distribution
 
-That said, it is my hope that we can provide an ALLVM
+That said, we hope that we can in future provide an ALLVM
 Package Manager around this format.  For example, an
 efficient distribution system could be built to provide
-`allexe` files on-site, for example by using knowledge of
+`allexe` files efficiently on-site, perhaps by using knowledge of
 individual bitcode files that appear in many packages,
-or doing incremental updates.  Format decisions
+or by doing incremental updates.  
+Moreover, such a distribution system would take advantage of 
+ALLVM tools to carry out install-time optimizations such as
+hardware-specific optimizations, software specialization, and autotuning.
+Format decisions
 accomodating package manager goals are possible
 down the road but for now are not important.
 
@@ -39,19 +43,22 @@ down the road but for now are not important.
 While the nature of the ALLVM platform provides some measure
 of portability, in no way is this in an effort to make
 it possible to run the same `allexe` everywhere.
+Such portability requires extensive and carefuly designed
+language-level support, which native languages such as C/C++
+fundamentally lack.
 
 ## Security
 
 While `allexe` provides many features that are helpful for
 security purposes, the core system itself does not attempt
 to make any guarantees about enforcing these properties.
+Rather, the asssumptions stated earlier are made primarily
+to ease analysis and transformations for 'most' software.
 
-Rather, these are asssumptions made to ease analysis
-for 'most' software.
-
-That said, security enforcement may be a useful
-optional feature to build into execution
-engines operating on `allexe` files down the road.
+That said, the ALLVM format and tools should enable system designers to
+build secure systems and to enforce rich security policies on top of a core
+ALLVM system, as noted earlier.  In fact, we consider this to be an
+important research direction building on ALLVM.
 
 
 
