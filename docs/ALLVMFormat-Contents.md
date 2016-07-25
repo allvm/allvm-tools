@@ -11,16 +11,28 @@ The main relevant file in the container is the `main.bc`
 file, that contains the main bitcode for the executable.
 This file is always required.
 
-Additional bitcode files may be provided, which are expected
+Additional bitcode files may be included directly, or may be
+specified indirectly via *uniquely resolved* identifiers;
+in particular, no external specifications such as search paths 
+or other environmental variables should be used to resolve
+these identifiers.
+These additional bitcode files are expected
 to be linked into `main.bc` in an unspecified manner.
 
-## Non-bitcode
+Non-bitcode software components, such as scripts or non-LLVM-compiled
+languages are *not* included in ALLVM-format files.
+In particular, all code components in these file must use LLVM bitcode.
+
+## Non-code Components
 
 ### Software Data
 
 Files other than code may reside in the package,
 and all read-only data required by the application
-for execution should be included.
+for execution and available before shipping
+should be included.
+Sources of other read-only data should be specified 
+via configuration files.
 
 Additionally, configuration files are encouraged
 to be shipped as well.  Users may modify the configuration
@@ -38,9 +50,10 @@ ALLVM-specific ends:
 
 These are optional (although certain components may
 require them), and it might make more sense to ship these
-results outside of the package, more work on use cases is needed.
+results outside of the package, for ease of distribution.
+More work on use cases is needed.
 
-For now, both models are supported.
+For now, both models (i.e., files included or not) are supported.
 
 ## Metadata
 
@@ -52,6 +65,7 @@ Contains following mandatory and optional fields:
 
 ## Non-Code Data
 
-Assets, resources, $PREFIX/share/*
+** UNCLEAR HOW THIS IS DIFFERENT FROM ALL THE OTHER NON-CODE DATA, ABOVE.**
 
+Assets, resources, $PREFIX/share/*
 
