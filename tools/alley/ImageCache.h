@@ -21,10 +21,14 @@ public:
   void notifyObjectCompiled(const llvm::Module *M,
                             llvm::MemoryBufferRef Obj) override;
   std::unique_ptr<llvm::MemoryBuffer> getObject(const llvm::Module *M) override;
+  std::unique_ptr<llvm::MemoryBuffer> getObject(llvm::StringRef Name,
+                                                uint32_t crc);
+  static std::string generateName(llvm::StringRef Name, uint32_t crc);
 
 private:
   std::string CacheDir;
 
+  std::unique_ptr<llvm::MemoryBuffer> getObject(llvm::StringRef Name);
   bool getCacheFilename(llvm::StringRef ModID, std::string &CacheName);
 };
 

@@ -25,7 +25,7 @@ int ImageExecutor::runHostedBinary(const std::vector<std::string> &argv,
   }
 
   EE->DisableSymbolSearching();
-  EE->setProcessAllSections(true); // XXX: is this needed/useful?
+  // EE->setProcessAllSections(true); // XXX: is this needed/useful?
 
   // Get the binary as a OwningBinary<object::Archive>
   auto Pair = BinaryOrErr.get().takeBinary();

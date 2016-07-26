@@ -9,6 +9,7 @@ namespace llvm {
 class ExecutionEngine;
 class Module;
 class StringRef;
+class MemoryBufferRef;
 }
 
 namespace allvm {
@@ -23,7 +24,7 @@ public:
   ImageExecutor(std::unique_ptr<llvm::Module> &&mainModule,
                 bool UseCache = true);
   ~ImageExecutor();
-  void addModule(std::unique_ptr<llvm::Module> M);
+  void addModule(llvm::MemoryBufferRef Mem, llvm::StringRef Name, uint32_t crc);
 
   int runBinary(const std::vector<std::string> &argv, const char **envp);
   int runHostedBinary(const std::vector<std::string> &argv, const char **envp,

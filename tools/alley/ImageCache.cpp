@@ -2,6 +2,7 @@
 
 #include "llvm/Support/raw_ostream.h"
 #include <llvm/ADT/SmallString.h>
+#include <llvm/ADT/StringExtras.h>
 #include <llvm/IR/Module.h>
 #include <llvm/Support/FileSystem.h>
 #include <llvm/Support/Path.h>
@@ -27,9 +28,18 @@ void ImageCache::notifyObjectCompiled(const Module *M,
 }
 
 std::unique_ptr<MemoryBuffer> ImageCache::getObject(const Module *M) {
-  const std::string &ModuleID = M->getModuleIdentifier();
+  return getObject(M->getModuleIdentifier());
+}
+
+std::unique_ptr<MemoryBuffer> ImageCache::getObject(llvm::StringRef Name,
+                                                    uint32_t crc) {
+  return getObject(generateName(Name, crc));
+}
+
+
+std::unique_ptr<MemoryBuffer> ImageCache::getObject(StringRef Name) {
   std::string CacheName;
-  if (!getCacheFilename(ModuleID, CacheName))
+  if (!getCacheFilename(Name, CacheName))
     return nullptr;
   // Load the object from the cache filename
   ErrorOr<std::unique_ptr<MemoryBuffer>> IRObjectBuffer =
@@ -61,6 +71,11 @@ bool ImageCache::getCacheFilename(StringRef ModID, std::string &CacheName) {
   size_t pos = CacheName.rfind('.');
   CacheName.replace(pos, CacheName.length() - pos, ".o");
   return true;
+}
+
+std::string ImageCache::generateName(StringRef Name, uint32_t crc) {
+  std::string crcHex = utohexstr(crc);
+  return ("allexe:" + crcHex + "-" + Name).str();
 }
 
 } // end namespace allvm

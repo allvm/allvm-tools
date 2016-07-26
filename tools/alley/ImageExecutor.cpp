@@ -3,6 +3,9 @@
 
 #include <llvm/ExecutionEngine/ExecutionEngine.h>
 #include <llvm/IR/Module.h>
+#include <llvm/IRReader/IRReader.h>
+#include <llvm/Object/ObjectFile.h>
+#include <llvm/Support/SourceMgr.h>
 #include <llvm/Support/raw_os_ostream.h>
 
 using namespace llvm;
@@ -43,8 +46,32 @@ int ImageExecutor::runBinary(const std::vector<std::string> &argv,
   return result;
 }
 
-void ImageExecutor::addModule(std::unique_ptr<llvm::Module> M) {
-  EE->addModule(std::move(M));
+void ImageExecutor::addModule(MemoryBufferRef Mem, StringRef Name,
+                              uint32_t crc) {
+
+  if (Cache) {
+    if (auto Obj = Cache->getObject(Name, crc)) {
+      // Load object!
+      auto LoadedObj =
+          object::ObjectFile::createObjectFile(Obj->getMemBufferRef());
+      if (LoadedObj) {
+        return EE->addObjectFile(std::move(LoadedObj.get()));
+      }
+
+      errs() << "Error loading cached object!\n";
+      exit(1);
+    }
+  }
+  SMDiagnostic err;
+  LLVMContext &C = M->getContext();
+  auto LibMod = parseIR(Mem, err, C);
+  if (!LibMod.get()) {
+    err.print("<alley>", errs());
+    exit(1);
+  }
+  LibMod->setModuleIdentifier(ImageCache::generateName(Name, crc));
+
+  EE->addModule(std::move(LibMod));
 }
 
 } // end namespace allvm
