@@ -41,6 +41,9 @@ int ImageExecutor::runHostedBinary(const std::vector<std::string> &argv,
   EE->addGlobalMapping("__fini_array_start", (uint64_t)&dummy_ptr);
   EE->addGlobalMapping("__fini_array_end", (uint64_t)&dummy_ptr);
 
+  // TODO: Look into Orc's LocalCXXRuntimeOverrides for a better solution!
+  EE->addGlobalMapping("__dso_handle", (uint64_t)&dummy_ptr);
+
   // Setup our stack for running the libc initialization code
   // This needs to actually be stack-allocated as musl code
   // uses that property for some checks.
