@@ -55,7 +55,7 @@ void ImageExecutor::addModule(MemoryBufferRef Mem, StringRef Name,
       auto LoadedObj =
           object::ObjectFile::createObjectFile(Obj->getMemBufferRef());
       if (LoadedObj) {
-        return EE->addObjectFile(std::move(LoadedObj.get()));
+        return EE->addObjectFile({std::move(LoadedObj.get()), std::move(Obj)});
       }
 
       errs() << "Error loading cached object!\n";
