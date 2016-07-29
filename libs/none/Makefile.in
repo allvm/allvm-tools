@@ -4,8 +4,6 @@ libs:: prefix/lib/libnone.a
 none_srcdir := $(srcdir)/
 none_objdir := $(objdir)/
 
-MUSL := musl-1.1.15
-
 NONE_ASM_FILES = UnwindRegistersRestore.S UnwindRegistersSave.S
 NONE_ASM := $(addprefix $(none_srcdir),$(NONE_ASM_FILES))
 NONE_OBJS := $(addprefix $(none_objdir),$(NONE_ASM_FILES:.S=.o))
@@ -22,6 +20,9 @@ prefix/lib/libnone.a: $(none_objdir)/musl-libc.a $(NONE_OBJS)
 clean::
 	rm -rf prefix/lib/libnone.a $(NONE_OBJS)
 
+MUSL := musl-1.1.15
+
+MUSL_PATCHES := $(wildcard $(none_srcdir)/musl-patches/*.patch)
 
 # Update our copy if new one is built
 $(none_objdir)/musl-libc.a: $(none_objdir)/$(MUSL)/lib/libc.a
@@ -30,9 +31,11 @@ $(none_objdir)/musl-libc.a: $(none_objdir)/$(MUSL)/lib/libc.a
 %/$(MUSL)/lib/libc.a: %/$(MUSL)/config.mak
 	$(MAKE) -C $*/$(MUSL)
 
-%/$(MUSL)/config.mak: $(none_srcdir)/$(MUSL).tar.gz
+.PRECIOUS: %/$(MUSL)/config.mak
+%/$(MUSL)/config.mak: $(none_srcdir)/$(MUSL).tar.gz $(MUSL_PATCHES)
 	tar xvf $< -C $*
-	cd $*/$(MUSL) && ./configure
+	$(foreach p,$(MUSL_PATCHES),patch -p1 -d $*/$(MUSL) -i $(p);)
+	cd $*/$(MUSL) && ./configure --enable-visibility --disable-shared CFLAGS="-mcmodel=small"
 
 clean::
 	rm -rf $(none_objdir)/$(MUSL) $(none_objdir)/musl-libc.a
