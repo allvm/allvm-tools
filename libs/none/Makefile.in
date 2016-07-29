@@ -15,7 +15,7 @@ $(none_objdir)/%.o: $(none_srcdir)/%.S $(none_srcdir)/assembly.h
 	$(CC) $< -c -o $@ $(CFLAGS)
 
 # Take existing musl libc.a and add our little libunwind bits.
-$(prefix)/lib/libnone.a: $(none_objdir)/musl-libc.a $(NONE_OBJS)
+$(prefix)/lib/libnone.a: $(none_objdir)/musl-libc.a $(NONE_OBJS) | prefix/lib/.mkdir.done
 	cp $< $@.tmp
 	ar rs $@.tmp $(NONE_OBJS)
 	mv $@.tmp $@
