@@ -131,6 +131,8 @@ $(foreach lib,$(LIBRARIES),$(eval $(call LinkLibrary,$(lib))))
 $(foreach lib,$(RTLIBRARIES),$(eval $(call LinkRuntimeLibrary,$(lib))))
 $(foreach bin,$(BINARIES),$(eval $(call LinkBinary,$(bin))))
 
+all_cobjs := $(sort $(all_cobjs))
+all_cxxobjs := $(sort $(all_cxxobjs))
 all_objects := $(sort $(all_cobjs) $(all_cxxobjs))
 
 -include $(patsubst %,.deps/%.pp,$(notdir $(all_objects)))
