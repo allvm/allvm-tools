@@ -1,3 +1,38 @@
-LIBRARIES += none
 
-none_SOURCES += test.cpp
+libs:: prefix/lib/libnone.a
+
+none_srcdir := $(srcdir)/
+none_objdir := $(objdir)/
+
+MUSL := musl-1.1.15
+
+NONE_ASM_FILES = UnwindRegistersRestore.S UnwindRegistersSave.S
+NONE_ASM := $(addprefix $(none_srcdir),$(NONE_ASM_FILES))
+NONE_OBJS := $(addprefix $(none_objdir),$(NONE_ASM_FILES:.S=.o))
+
+%.o: %.S assembly.h
+	$(CC) $< -c -o $@ $(CFLAGS)
+
+# Take existing musl libc.a and add our little libunwind bits.
+prefix/lib/libnone.a: $(none_objdir)/musl-libc.a $(NONE_OBJS)
+	cp $< $@.tmp
+	ar rs $@.tmp $(NONE_OBJS)
+	mv $@.tmp $@
+
+clean::
+	rm -rf prefix/lib/libnone.a $(NONE_OBJS)
+
+
+# Update our copy if new one is built
+$(none_objdir)/musl-libc.a: $(none_objdir)/$(MUSL)/lib/libc.a
+	cp $< $@
+
+%/$(MUSL)/lib/libc.a: %/$(MUSL)/config.mak
+	$(MAKE) -C $*/$(MUSL)
+
+%/$(MUSL)/config.mak: $(none_srcdir)/$(MUSL).tar.gz
+	tar xvf $< -C $*
+	cd $*/$(MUSL) && ./configure
+
+clean::
+	rm -rf $(none_objdir)/$(MUSL) $(none_objdir)/musl-libc.a

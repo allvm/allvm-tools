@@ -120,6 +120,10 @@ clean::
 	rm -rf prefix/bin/$(1) $$($(1)_objects)
 endef
 
+define LibNone
+
+endef
+
 clean::
 	rm -rf .deps
 
