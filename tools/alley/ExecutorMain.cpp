@@ -20,7 +20,7 @@ std::string getDefaultLibNone() {
   static int StaticSymbol;
   auto Executable = sys::fs::getMainExecutable("allvm_tool", &StaticSymbol);
   auto BinDir = sys::path::parent_path(Executable);
-  return (BinDir + "../lib/libnone.a").str();
+  return (BinDir + "/../lib/libnone.a").str();
 }
 
 static cl::opt<std::string> LibNone("libnone", cl::desc("Path of libnone.a"),
