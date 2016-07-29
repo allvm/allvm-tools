@@ -16,7 +16,15 @@
 using namespace allvm;
 using namespace llvm;
 
-static cl::opt<std::string> LibNone("libnone", cl::desc("Path of libnone.a"));
+std::string getDefaultLibNone() {
+  static int StaticSymbol;
+  auto Executable = sys::fs::getMainExecutable("allvm_tool", &StaticSymbol);
+  auto BinDir = sys::path::parent_path(Executable);
+  return (BinDir + "../lib/libnone.a").str();
+}
+
+static cl::opt<std::string> LibNone("libnone", cl::desc("Path of libnone.a"),
+                                    cl::init(getDefaultLibNone()));
 
 static cl::opt<std::string> InputFilename(cl::Positional, cl::Required,
                                           cl::desc("<input allvm file>"));
@@ -93,9 +101,6 @@ int main(int argc, const char **argv, const char **envp) {
   if (sys::path::has_extension(InputFilename))
     ProgName = ProgName.drop_back(sys::path::extension(ProgName).size());
   InputArgv.insert(InputArgv.begin(), ProgName);
-
-  if (LibNone.empty())
-    return executor->runBinary(InputArgv, envp);
 
   return executor->runHostedBinary(InputArgv, envp, LibNone);
 }
