@@ -36,7 +36,7 @@ $(none_objdir)/musl-libc.a: $(none_objdir)/$(MUSL)/lib/libc.a
 %/$(MUSL)/config.mak: $(none_srcdir)/$(MUSL).tar.gz $(MUSL_PATCHES)
 	tar xvf $< -C $*
 	$(foreach p,$(MUSL_PATCHES),patch -p1 -d $*/$(MUSL) -i $(p);)
-	cd $*/$(MUSL) && ./configure --enable-visibility --disable-shared CFLAGS="-mcmodel=small"
+	cd $*/$(MUSL) && CC=gcc ./configure --disable-shared
 
 clean::
 	rm -rf $(none_objdir)/$(MUSL) $(none_objdir)/musl-libc.a
