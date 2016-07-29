@@ -43,6 +43,8 @@ $(2) := $$(addprefix $(1),$$($(2)))
 endef
 
 define SaveVariable
+# XXX: This comment makes things work.  :(
+# $($(1))
 _save_$(1) := $$($(1))
 $(1) :=
 
