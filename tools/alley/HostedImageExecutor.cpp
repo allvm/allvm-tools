@@ -114,6 +114,6 @@ int ImageExecutor::runHostedBinary(const std::vector<std::string> &argv,
   // Note: __libc_start_main() calls exit() so we don't really return
   startty start = (startty)StartAddr;
   return start((mainty)MainAddr, argc, argv_ptr);
-};
+}
 
 } // end namespace allvm
