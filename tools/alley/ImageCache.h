@@ -11,7 +11,7 @@ class ImageCache : public llvm::ObjectCache {
 public:
   ~ImageCache() override{};
 
-  ImageCache(const std::string &CacheDir) : CacheDir(CacheDir) {
+  ImageCache(llvm::StringRef CacheDir) : CacheDir(CacheDir) {
     // Add trailing '/' to cache dir if necessary.
     if (!this->CacheDir.empty() &&
         this->CacheDir[this->CacheDir.size() - 1] != '/')

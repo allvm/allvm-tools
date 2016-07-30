@@ -5,6 +5,7 @@
 #include <llvm/IR/Module.h>
 #include <llvm/IRReader/IRReader.h>
 #include <llvm/Object/ObjectFile.h>
+#include <llvm/Support/Path.h>
 #include <llvm/Support/SourceMgr.h>
 #include <llvm/Support/raw_os_ostream.h>
 
@@ -24,8 +25,9 @@ ImageExecutor::ImageExecutor(std::unique_ptr<Module> &&module, bool UseCache)
     exit(1);
   }
 
-  // TODO: Better!
-  StringRef CacheDir = "allvm-cache";
+  SmallString <20> CacheDir;
+  if (!sys::path::user_cache_directory(CacheDir, "allvm", "objects"))
+    CacheDir = "allvm-cache";
 
   if (UseCache) {
     Cache.reset(new ImageCache(CacheDir));
