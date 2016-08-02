@@ -52,7 +52,7 @@ int ImageExecutor::runBinary(const std::vector<std::string> &argv,
 
 void ImageExecutor::addModule(std::unique_ptr<llvm::Module> Mod) {
   if (!Cache || !Cache->hasObjectFor(Mod.get()))
-    M->materializeAll();
+    Mod->materializeAll();
   EE->addModule(std::move(Mod));
 }
 
