@@ -24,7 +24,7 @@ public:
   ImageExecutor(std::unique_ptr<llvm::Module> &&mainModule,
                 bool UseCache = true);
   ~ImageExecutor();
-  void addModule(llvm::MemoryBufferRef Mem, llvm::StringRef Name, uint32_t crc);
+  void addModule(std::unique_ptr<llvm::Module> M);
 
   int runBinary(const std::vector<std::string> &argv, const char **envp);
   int runHostedBinary(const std::vector<std::string> &argv, const char **envp,

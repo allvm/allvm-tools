@@ -107,9 +107,8 @@ int ImageExecutor::runHostedBinary(const std::vector<std::string> &argv,
   typedef int (*mainty)(int, char**, char**);
   typedef int (*startty)(mainty, int, char **);
 
-  // TODO: Static constructors/destructors?
-
-  // Can't run here, need to initialize libc first.
+  // TODO: Run static constructors, but AFTER initializing libc components...
+  EE->runStaticConstructorsDestructors(false);
 
   // Note: __libc_start_main() calls exit() so we don't really return
   startty start = (startty)StartAddr;

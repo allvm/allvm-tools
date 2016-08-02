@@ -2,6 +2,7 @@
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Module.h>
 #include <llvm/IRReader/IRReader.h>
+#include <llvm/Bitcode/ReaderWriter.h>
 #include <llvm/Support/CommandLine.h>
 #include <llvm/Support/MemoryBuffer.h>
 #include <llvm/Support/Path.h>
@@ -65,36 +66,30 @@ int main(int argc, const char **argv, const char **envp) {
     return 1;
   }
 
-  uint32_t crc;
-  auto bitcode = (*exezip)->getEntry(ALLEXE_MAIN, &crc);
-  if (!bitcode) {
-    errs() << "Could not open " << InputFilename << ": ";
-    errs() << "no main.bc present\n";
-    return 1;
-  }
+  auto LoadModule = [&](StringRef Entry) {
+    uint32_t crc;
+    auto bitcode = (*exezip)->getEntry(Entry, &crc);
+    if (!bitcode) {
+      errs() << "Could not open " << InputFilename << ": " << Entry << "\n";
+      exit(1);
+    }
+    auto M = getLazyBitcodeModule(std::move(bitcode), context, /* lazy metadata */ true);
+    if (!M) {
+      errs() << "Could not read " << InputFilename << ": " << Entry << "\n";
+      // XXX: Do something with M's error
+      exit(1);
+    }
+    M.get()->setModuleIdentifier(ImageCache::generateName(Entry, crc));
+    return std::move(M.get());
+  };
 
-  // TODO: Avoid parsing the main.bc module if we have
-  // it in our object cache already!
-  SMDiagnostic err;
-  auto M = parseIR(bitcode->getMemBufferRef(), err, context);
-  if (!M.get()) {
-    err.print(argv[0], errs());
-    return 1;
-  }
-  M->setModuleIdentifier(ImageCache::generateName(ALLEXE_MAIN, crc));
+  auto M = LoadModule(ALLEXE_MAIN);
 
   auto executor = make_unique<ImageExecutor>(std::move(M));
 
   // Add supporting libraries
-  for (auto &lib : supportFiles) {
-    auto lib_bitcode = (*exezip)->getEntry(lib, &crc);
-    if (!lib_bitcode) {
-      errs() << "Could not open " << InputFilename << ": ";
-      errs() << "Failed to load '" << lib << "'\n";
-      return 1;
-    }
-    executor->addModule(lib_bitcode->getMemBufferRef(), lib, crc);
-  }
+  for (auto &lib : supportFiles)
+    executor->addModule(LoadModule(lib));
 
   // Add name of file as argv[0]
   StringRef ProgName = InputFilename;

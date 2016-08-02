@@ -33,6 +33,8 @@ ImageExecutor::ImageExecutor(std::unique_ptr<Module> &&module, bool UseCache)
     Cache.reset(new ImageCache(CacheDir));
     EE->setObjectCache(Cache.get());
   }
+  if (!UseCache || !Cache->getObject(M))
+    M->materializeAll();
 }
 
 ImageExecutor::~ImageExecutor() {}
@@ -48,32 +50,10 @@ int ImageExecutor::runBinary(const std::vector<std::string> &argv,
   return result;
 }
 
-void ImageExecutor::addModule(MemoryBufferRef Mem, StringRef Name,
-                              uint32_t crc) {
-
-  if (Cache) {
-    if (auto Obj = Cache->getObject(Name, crc)) {
-      // Load object!
-      auto LoadedObj =
-          object::ObjectFile::createObjectFile(Obj->getMemBufferRef());
-      if (LoadedObj) {
-        return EE->addObjectFile({std::move(LoadedObj.get()), std::move(Obj)});
-      }
-
-      errs() << "Error loading cached object!\n";
-      exit(1);
-    }
-  }
-  SMDiagnostic err;
-  LLVMContext &C = M->getContext();
-  auto LibMod = parseIR(Mem, err, C);
-  if (!LibMod.get()) {
-    err.print("<alley>", errs());
-    exit(1);
-  }
-  LibMod->setModuleIdentifier(ImageCache::generateName(Name, crc));
-
-  EE->addModule(std::move(LibMod));
+void ImageExecutor::addModule(std::unique_ptr<llvm::Module> M) {
+  if (!Cache || !Cache->getObject(M.get()))
+    M->materializeAll();
+  EE->addModule(std::move(M));
 }
 
 } // end namespace allvm
