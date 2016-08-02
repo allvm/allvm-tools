@@ -50,10 +50,10 @@ int ImageExecutor::runBinary(const std::vector<std::string> &argv,
   return result;
 }
 
-void ImageExecutor::addModule(std::unique_ptr<llvm::Module> M) {
-  if (!Cache || !Cache->getObject(M.get()))
+void ImageExecutor::addModule(std::unique_ptr<llvm::Module> Mod) {
+  if (!Cache || !Cache->getObject(Mod.get()))
     M->materializeAll();
-  EE->addModule(std::move(M));
+  EE->addModule(std::move(Mod));
 }
 
 } // end namespace allvm
