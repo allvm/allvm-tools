@@ -3,4 +3,6 @@ prefix/bin/bc2allvm: $(srcdir)/bc2allvm prefix/bin/.mkdir.done
 
 libs:: prefix/bin/bc2allvm
 
-DIRS += alley wllvm
+DIRS += alley \
+        all2bc \
+        wllvm
