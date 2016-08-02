@@ -31,9 +31,16 @@ std::unique_ptr<MemoryBuffer> ImageCache::getObject(const Module *M) {
   return getObject(M->getModuleIdentifier());
 }
 
-std::unique_ptr<MemoryBuffer> ImageCache::getObject(llvm::StringRef Name,
-                                                    uint32_t crc) {
-  return getObject(generateName(Name, crc));
+bool ImageCache::hasObjectFor(const Module *M) {
+  // TODO: Avoid loading file altogether!
+  std::string CacheName;
+  if (!getCacheFilename(M->getModuleIdentifier(), CacheName))
+    return false;
+  // Load the object from the cache filename
+  ErrorOr<std::unique_ptr<MemoryBuffer>> IRObjectBuffer =
+      MemoryBuffer::getFile(CacheName.c_str(), -1, false);
+  // If the file isn't there, that's OK.
+  return (bool)IRObjectBuffer;
 }
 
 

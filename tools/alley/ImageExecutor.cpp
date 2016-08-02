@@ -33,7 +33,7 @@ ImageExecutor::ImageExecutor(std::unique_ptr<Module> &&module, bool UseCache)
     Cache.reset(new ImageCache(CacheDir));
     EE->setObjectCache(Cache.get());
   }
-  if (!UseCache || !Cache->getObject(M))
+  if (!UseCache || !Cache->hasObjectFor(M))
     M->materializeAll();
 }
 
@@ -51,7 +51,7 @@ int ImageExecutor::runBinary(const std::vector<std::string> &argv,
 }
 
 void ImageExecutor::addModule(std::unique_ptr<llvm::Module> Mod) {
-  if (!Cache || !Cache->getObject(Mod.get()))
+  if (!Cache || !Cache->hasObjectFor(Mod.get()))
     M->materializeAll();
   EE->addModule(std::move(Mod));
 }
