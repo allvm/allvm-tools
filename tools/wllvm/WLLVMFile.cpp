@@ -63,6 +63,9 @@ void WLLVMFile::parseWLLVMSection() {
   for (auto &c : SectionData)
     if (!c) c = ' ';
 
+  // Must be null-terminated for line_iterator
+  SectionData.push_back(0);
+
   auto Mem = MemoryBuffer::getMemBuffer(
       StringRef(SectionData.data(), SectionData.size()));
   for (line_iterator I(*Mem, true), E; I != E; ++I) {
