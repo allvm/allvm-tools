@@ -58,16 +58,16 @@ void WLLVMFile::parseWLLVMSection() {
   check(S.getContents(Contents));
 
   // Make copy for editing, replace nulls with spaces
+  SectionData.assign(Contents.begin(), Contents.end());
 
-  std::vector<char> MutableCopy{Contents.begin(), Contents.end()};
-  for (auto &c : MutableCopy)
+  for (auto &c : SectionData)
     if (!c) c = ' ';
 
   auto Mem = MemoryBuffer::getMemBuffer(
-      StringRef(MutableCopy.data(), MutableCopy.size()));
+      StringRef(SectionData.data(), SectionData.size()));
   for (line_iterator I(*Mem, true), E; I != E; ++I) {
-    assert(*I == I->trim() && "Unexpected whitespace");
+    StringRef Entry = I->trim();
 
-    BCEntries.push_back(*I);
+    BCEntries.push_back(Entry);
   }
 }

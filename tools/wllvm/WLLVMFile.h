@@ -28,6 +28,7 @@ class WLLVMFile {
   StringRef Name;
   OwningBinary<Binary> File;
   std::vector<StringRef> BCEntries;
+  std::vector<char> SectionData;
 
 public:
   WLLVMFile(StringRef Name, OwningBinary<Binary> Binary)
