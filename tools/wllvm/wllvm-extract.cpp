@@ -16,6 +16,7 @@
 #include <llvm/IR/Module.h>
 #include <llvm/IRReader/IRReader.h>
 #include <llvm/Linker/Linker.h>
+#include <llvm/Object/ArchiveWriter.h>
 #include <llvm/Support/CommandLine.h>
 #include <llvm/Support/PrettyStackTrace.h>
 #include <llvm/Support/Signals.h>
@@ -27,6 +28,7 @@ using namespace allvm;
 using namespace llvm;
 
 namespace {
+  // TODO: Emit "ALLEXE"/"ALLSO" format (zip)?
   enum class OutputKind { SingleBitcode, BitcodeArchive };
 
   cl::opt<OutputKind> EmitOutputKind(
@@ -46,6 +48,15 @@ namespace {
 
 } // end anon namespace
 
+std::string getDefaultSuffix(OutputKind K) {
+  switch (K) {
+  case OutputKind::SingleBitcode:
+    return "bc";
+  case OutputKind::BitcodeArchive:
+    return ".bc.a";
+  }
+}
+
 int main(int argc, const char **argv, const char **envp) {
   sys::PrintStackTraceOnErrorSignal(argv[0]);
   PrettyStackTraceProgram X(argc, argv);
@@ -60,7 +71,7 @@ int main(int argc, const char **argv, const char **envp) {
   // Initialize output file, error early if unavailable
   if (OutputFilename.empty()) {
     if (StringRef(InputFilename) != "-")
-      OutputFilename = InputFilename + ".bc";
+      OutputFilename = InputFilename + getDefaultSuffix(EmitOutputKind);
   }
   std::unique_ptr<tool_output_file> Out;
   std::error_code EC;
@@ -72,26 +83,23 @@ int main(int argc, const char **argv, const char **envp) {
     return 1;
   }
 
-  // Load all bitcode files, need them for all operations.
-  std::vector<std::unique_ptr<Module>> Modules;
+
   SMDiagnostic Err;
-  for (auto &BCFilename : WLLVMFile->getBCFilenames()) {
-    auto M = parseIRFile(BCFilename, Err, C);
-    if (!M) {
-      Err.print(argv[0], errs());
-      return 1;
-    }
-    Modules.push_back(std::move(M));
-  }
 
   switch (EmitOutputKind) {
   case OutputKind::SingleBitcode: {
     // Create an empty module to link these into
     auto Composite = make_unique<Module>("linked", C);
     Linker L(*Composite);
-    for (auto &M : Modules)
+    for (auto &BCFilename : WLLVMFile->getBCFilenames()) {
+      auto M = parseIRFile(BCFilename, Err, C);
+      if (!M) {
+        Err.print(argv[0], errs());
+        return 1;
+      }
       if (L.linkInModule(std::move(M)))
         reportError(InputFilename, "error linking module");
+    }
 
     WriteBitcodeToFile(Composite.get(), Out->os());
     break;
