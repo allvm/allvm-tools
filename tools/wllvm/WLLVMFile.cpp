@@ -57,7 +57,14 @@ void WLLVMFile::parseWLLVMSection() {
   StringRef Contents;
   check(S.getContents(Contents));
 
-  auto Mem = MemoryBuffer::getMemBuffer(Contents);
+  // Make copy for editing, replace nulls with spaces
+
+  std::vector<char> MutableCopy{Contents.begin(), Contents.end()};
+  for (auto &c : MutableCopy)
+    if (!c) c = ' ';
+
+  auto Mem = MemoryBuffer::getMemBuffer(
+      StringRef(MutableCopy.data(), MutableCopy.size()));
   for (line_iterator I(*Mem, true), E; I != E; ++I) {
     assert(*I == I->trim() && "Unexpected whitespace");
 
