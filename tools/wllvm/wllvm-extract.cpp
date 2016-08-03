@@ -51,7 +51,7 @@ namespace {
 std::string getDefaultSuffix(OutputKind K) {
   switch (K) {
   case OutputKind::SingleBitcode:
-    return "bc";
+    return ".bc";
   case OutputKind::BitcodeArchive:
     return ".bc.a";
   }
