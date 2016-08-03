@@ -26,13 +26,25 @@
 using namespace allvm;
 using namespace llvm;
 
-static cl::opt<std::string>
-    InputFilename(cl::Positional, cl::Required,
-                  cl::desc("<input file built with wllvm>"));
+namespace {
+  enum class OutputKind { SingleBitcode, BitcodeArchive };
 
-static cl::opt<std::string>
-OutputFilename("o", cl::desc("Override output filename"),
-               cl::value_desc("filename"));
+  cl::opt<OutputKind> EmitOutputKind(
+      "output-kind", cl::desc("Choose output kind"),
+      cl::init(OutputKind::SingleBitcode),
+      cl::values(clEnumValN(OutputKind::SingleBitcode, "single-bc",
+                            "Single bitcode file"),
+                 clEnumValN(OutputKind::BitcodeArchive, "archive",
+                            "Archive of multiple bitcode files"),
+                 clEnumValEnd));
+
+  cl::opt<std::string> InputFilename(cl::Positional, cl::Required,
+                                     cl::desc("<input file built with wllvm>"));
+
+  cl::opt<std::string> OutputFilename("o", cl::desc("Override output filename"),
+                                      cl::value_desc("filename"));
+
+} // end anon namespace
 
 int main(int argc, const char **argv, const char **envp) {
   sys::PrintStackTraceOnErrorSignal(argv[0]);
@@ -60,22 +72,34 @@ int main(int argc, const char **argv, const char **envp) {
     return 1;
   }
 
-  // Create an empty module to link these into
-  auto Composite = make_unique<Module>("linked", C);
+  // Load all bitcode files, need them for all operations.
+  std::vector<std::unique_ptr<Module>> Modules;
   SMDiagnostic Err;
-  Linker L(*Composite);
   for (auto &BCFilename : WLLVMFile->getBCFilenames()) {
     auto M = parseIRFile(BCFilename, Err, C);
     if (!M) {
       Err.print(argv[0], errs());
       return 1;
     }
-
-    if (L.linkInModule(std::move(M)))
-      reportError(BCFilename, "error linking module");
+    Modules.push_back(std::move(M));
   }
 
-  WriteBitcodeToFile(Composite.get(), Out->os());
+  switch (EmitOutputKind) {
+  case OutputKind::SingleBitcode: {
+    // Create an empty module to link these into
+    auto Composite = make_unique<Module>("linked", C);
+    Linker L(*Composite);
+    for (auto &M : Modules)
+      if (L.linkInModule(std::move(M)))
+        reportError(InputFilename, "error linking module");
+
+    WriteBitcodeToFile(Composite.get(), Out->os());
+    break;
+  }
+  case OutputKind::BitcodeArchive:
+    reportError(InputFilename, "Not yet supported!");
+    break;
+  }
 
   // We made it this far without error, keep the result.
   Out->keep();
