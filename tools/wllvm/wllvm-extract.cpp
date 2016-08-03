@@ -68,26 +68,27 @@ int main(int argc, const char **argv, const char **envp) {
   // Open the specified file
   auto WLLVMFile = WLLVMFile::open(InputFilename);
 
-  // Initialize output file, error early if unavailable
+  // Figure out where we're writing...
   if (OutputFilename.empty()) {
     if (StringRef(InputFilename) != "-")
       OutputFilename = InputFilename + getDefaultSuffix(EmitOutputKind);
   }
-  std::unique_ptr<tool_output_file> Out;
-  std::error_code EC;
-  Out.reset(new tool_output_file(OutputFilename, EC, sys::fs::F_None));
-  if (EC) {
-    errs() << "Error opening file '" << OutputFilename << "': ";
-    errs() << EC.message() << "\n";
-    errs().flush();
-    return 1;
-  }
-
-
-  SMDiagnostic Err;
 
   switch (EmitOutputKind) {
   case OutputKind::SingleBitcode: {
+    SMDiagnostic Err;
+
+    // Initialize output file, error early if unavailable
+    std::unique_ptr<tool_output_file> Out;
+    std::error_code EC;
+    Out.reset(new tool_output_file(OutputFilename, EC, sys::fs::F_None));
+    if (EC) {
+      errs() << "Error opening file '" << OutputFilename << "': ";
+      errs() << EC.message() << "\n";
+      errs().flush();
+      return 1;
+    }
+
     // Create an empty module to link these into
     auto Composite = make_unique<Module>("linked", C);
     Linker L(*Composite);
@@ -98,19 +99,32 @@ int main(int argc, const char **argv, const char **envp) {
         return 1;
       }
       if (L.linkInModule(std::move(M)))
-        reportError(InputFilename, "error linking module");
+        reportError(BCFilename, "error linking module");
     }
 
     WriteBitcodeToFile(Composite.get(), Out->os());
-    break;
-  }
-  case OutputKind::BitcodeArchive:
-    reportError(InputFilename, "Not yet supported!");
-    break;
-  }
 
-  // We made it this far without error, keep the result.
-  Out->keep();
+    // We made it this far without error, keep the result.
+    Out->keep();
+    break;
+  }
+  case OutputKind::BitcodeArchive: {
+    std::vector<NewArchiveMember> Members;
+    for (auto &BCFilename : WLLVMFile->getBCFilenames()) {
+      auto Member =
+          NewArchiveMember::getFile(BCFilename, /* deterministic */ true);
+      if (!Member)
+        reportError(BCFilename, Member.takeError());
+      Members.push_back(std::move(*Member));
+    }
+    auto result = writeArchive(OutputFilename, Members, true /* writeSymTab */,
+                               Archive::K_GNU, true /* deterministic */,
+                               false /* thin */);
+    if (result.second)
+      reportError(result.first, result.second);
+    break;
+  }
+  }
 
   return 0;
 }
