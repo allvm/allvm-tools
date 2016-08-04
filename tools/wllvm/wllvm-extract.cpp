@@ -18,6 +18,7 @@
 #include <llvm/Linker/Linker.h>
 #include <llvm/Object/ArchiveWriter.h>
 #include <llvm/Support/CommandLine.h>
+#include <llvm/Support/Path.h>
 #include <llvm/Support/PrettyStackTrace.h>
 #include <llvm/Support/Signals.h>
 #include <llvm/Support/SourceMgr.h>
@@ -110,11 +111,19 @@ int main(int argc, const char **argv, const char **envp) {
   }
   case OutputKind::BitcodeArchive: {
     std::vector<NewArchiveMember> Members;
+    std::vector<std::unique_ptr<MemoryBuffer>> Buffers;
+    size_t unique_id = 0;
     for (auto &BCFilename : WLLVMFile->getBCFilenames()) {
       auto Member =
           NewArchiveMember::getFile(BCFilename, /* deterministic */ true);
       if (!Member)
         reportError(BCFilename, Member.takeError());
+
+      // Make copy of buffer so we can give it a name :(
+      Buffers.push_back(std::move(Member->Buf));
+      Member->Buf = MemoryBuffer::getMemBufferCopy(
+          Buffers.back()->getBuffer(),
+          Twine(unique_id++) + "-" + sys::path::filename(BCFilename));
       Members.push_back(std::move(*Member));
     }
     auto result = writeArchive(OutputFilename, Members, true /* writeSymTab */,
