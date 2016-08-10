@@ -47,6 +47,11 @@ namespace {
   cl::opt<std::string> OutputFilename("o", cl::desc("Override output filename"),
                                       cl::value_desc("filename"));
 
+  cl::opt<bool> InternalizeHidden(
+      "internalize-hidden",
+      cl::desc("Don't internalize hidden variables. Only for single bc."),
+      cl::init(true));
+
 } // end anon namespace
 
 std::string getDefaultSuffix(OutputKind K) {
@@ -56,6 +61,25 @@ std::string getDefaultSuffix(OutputKind K) {
   case OutputKind::BitcodeArchive:
     return ".bc.a";
   }
+}
+
+void internalizeHidden(GlobalValue &GV) {
+  if (GV.hasHiddenVisibility()) {
+    assert(!GV.hasLocalLinkage());
+
+    GV.setLinkage(GlobalValue::PrivateLinkage);
+    // Setting local linkage type should change visibility
+    assert(!GV.hasHiddenVisibility());
+  }
+}
+
+void internalizeHidden(Module *M) {
+  for (auto &Func : *M)
+    internalizeHidden(Func);
+  for (auto &Global : M->globals())
+    internalizeHidden(Global);
+  for (auto &Alias : M->aliases())
+    internalizeHidden(Alias);
 }
 
 int main(int argc, const char **argv, const char **envp) {
@@ -102,6 +126,9 @@ int main(int argc, const char **argv, const char **envp) {
       if (L.linkInModule(std::move(M)))
         reportError(BCFilename, "error linking module");
     }
+
+    if (InternalizeHidden)
+      internalizeHidden(Composite.get());
 
     WriteBitcodeToFile(Composite.get(), Out->os());
 
