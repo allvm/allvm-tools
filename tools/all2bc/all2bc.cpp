@@ -172,7 +172,7 @@ int main(int argc, const char **argv, const char **envp) {
     return 1;
   }
 
-  info("Successfully wrote to '" + OutputFilename + "'!");
+  info("Successfully wrote to '" + OutputFilename + "'!\n");
 
   return 0;
 }
