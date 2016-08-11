@@ -63,14 +63,36 @@ std::string getDefaultSuffix(OutputKind K) {
   }
 }
 
-void internalizeHidden(GlobalValue &GV) {
-  if (GV.hasHiddenVisibility() && !GV.hasComdat()) {
-    assert(!GV.hasLocalLinkage());
+bool internalizeHidden(GlobalValue &GV) {
+  if (!GV.hasHiddenVisibility())
+    return false;
 
-    GV.setLinkage(GlobalValue::PrivateLinkage);
-    // Setting local linkage type should change visibility
-    assert(!GV.hasHiddenVisibility());
-  }
+  // Don't mess with comdat globals,
+  // they're designed to handle being linked together.
+  if (GV.hasComdat())
+    return false;
+
+  // Don't internalize references to externally defined symbols
+  if (GV.isDeclaration())
+    return false;
+
+  // These are useful for opts, and should be dropped while linking.
+  if (GV.hasAvailableExternallyLinkage())
+    return false;
+
+  // Pretty sure weak-any will break things if we don't do something
+  // See FunctionImportUtils.cpp for some details.
+  // (it might make sense to try to leverage that work, part of ThinLTO)
+  assert(!GV.hasWeakAnyLinkage());
+
+  // Hopefully that's most of the things we'll run into,
+  // go ahead and convert this global to private (and non-hidden):
+  GV.setLinkage(GlobalValue::PrivateLinkage);
+
+  // (Setting local linkage type should change visibility)
+  assert(!GV.hasHiddenVisibility());
+
+  return true;
 }
 
 void internalizeHidden(Module *M) {
