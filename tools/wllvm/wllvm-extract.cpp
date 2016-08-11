@@ -64,7 +64,7 @@ std::string getDefaultSuffix(OutputKind K) {
 }
 
 void internalizeHidden(GlobalValue &GV) {
-  if (GV.hasHiddenVisibility()) {
+  if (GV.hasHiddenVisibility() && !GV.hasComdat()) {
     assert(!GV.hasLocalLinkage());
 
     GV.setLinkage(GlobalValue::PrivateLinkage);
