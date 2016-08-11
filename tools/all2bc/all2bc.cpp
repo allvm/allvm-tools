@@ -57,6 +57,19 @@ static cl::opt<bool>
 DisableOpt("disable-opt", cl::desc("Disable optimizations, only link"),
            cl::init(false));
 
+
+static cl::opt<bool>
+Quiet("quiet", cl::desc("Don't print informational messages"));
+static cl::alias
+QuietA("q", cl::desc("Alias for -quiet"), cl::aliasopt(Quiet));
+
+static inline void info(const Twine &Message) {
+  if (!Quiet) {
+    outs() << Message;
+    outs().flush();
+  }
+}
+
 int main(int argc, const char **argv, const char **envp) {
   sys::PrintStackTraceOnErrorSignal(argv[0]);
   PrettyStackTraceProgram X(argc, argv);
@@ -73,6 +86,10 @@ int main(int argc, const char **argv, const char **envp) {
     if (StringRef(InputFilename) != "-")
       OutputFilename = InputFilename + ".bc";
   }
+
+  info("Converting allexe to single bitcode\n");
+  info("  Input: " + InputFilename + "\n");
+  info("  Output: " + OutputFilename + "\n");
 
   LLVMContext Context;
 
@@ -110,7 +127,10 @@ int main(int argc, const char **argv, const char **envp) {
 
   // Extract modules and add to LTOCodeGen
   uint32_t crc;
+  info("Extracting and merging modules...\n");
   for (auto &bcEntry : bcFiles) {
+    info("  " + bcEntry + ":\n");
+    info("    Loading...");
     auto bitcode = (*exezip)->getEntry(bcEntry, &crc);
     if (!bitcode) {
       errs() << "Could not open " << InputFilename << ": ";
@@ -120,14 +140,19 @@ int main(int argc, const char **argv, const char **envp) {
     auto ErrOrMod =
         LTOModule::createFromBuffer(Context, bitcode->getBufferStart(),
                                     bitcode->getBufferSize(), Options, bcEntry);
+    info("Adding...");
     auto &LTOMod = *ErrOrMod;
     if (!CodeGen.addModule(LTOMod.get())) {
       errs() << "Error adding '" << bcEntry << "'\n";
       return 1;
     }
+    info("Success.\n");
   }
 
   if (!DisableOpt) {
+
+    info("Running optimizations...\n");
+
     // Run optimizations
     // (Misc flags we're expected to set, for now just do all the things)
     bool DisableVerify = false, DisableInline = false,
@@ -139,11 +164,15 @@ int main(int argc, const char **argv, const char **envp) {
     }
   }
 
+  info("Writing output...\n");
+
   // Save merged bitcode file
   if (!CodeGen.writeMergedModules(OutputFilename.c_str())) {
     errs() << "Error writing merged module\n";
     return 1;
   }
+
+  info("Successfully wrote to '" + OutputFilename + "'!");
 
   return 0;
 }
