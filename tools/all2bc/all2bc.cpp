@@ -53,6 +53,10 @@ static cl::opt<std::string>
 OutputFilename("o", cl::desc("Override output filename"),
                cl::value_desc("filename"));
 
+static cl::opt<bool>
+DisableOpt("disable-opt", cl::desc("Disable optimizations, only link"),
+           cl::init(false));
+
 int main(int argc, const char **argv, const char **envp) {
   sys::PrintStackTraceOnErrorSignal(argv[0]);
   PrettyStackTraceProgram X(argc, argv);
@@ -123,14 +127,16 @@ int main(int argc, const char **argv, const char **envp) {
     }
   }
 
-  // Run optimizations
-  // (Misc flags we're expected to set, for now just do all the things)
-  bool DisableVerify = false, DisableInline = false, DisableGVNLoadPRE = false,
-       DisableLTOVectorization = false;
-  if (!CodeGen.optimize(DisableVerify, DisableInline, DisableGVNLoadPRE,
-                        DisableLTOVectorization)) {
-    errs() << "error optimizing code!\n";
-    return 1;
+  if (!DisableOpt) {
+    // Run optimizations
+    // (Misc flags we're expected to set, for now just do all the things)
+    bool DisableVerify = false, DisableInline = false,
+         DisableGVNLoadPRE = false, DisableLTOVectorization = false;
+    if (!CodeGen.optimize(DisableVerify, DisableInline, DisableGVNLoadPRE,
+                          DisableLTOVectorization)) {
+      errs() << "error optimizing code!\n";
+      return 1;
+    }
   }
 
   // Save merged bitcode file
