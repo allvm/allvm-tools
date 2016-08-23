@@ -1,3 +1,0 @@
-BINARIES += all2bc
-all2bc_SOURCES += all2bc.cpp
-all2bc_LIBRARIES += archive-rw

@@ -1,0 +1,3 @@
+BINARIES += alltogether
+alltogether_SOURCES += alltogether.cpp
+alltogether_LIBRARIES += archive-rw

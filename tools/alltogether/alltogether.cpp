@@ -1,19 +1,19 @@
-//===-- all2bc.cpp --------------------------------------------------------===//
+//===-- alltogether.cpp ---------------------------------------------------===//
 //
 // Author: Will Dietz (WD), wdietz2@uiuc.edu
 //
 //===----------------------------------------------------------------------===//
 //
-// Build single bitcode file from an allexe.
+// Converts allexes into allexe's containing a single bitcode module.
 //
 //===----------------------------------------------------------------------===//
 
 #include "ZipArchive.h"
+#include "ZipWriter.h"
 
-#include "llvm/CodeGen/CommandFlags.h"
-#include "llvm/Support/ManagedStatic.h"
-#include "llvm/Support/TargetSelect.h"
+#include <llvm/ADT/SmallString.h>
 #include <llvm/Bitcode/ReaderWriter.h>
+#include <llvm/CodeGen/CommandFlags.h>
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Module.h>
 #include <llvm/IRReader/IRReader.h>
@@ -21,10 +21,13 @@
 #include <llvm/LTO/legacy/LTOModule.h>
 #include <llvm/Support/CommandLine.h>
 #include <llvm/Support/FileSystem.h>
+#include <llvm/Support/FileUtilities.h>
+#include <llvm/Support/ManagedStatic.h>
 #include <llvm/Support/Path.h>
 #include <llvm/Support/PrettyStackTrace.h>
 #include <llvm/Support/Signals.h>
 #include <llvm/Support/SourceMgr.h>
+#include <llvm/Support/TargetSelect.h>
 #include <llvm/Support/ToolOutputFile.h>
 #include <llvm/Support/raw_os_ostream.h>
 
@@ -83,11 +86,18 @@ int main(int argc, const char **argv, const char **envp) {
   InitializeAllAsmParsers();
 
   if (OutputFilename.empty()) {
-    if (StringRef(InputFilename) != "-")
-      OutputFilename = InputFilename + ".bc";
+    if (StringRef(InputFilename) != "-") {
+      SmallString<64> Output{StringRef(InputFilename)};
+      sys::path::replace_extension(Output, "merged.allexe");
+      OutputFilename = Output.str();
+    }
+  }
+  if (OutputFilename.empty()) {
+    errs() << "No output filename given!\n";
+    return 1;
   }
 
-  info("Converting allexe to single bitcode\n");
+  info("Combining referenced modules in allexe\n");
   info("  Input: " + InputFilename + "\n");
   info("  Output: " + OutputFilename + "\n");
 
@@ -164,11 +174,31 @@ int main(int argc, const char **argv, const char **envp) {
     }
   }
 
-  info("Writing output...\n");
+  info("Creating merged module...\n");
 
-  // Save merged bitcode file
-  if (!CodeGen.writeMergedModules(OutputFilename.c_str())) {
+  SmallString<32> TempBCPath;
+  if (auto ec = sys::fs::createTemporaryFile("allvm-merged", "bc", TempBCPath)) {
+    errs() << "Error creating temporary file\n";
+    return 1;
+  }
+  FileRemover Remover(TempBCPath);
+
+  // Save merged bitcode file to temporary path
+  // (Ideally we would just generate this in memory instead!)
+  if (!CodeGen.writeMergedModules(TempBCPath.c_str())) {
     errs() << "Error writing merged module\n";
+    return 1;
+  }
+
+  // Write the new allexe with the new merged module:
+  info("Writing output allexe...\n");
+  auto MergedOrErr = MemoryBuffer::getFile(TempBCPath);
+  if (!MergedOrErr) {
+    errs() << "Error loading merged module back!\n";
+    return 1;
+  }
+  if (!ZipWriter::writeToZip(std::move(*MergedOrErr), OutputFilename)) {
+    errs() << "Error writing output file '" << OutputFilename << "'!\n";
     return 1;
   }
 
