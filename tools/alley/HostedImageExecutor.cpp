@@ -11,7 +11,6 @@
 
 static const size_t INIT_STACK_MAX = 1024;
 
-static const void *dummy_ptr = nullptr;
 
 using namespace llvm;
 namespace allvm {
@@ -34,6 +33,18 @@ int ImageExecutor::runHostedBinary(const std::vector<std::string> &argv,
 
   // Add archive to the execution engine!
   EE->addArchive({std::move(AsArchive), std::move(Pair.second)});
+
+  // Use stack-allocated pointer here so that 32bits is enough
+  // to represent the distance between the address of
+  // this variable and the code we're running.
+  // Fixes 32bit relocations from libnone.a as built
+  // using older binutils/gcc although I'm not sure
+  // of the exact details -- I don't think it's a bug.
+  // Anyway we really should have direct control
+  // over memory layout ourselves instead these things work.
+  // (for example: Why is stack address closer?
+  //  this might be brittle across platforms)
+  void *dummy_ptr = nullptr;
 
   // FIXME: Resolve these properly instead of hardcoding to our dummy pointer
   EE->addGlobalMapping("__init_array_start", (uint64_t)&dummy_ptr);
