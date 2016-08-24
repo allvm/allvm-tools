@@ -54,7 +54,7 @@ namespace {
 
 } // end anon namespace
 
-std::string getDefaultSuffix(OutputKind K) {
+static std::string getDefaultSuffix(OutputKind K) {
   switch (K) {
   case OutputKind::SingleBitcode:
     return ".bc";
@@ -63,7 +63,7 @@ std::string getDefaultSuffix(OutputKind K) {
   }
 }
 
-bool internalizeHidden(GlobalValue &GV) {
+static bool internalizeHidden(GlobalValue &GV) {
   if (!GV.hasHiddenVisibility())
     return false;
 
@@ -95,7 +95,7 @@ bool internalizeHidden(GlobalValue &GV) {
   return true;
 }
 
-void internalizeHidden(Module *M) {
+static void internalizeHidden(Module *M) {
   for (auto &Func : *M)
     internalizeHidden(Func);
   for (auto &Global : M->globals())
