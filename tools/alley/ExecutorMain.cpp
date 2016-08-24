@@ -17,7 +17,7 @@
 using namespace allvm;
 using namespace llvm;
 
-std::string getDefaultLibNone() {
+static std::string getDefaultLibNone() {
   static int StaticSymbol;
   auto Executable = sys::fs::getMainExecutable("allvm_tool", &StaticSymbol);
   auto BinDir = sys::path::parent_path(Executable);
