@@ -9,9 +9,6 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-static const size_t INIT_STACK_MAX = 1024;
-
-
 using namespace llvm;
 namespace allvm {
 int ImageExecutor::runHostedBinary(const std::vector<std::string> &argv,
