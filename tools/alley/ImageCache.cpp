@@ -40,7 +40,7 @@ bool ImageCache::hasObjectFor(const Module *M) {
   ErrorOr<std::unique_ptr<MemoryBuffer>> IRObjectBuffer =
       MemoryBuffer::getFile(CacheName.c_str(), -1, false);
   // If the file isn't there, that's OK.
-  return (bool)IRObjectBuffer;
+  return !!IRObjectBuffer;
 }
 
 
