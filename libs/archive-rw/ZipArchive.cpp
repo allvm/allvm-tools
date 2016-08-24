@@ -23,8 +23,8 @@ ErrorOr<std::unique_ptr<ZipArchive>> ZipArchive::openForReading(
   }
   zip->archive = archive;
 
-  int num_files = zip_get_num_entries(archive, 0);
-  for (int i = 0; i < num_files; i++) {
+  auto num_files = zip_get_num_entries(archive, 0);
+  for (unsigned i = 0; i < num_files; i++) {
     zip_stat_t statinfo;
     zip_stat_index(archive, i, 0, &statinfo);
     zip->files.emplace_back(statinfo.name);
@@ -45,7 +45,7 @@ std::unique_ptr<MemoryBuffer> ZipArchive::getEntry(const Twine &entryName,
     return nullptr;
 
   // Find the size of the file entry, and make a new MemoryBuffer of that size.
-  int index = entry - files.begin();
+  size_t index = static_cast<size_t>(std::distance(files.begin(), entry));
   zip_stat_t statinfo;
   zip_stat_index(archive, index, 0, &statinfo);
   std::unique_ptr<MemoryBuffer> buf =
