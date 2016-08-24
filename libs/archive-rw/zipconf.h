@@ -1,5 +1,5 @@
-#ifndef _HAD_ZIPCONF_H
-#define _HAD_ZIPCONF_H
+#ifndef HAD_ZIPCONF_H
+#define HAD_ZIPCONF_H
 
 /*
    zipconf.h -- platform specific include file

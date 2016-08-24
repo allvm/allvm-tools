@@ -1,5 +1,5 @@
-#ifndef _HAD_ZIPWIN32_H
-#define _HAD_ZIPWIN32_H
+#ifndef HAD_ZIPWIN32_H
+#define HAD_ZIPWIN32_H
 
 /*
   zipwin32.h -- internal declarations for Windows.

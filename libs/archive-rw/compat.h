@@ -1,5 +1,5 @@
-#ifndef _HAD_LIBZIP_COMPAT_H
-#define _HAD_LIBZIP_COMPAT_H
+#ifndef HAD_LIBZIP_COMPAT_H
+#define HAD_LIBZIP_COMPAT_H
 
 /*
   compat.h -- compatibility defines.

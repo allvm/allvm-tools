@@ -1,5 +1,5 @@
-#ifndef _HAD_ZIPINT_H
-#define _HAD_ZIPINT_H
+#ifndef HAD_ZIPINT_H
+#define HAD_ZIPINT_H
 
 /*
   zipint.h -- internal declarations.
