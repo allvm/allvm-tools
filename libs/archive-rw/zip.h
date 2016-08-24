@@ -1,5 +1,5 @@
-#ifndef _HAD_ZIP_H
-#define _HAD_ZIP_H
+#ifndef HAD_ZIP_H
+#define HAD_ZIP_H
 
 /*
   zip.h -- exported declarations.
@@ -419,4 +419,4 @@ ZIP_EXTERN int zip_unchange_archive(zip_t *);
 }
 #endif
 
-#endif /* _HAD_ZIP_H */
+#endif /* HAD_ZIP_H */
