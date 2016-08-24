@@ -42,15 +42,16 @@ int ImageExecutor::runHostedBinary(const std::vector<std::string> &argv,
   // (for example: Why is stack address closer?
   //  this might be brittle across platforms)
   void *dummy_ptr = nullptr;
+  uint64_t dummy_addr = reinterpret_cast<uint64_t>(&dummy_ptr);
 
   // FIXME: Resolve these properly instead of hardcoding to our dummy pointer
-  EE->addGlobalMapping("__init_array_start", (uint64_t)&dummy_ptr);
-  EE->addGlobalMapping("__init_array_end", (uint64_t)&dummy_ptr);
-  EE->addGlobalMapping("__fini_array_start", (uint64_t)&dummy_ptr);
-  EE->addGlobalMapping("__fini_array_end", (uint64_t)&dummy_ptr);
+  EE->addGlobalMapping("__init_array_start", dummy_addr);
+  EE->addGlobalMapping("__init_array_end", dummy_addr);
+  EE->addGlobalMapping("__fini_array_start", dummy_addr);
+  EE->addGlobalMapping("__fini_array_end", dummy_addr);
 
   // TODO: Look into Orc's LocalCXXRuntimeOverrides for a better solution!
-  EE->addGlobalMapping("__dso_handle", (uint64_t)&dummy_ptr);
+  EE->addGlobalMapping("__dso_handle", dummy_addr);
 
   // Setup our stack for running the libc initialization code
   // This needs to actually be stack-allocated as musl code
@@ -65,12 +66,12 @@ int ImageExecutor::runHostedBinary(const std::vector<std::string> &argv,
   // See ExecutionEngine's ArgvArray for how to do this
   // using EE's memory interface if that becomes important.
   for (auto &arg : argv)
-    stack_init.push_back((uint64_t)arg.data());
+    stack_init.push_back(reinterpret_cast<uint64_t>(arg.data()));
   stack_init.push_back(0); // null-terminated list
 
   // Next comes the environment
   while (*envp)
-    stack_init.push_back((uint64_t)*envp++);
+    stack_init.push_back(reinterpret_cast<uint64_t>(*envp++));
   stack_init.push_back(0); // null-terminated list
 
   // Finally, the auxv stuff:
@@ -83,7 +84,7 @@ int ImageExecutor::runHostedBinary(const std::vector<std::string> &argv,
   addAuxv(AT_EUID, geteuid());
   addAuxv(AT_GID, getgid());
   addAuxv(AT_EGID, getegid());
-  addAuxv(AT_PAGESZ, (uint64_t)getpagesize());
+  addAuxv(AT_PAGESZ, static_cast<uint64_t>(getpagesize()));
   addAuxv(AT_SECURE, 0);
   addAuxv(AT_HWCAP, 0); // I guess?
   addAuxv(AT_RANDOM, 0); // pointer to 16 bytes of random :(
@@ -97,13 +98,13 @@ int ImageExecutor::runHostedBinary(const std::vector<std::string> &argv,
   // Move all this into a stack allocation:
   assert(stack_init.size() < INIT_STACK_MAX && "Too many vars!");
   size_t stack_size = stack_init.size() * sizeof(stack_init[0]);
-  uint64_t *stack = (uint64_t*)alloca(stack_size);
+  uint64_t *stack = static_cast<uint64_t*>(alloca(stack_size));
   memcpy(stack, stack_init.data(), stack_size);
   stack_init.clear();
 
-  char **argv_ptr = (char **)stack;
+  char **argv_ptr = reinterpret_cast<char **>(stack);
   assert(!argv.empty());
-  int argc = argv.size();
+  int argc = static_cast<int>(argv.size());
 
   auto StartAddr = EE->getFunctionAddress("__libc_start_main");
   auto MainAddr = EE->getFunctionAddress("main");
@@ -119,8 +120,8 @@ int ImageExecutor::runHostedBinary(const std::vector<std::string> &argv,
   EE->runStaticConstructorsDestructors(false);
 
   // Note: __libc_start_main() calls exit() so we don't really return
-  startty start = (startty)StartAddr;
-  return start((mainty)MainAddr, argc, argv_ptr);
+  startty start = reinterpret_cast<startty>(StartAddr);
+  return start(reinterpret_cast<mainty>(MainAddr), argc, argv_ptr);
 }
 
 } // end namespace allvm
