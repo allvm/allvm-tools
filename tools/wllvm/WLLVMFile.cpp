@@ -38,10 +38,10 @@ SectionRef WLLVMFile::getWLLVMSection() {
   if (!o->isELF())
     error("not an ELF object file");
   for (auto &S : o->sections()) {
-    StringRef Name;
-    check(S.getName(Name));
+    StringRef SecName;
+    check(S.getName(SecName));
 
-    if (Name == WLLVMSectionName) {
+    if (SecName == WLLVMSectionName) {
       if (S.getSize() == 0)
         error("WLLVM section found, but size was zero");
 

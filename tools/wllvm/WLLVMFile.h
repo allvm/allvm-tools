@@ -31,8 +31,8 @@ class WLLVMFile {
   std::vector<char> SectionData;
 
 public:
-  WLLVMFile(StringRef Name, OwningBinary<Binary> Binary)
-      : Name(Name), File(std::move(Binary)) {
+  WLLVMFile(StringRef _Name, OwningBinary<Binary> Binary)
+      : Name(_Name), File(std::move(Binary)) {
     parseWLLVMSection();
   }
   static std::unique_ptr<WLLVMFile> open(StringRef Input);
