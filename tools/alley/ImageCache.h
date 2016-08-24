@@ -9,13 +9,12 @@ namespace allvm {
 
 class ImageCache : public llvm::ObjectCache {
 public:
-  ~ImageCache() override{};
+  ~ImageCache() override {}
 
-  ImageCache(llvm::StringRef CacheDir) : CacheDir(CacheDir) {
+  ImageCache(llvm::StringRef _CacheDir) : CacheDir(_CacheDir) {
     // Add trailing '/' to cache dir if necessary.
-    if (!this->CacheDir.empty() &&
-        this->CacheDir[this->CacheDir.size() - 1] != '/')
-      this->CacheDir += '/';
+    if (!CacheDir.empty() && CacheDir[CacheDir.size() - 1] != '/')
+      CacheDir += '/';
   }
 
   void notifyObjectCompiled(const llvm::Module *M,
