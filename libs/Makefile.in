@@ -1,1 +1,1 @@
-DIRS += archive-rw none
+DIRS += archive-rw none allvm

@@ -4,7 +4,6 @@ LDFLAGS += -lz
 
 archive-rw_SOURCES += \
 	ZipArchive.cpp \
-	ZipWriter.cpp \
 	zip_source_file.c \
 	zip_add.c \
 	zip_add_dir.c \
