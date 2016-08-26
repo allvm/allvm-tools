@@ -7,6 +7,7 @@ namespace allvm {
 
 ZipArchive::~ZipArchive() {
   if (archive) {
+    // this writes changes that a user makes to a file
     zip_close(archive);
   }
 }
@@ -65,16 +66,32 @@ std::unique_ptr<MemoryBuffer> ZipArchive::getEntry(size_t index, uint32_t *crcOu
   return buf;
 }
 
+bool ZipArchive::updateEntry(size_t idx, std::unique_ptr<MemoryBuffer> entry, StringRef newEntryName)
+{
+  return writeBufferToEntry(idx, std::move(entry), newEntryName);
+}
+
 bool ZipArchive::addEntry(std::unique_ptr<MemoryBuffer> entry, StringRef entryName) {
-  auto *zipBuffer = zip_source_buffer(archive, entry->getBufferStart(),
-                                      entry->getBufferSize(), 0/*don't free*/);
+  files.push_back(entryName);
+  return writeBufferToEntry(-1, std::move(entry), entryName);
+}
+
+bool ZipArchive::writeBufferToEntry(ssize_t idx, std::unique_ptr<MemoryBuffer> buf, StringRef entryName)
+{
+  auto *zipBuffer = zip_source_buffer(archive, buf->getBufferStart(),
+                                      buf->getBufferSize(), 0/*don't free*/);
   if (!zipBuffer) return false;
 
-  buffers.emplace_back(std::move(entry));
-  files.push_back(entryName);
+  writeBuffers.emplace_back(std::move(buf));
 
-  bool ok =
-    zip_file_add(archive, entryName.data(), zipBuffer, ZIP_FL_ENC_UTF_8) >= 0;
+  bool ok;
+  if (idx >= 0) {
+    ok = zip_file_replace(archive, idx, zipBuffer, ZIP_FL_ENC_UTF_8) >= 0;
+    if (!entryName.empty())
+      ok = ok && zip_file_rename(archive, idx, entryName.data(), ZIP_FL_ENC_UTF_8);
+  } else {
+    ok = zip_file_add(archive, entryName.data(), zipBuffer, ZIP_FL_ENC_UTF_8) >= 0;
+  }
 
   return ok;
 }

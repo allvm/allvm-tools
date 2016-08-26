@@ -22,24 +22,30 @@ class Allexe {
   Allexe(std::unique_ptr<ZipArchive> zipArchive);
 
 public:
-  unsigned getNumModules() const;
+  size_t getNumModules() const;
 
-  std::unique_ptr<llvm::MemoryBuffer> getModuleBuffer(unsigned idx, uint32_t *crc=nullptr) { return archive->getEntry(idx, crc); }
+  std::unique_ptr<llvm::MemoryBuffer> getModuleBuffer(size_t idx,
+                                                      uint32_t *crc=nullptr) {
+    return archive->getEntry(idx, crc);
+  }
 
-  llvm::ErrorOr<std::unique_ptr<llvm::Module>> getModule(unsigned i, llvm::LLVMContext &, uint32_t *crc=nullptr);
+  llvm::ErrorOr<std::unique_ptr<llvm::Module>> getModule(size_t i,
+                                                         llvm::LLVMContext &,
+                                                         uint32_t *crc=nullptr,
+                                                         bool shouldLoadLazyMetaData=true);
 
-  llvm::StringRef getModuleName(unsigned idx) const;
+  llvm::StringRef getModuleName(size_t idx) const;
 
   /// add a module to this allexe
   bool addModule(std::unique_ptr<llvm::Module>,
-                 llvm::StringRef moduleName=llvm::StringRef());
+                 llvm::StringRef moduleName="");
 
   /// load a module from disk and add it to this allexe
   bool addModule(llvm::StringRef filename,
-                 llvm::StringRef moduleName=llvm::StringRef());
+                 llvm::StringRef moduleName="");
 
   /// update a module, return true if succeeds
-  bool updateModule(unsigned idx, std::unique_ptr<llvm::Module>);
+  bool updateModule(size_t idx, std::unique_ptr<llvm::Module>);
 
   /// open a allexe for reading and writign
   static llvm::ErrorOr<std::unique_ptr<Allexe>> open(llvm::StringRef, bool overwrite=false);

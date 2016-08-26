@@ -23,9 +23,13 @@ class ZipArchive final {
 
   // list of buffers to be compressed
   //
-  // libzib takes address of these buffers but and don't write
-  // the buffers until the archive is closed.
-  std::vector<std::unique_ptr<llvm::MemoryBuffer>> buffers;
+  // libzib doesn't write these buffers until the archive is closed.
+  std::vector<std::unique_ptr<llvm::MemoryBuffer>> writeBuffers;
+
+  // helper function to write `buf` to an archive entry
+  // if `idx` is negative, it will append the buf as a new entry
+  bool writeBufferToEntry(ssize_t idx, std::unique_ptr<llvm::MemoryBuffer> buf, llvm::StringRef);
+  
 
   ZipArchive() : archive(nullptr) {}
 
@@ -41,6 +45,9 @@ public:
   std::unique_ptr<llvm::MemoryBuffer> getEntry(size_t index,
                                                uint32_t *CrcOut = nullptr);
   llvm::ArrayRef<std::string> listFiles() const;
+
+  // update content of an entry, can optionally rename said entry
+  bool updateEntry(size_t idx, std::unique_ptr<llvm::MemoryBuffer> entry, llvm::StringRef newEntryName="");
 
   // append an entry in the archive
   bool addEntry(std::unique_ptr<llvm::MemoryBuffer> entry, llvm::StringRef entryName);

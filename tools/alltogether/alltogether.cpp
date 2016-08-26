@@ -45,6 +45,10 @@ std::string getDefaultLibNone() {
 
 static cl::opt<std::string> LibNone("libnone", cl::desc("Path of libnone.a"),
                                     cl::init(getDefaultLibNone()));
+
+static cl::opt<bool> Overwrite("f", cl::desc("overwrite existing alltogether'd file"),
+                               cl::init(false));
+
 const StringRef ALLEXE_MAIN = "main.bc";
 } // end namespace REFACTORME
 
@@ -190,7 +194,7 @@ int main(int argc, const char **argv, const char **envp) {
     return 1;
   }
 
-  auto alltogether = Allexe::open(OutputFilename, /* overwrite file if exists */true);
+  auto alltogether = Allexe::open(OutputFilename, Overwrite);
   if (!alltogether) {
     errs() << "Error creating new allexe file for merged module\n";
     return 1;
