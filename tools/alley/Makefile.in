@@ -3,4 +3,4 @@ alley_SOURCES += ExecutorMain.cpp \
 								 ImageExecutor.cpp \
 								 HostedImageExecutor.cpp \
 								 ImageCache.cpp
-alley_LIBRARIES += allvm
+alley_LIBRARIES += all

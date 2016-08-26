@@ -1,6 +1,0 @@
-LIBRARIES += allvm
-
-allvm_SOURCES += \
-	Allexe.cpp
-
-allvm_LIBRARIES += archive-rw
