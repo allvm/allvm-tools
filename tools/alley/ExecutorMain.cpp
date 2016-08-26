@@ -12,7 +12,7 @@
 
 #include "ImageCache.h" // For naming, TODO: better design
 #include "ImageExecutor.h"
-#include "ZipArchive.h"
+#include "Allexe.h"
 
 using namespace allvm;
 using namespace llvm;
@@ -44,21 +44,20 @@ int main(int argc, const char **argv, const char **envp) {
 
   LLVMContext context;
 
-  auto exezip = ZipArchive::openForReading(InputFilename);
-  if (!exezip) {
+  auto allexeOrError = Allexe::open(InputFilename);
+  if (!allexeOrError) {
     errs() << "Could not open " << InputFilename << ": ";
-    errs() << exezip.getError().message() << '\n';
+    errs() << allexeOrError.getError().message() << '\n';
     return 1;
   }
 
-  auto bcFiles = (*exezip)->listFiles();
-  if (bcFiles.empty()) {
+  auto &allexe = *allexeOrError.get();
+  if (allexe.getNumModules() == 0) {
     errs() << "allexe contained no files!\n";
     return 1;
   }
 
-  auto mainFile = bcFiles.front();
-  auto supportFiles = bcFiles.drop_front();
+  auto mainFile = allexe.getModuleName(0);
   if (mainFile != ALLEXE_MAIN) {
     errs() << "Could not open " << InputFilename << ": ";
     errs() << "First entry was '" << mainFile << "',";
@@ -66,30 +65,26 @@ int main(int argc, const char **argv, const char **envp) {
     return 1;
   }
 
-  auto LoadModule = [&](StringRef Entry) {
+  auto LoadModule = [&](unsigned idx) {
     uint32_t crc;
-    auto bitcode = (*exezip)->getEntry(Entry, &crc);
-    if (!bitcode) {
-      errs() << "Could not open " << InputFilename << ": " << Entry << "\n";
-      exit(1);
-    }
-    auto M = getLazyBitcodeModule(std::move(bitcode), context, /* lazy metadata */ true);
+    auto M = allexe.getModule(idx, context, &crc);
+    auto name = allexe.getModuleName(idx);
     if (!M) {
-      errs() << "Could not read " << InputFilename << ": " << Entry << "\n";
+      errs() << "Could not read " << InputFilename << ": " << name << "\n";
       // XXX: Do something with M's error
       exit(1);
     }
-    M.get()->setModuleIdentifier(ImageCache::generateName(Entry, crc));
+    M.get()->setModuleIdentifier(ImageCache::generateName(name, crc));
     return std::move(M.get());
   };
 
-  auto M = LoadModule(ALLEXE_MAIN);
-
-  auto executor = make_unique<ImageExecutor>(std::move(M));
+  // get main module
+  auto executor = make_unique<ImageExecutor>(LoadModule(0));
 
   // Add supporting libraries
-  for (auto &lib : supportFiles)
-    executor->addModule(LoadModule(lib));
+  for (unsigned i = 1, e = allexe.getNumModules(); i != e; ++i) {
+    executor->addModule(LoadModule(i));
+  }
 
   // Add name of file as argv[0]
   StringRef ProgName = InputFilename;

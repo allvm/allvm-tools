@@ -8,8 +8,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "ZipArchive.h"
-#include "ZipWriter.h"
+#include "Allexe.h"
 
 #include <llvm/ADT/SmallString.h>
 #include <llvm/Bitcode/ReaderWriter.h>
@@ -46,6 +45,10 @@ std::string getDefaultLibNone() {
 
 static cl::opt<std::string> LibNone("libnone", cl::desc("Path of libnone.a"),
                                     cl::init(getDefaultLibNone()));
+
+static cl::opt<bool> Overwrite("f", cl::desc("overwrite existing alltogether'd file"),
+                               cl::init(false));
+
 const StringRef ALLEXE_MAIN = "main.bc";
 } // end namespace REFACTORME
 
@@ -103,23 +106,23 @@ int main(int argc, const char **argv, const char **envp) {
 
   LLVMContext Context;
 
-  auto exezip = ZipArchive::openForReading(InputFilename);
-  if (!exezip) {
+  auto errOrExe = Allexe::open(InputFilename);
+  if (!errOrExe) {
     errs() << "Could not open " << InputFilename << ": ";
-    errs() << exezip.getError().message() << '\n';
+    errs() << errOrExe.getError().message() << '\n';
     return 1;
   }
 
-  auto bcFiles = (*exezip)->listFiles();
-  if (bcFiles.empty()) {
-    errs() << "allexe contained no files!\n";
+  auto &exe = *errOrExe.get();
+
+  if (exe.getNumModules() == 0) {
+    errs() << "allexe contained no modules!\n";
     return 1;
   }
 
-  auto mainFile = bcFiles.front();
-  if (mainFile != ALLEXE_MAIN) {
+  if (exe.getModuleName(0) != ALLEXE_MAIN) {
     errs() << "Could not open " << InputFilename << ": ";
-    errs() << "First entry was '" << mainFile << "',";
+    errs() << "First entry was '" << exe.getModuleName(0) << "',";
     errs() << " expected '" << ALLEXE_MAIN << "'\n";
     return 1;
   }
@@ -138,18 +141,19 @@ int main(int argc, const char **argv, const char **envp) {
   // Extract modules and add to LTOCodeGen
   uint32_t crc;
   info("Extracting and merging modules...\n");
-  for (auto &bcEntry : bcFiles) {
+  for (unsigned i = 0, e = exe.getNumModules(); i != e; ++i) {
+    auto bcEntry = exe.getModuleName(i);
     info("  " + bcEntry + ":\n");
     info("    Loading...");
-    auto bitcode = (*exezip)->getEntry(bcEntry, &crc);
+    auto bitcode = exe.getModuleBuffer(i);
     if (!bitcode) {
       errs() << "Could not open " << InputFilename << ": ";
       errs() << "error extracting '" << bcEntry << "'\n";
       return 1;
     }
     auto ErrOrMod =
-        LTOModule::createFromBuffer(Context, bitcode->getBufferStart(),
-                                    bitcode->getBufferSize(), Options, bcEntry);
+      LTOModule::createFromBuffer(Context, bitcode->getBufferStart(),
+                                  bitcode->getBufferSize(), Options, bcEntry);
     info("Adding...");
     auto &LTOMod = *ErrOrMod;
     if (!CodeGen.addModule(LTOMod.get())) {
@@ -190,15 +194,13 @@ int main(int argc, const char **argv, const char **envp) {
     return 1;
   }
 
-  // Write the new allexe with the new merged module:
-  info("Writing output allexe...\n");
-  auto MergedOrErr = MemoryBuffer::getFile(TempBCPath);
-  if (!MergedOrErr) {
-    errs() << "Error loading merged module back!\n";
+  auto alltogether = Allexe::open(OutputFilename, Overwrite);
+  if (!alltogether) {
+    errs() << "Error creating new allexe file for merged module\n";
     return 1;
   }
-  if (!ZipWriter::writeToZip(std::move(*MergedOrErr), OutputFilename)) {
-    errs() << "Error writing output file '" << OutputFilename << "'!\n";
+  if (!(*alltogether)->addModule(TempBCPath, "main.bc")) {
+    errs() << "Error writing merged module\n";
     return 1;
   }
 

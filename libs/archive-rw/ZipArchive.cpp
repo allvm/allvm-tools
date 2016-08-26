@@ -1,7 +1,5 @@
 #include "ZipArchive.h"
 
-#include <llvm/Support/MemoryBuffer.h>
-
 #include "zip.h"
 using namespace llvm;
 
@@ -9,15 +7,18 @@ namespace allvm {
 
 ZipArchive::~ZipArchive() {
   if (archive) {
-    zip_discard(archive);
+    // this writes changes that a user makes to a file
+    zip_close(archive);
   }
 }
 
-ErrorOr<std::unique_ptr<ZipArchive>> ZipArchive::openForReading(
-    const Twine &filename) {
+ErrorOr<std::unique_ptr<ZipArchive>> ZipArchive::open(
+    const Twine &filename, bool overwrite) {
   std::unique_ptr<ZipArchive> zip(new ZipArchive);
   int err;
-  zip_t *archive = zip_open(filename.str().c_str(), ZIP_RDONLY, &err);
+  int flags = ZIP_CREATE;
+  if (overwrite) flags |= ZIP_TRUNCATE;
+  zip_t *archive = zip_open(filename.str().c_str(), flags, &err);
   if (!archive) {
     return std::error_code{};
   }
@@ -44,12 +45,16 @@ std::unique_ptr<MemoryBuffer> ZipArchive::getEntry(const Twine &entryName,
   if (entry == files.end())
     return nullptr;
 
-  // Find the size of the file entry, and make a new MemoryBuffer of that size.
   size_t index = static_cast<size_t>(std::distance(files.begin(), entry));
+  return getEntry(index, crcOut);
+}
+
+std::unique_ptr<MemoryBuffer> ZipArchive::getEntry(size_t index, uint32_t *crcOut) {
+  // Find the size of the file entry, and make a new MemoryBuffer of that size.
   zip_stat_t statinfo;
   zip_stat_index(archive, index, 0, &statinfo);
   std::unique_ptr<MemoryBuffer> buf =
-    MemoryBuffer::getNewUninitMemBuffer(statinfo.size, entryName);
+    MemoryBuffer::getNewUninitMemBuffer(statinfo.size, files[index]);
 
   // Decompress the file into the buffer.
   zip_file_t *fd = zip_fopen_index(archive, index, 0);
@@ -61,5 +66,36 @@ std::unique_ptr<MemoryBuffer> ZipArchive::getEntry(const Twine &entryName,
   return buf;
 }
 
-ArrayRef<std::string> ZipArchive::listFiles() const { return files; }
+bool ZipArchive::updateEntry(size_t idx, std::unique_ptr<MemoryBuffer> entry, StringRef newEntryName)
+{
+  return writeBufferToEntry(idx, std::move(entry), newEntryName);
 }
+
+bool ZipArchive::addEntry(std::unique_ptr<MemoryBuffer> entry, StringRef entryName) {
+  files.push_back(entryName);
+  return writeBufferToEntry(-1, std::move(entry), entryName);
+}
+
+bool ZipArchive::writeBufferToEntry(ssize_t idx, std::unique_ptr<MemoryBuffer> buf, StringRef entryName)
+{
+  auto *zipBuffer = zip_source_buffer(archive, buf->getBufferStart(),
+                                      buf->getBufferSize(), 0/*don't free*/);
+  if (!zipBuffer) return false;
+
+  writeBuffers.emplace_back(std::move(buf));
+
+  bool ok;
+  if (idx >= 0) {
+    ok = zip_file_replace(archive, idx, zipBuffer, ZIP_FL_ENC_UTF_8) >= 0;
+    if (!entryName.empty())
+      ok = ok && zip_file_rename(archive, idx, entryName.data(), ZIP_FL_ENC_UTF_8);
+  } else {
+    ok = zip_file_add(archive, entryName.data(), zipBuffer, ZIP_FL_ENC_UTF_8) >= 0;
+  }
+
+  return ok;
+}
+
+ArrayRef<std::string> ZipArchive::listFiles() const { return files; }
+
+} // namespace allvm
