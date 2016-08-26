@@ -74,14 +74,14 @@ BUILT_BINARIES := $(patsubst %,prefix/bin/%,$(BINARIES))
 
 libs:: $(BUILT_LIBRARIES) $(BUILT_RTLIBRARIES) $(BUILT_BINARIES)
 
-all_cobjs :=
-all_cxxobjs :=
+all_the_cobjs :=
+all_the_cxxobjs :=
 
 define LinkLibrary
 csrcs := $(filter %.c,$($(1)_SOURCES))
 cxxsrcs := $(filter %.cpp,$($(1)_SOURCES))
-all_cobjs += $$(csrcs:%.c=%.o)
-all_cxxobjs += $$(cxxsrcs:%.cpp=%.o)
+all_the_cobjs += $$(csrcs:%.c=%.o)
+all_the_cxxobjs += $$(cxxsrcs:%.cpp=%.o)
 $(1)_objects := $$(csrcs:%.c=%.o) $$(cxxsrcs:%.cpp=%.o)
 $(1)_objects += $$(foreach l,$$($(1)_LIBRARIES),$$($$(l)_objects))
 prefix/lib/lib$(1).so: $$($(1)_objects) prefix/lib/.mkdir.done
@@ -94,8 +94,8 @@ endef
 define LinkRuntimeLibrary
 csrcs := $(filter %.c,$($(1)_SOURCES))
 cxxsrcs := $(filter %.cpp,$($(1)_SOURCES))
-all_cobjs += $$(csrcs:%.c=%.o)
-all_cxxobjs += $$(cxxsrcs:%.cpp=%.o)
+all_the_cobjs += $$(csrcs:%.c=%.o)
+all_the_cxxobjs += $$(cxxsrcs:%.cpp=%.o)
 $(1)_objects := $$(csrcs:%.c=%.o) $$(cxxsrcs:%.cpp=%.o)
 $(1)_objects += $$(foreach l,$$($(1)_LIBRARIES),$$($$(l)_objects))
 prefix/lib/lib$(1).a: $$($(1)_objects) prefix/lib/.mkdir.done
@@ -109,8 +109,8 @@ llvmlibdir := $(shell $(LLVMCONFIG) --libdir)
 define LinkBinary
 csrcs := $(filter %.c,$($(1)_SOURCES))
 cxxsrcs := $(filter %.cpp,$($(1)_SOURCES))
-all_cobjs += $$(csrcs:%.c=%.o)
-all_cxxobjs += $$(cxxsrcs:%.cpp=%.o)
+all_the_cobjs += $$(csrcs:%.c=%.o)
+all_the_cxxobjs += $$(cxxsrcs:%.cpp=%.o)
 $(1)_objects := $$(csrcs:%.c=%.o) $$(cxxsrcs:%.cpp=%.o)
 $(1)_objects += $$(foreach l,$$($(1)_LIBRARIES),$$($$(l)_objects))
 prefix/bin/$(1): $$($(1)_objects) prefix/bin/.mkdir.done
@@ -131,19 +131,19 @@ $(foreach lib,$(LIBRARIES),$(eval $(call LinkLibrary,$(lib))))
 $(foreach lib,$(RTLIBRARIES),$(eval $(call LinkRuntimeLibrary,$(lib))))
 $(foreach bin,$(BINARIES),$(eval $(call LinkBinary,$(bin))))
 
-all_cobjs := $(sort $(all_cobjs))
-all_cxxobjs := $(sort $(all_cxxobjs))
-all_objects := $(sort $(all_cobjs) $(all_cxxobjs))
+all_the_cobjs := $(sort $(all_the_cobjs))
+all_the_cxxobjs := $(sort $(all_the_cxxobjs))
+all_the_objects := $(sort $(all_the_cobjs) $(all_the_cxxobjs))
 
--include $(patsubst %,.deps/%.pp,$(notdir $(all_objects)))
+-include $(patsubst %,.deps/%.pp,$(notdir $(all_the_objects)))
 
 ################################################################################
 # Auxiliary rules
 
-$(all_cxxobjs): %.o: $(topsrcdir)/%.cpp .deps/.mkdir.done
+$(all_the_cxxobjs): %.o: $(topsrcdir)/%.cpp .deps/.mkdir.done
 	$(CXX) -o $@ -c $(CXXFLAGS) $(LAZY_CXXFLAGS) $(abspath $<)
 
-$(all_cobjs): %.o: $(topsrcdir)/%.c .deps/.mkdir.done
+$(all_the_cobjs): %.o: $(topsrcdir)/%.c .deps/.mkdir.done
 	$(CC) -o $@ -c $(CFLAGS) $(LAZY_CXXFLAGS) $(abspath $<)
 
 %/.mkdir.done:
