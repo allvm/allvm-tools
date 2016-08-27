@@ -88,14 +88,13 @@ bool ZipArchive::writeBufferToEntry(ssize_t idx,
   writeBuffers.emplace_back(std::move(buf));
 
   bool ok;
+  const auto encoding = ZIP_FL_ENC_UTF_8;
   if (idx >= 0) {
-    ok = zip_file_replace(archive, idx, zipBuffer, ZIP_FL_ENC_UTF_8) >= 0;
+    ok = zip_file_replace(archive, idx, zipBuffer, encoding) >= 0;
     if (!entryName.empty())
-      ok = ok &&
-           zip_file_rename(archive, idx, entryName.data(), ZIP_FL_ENC_UTF_8);
+      ok = ok && zip_file_rename(archive, idx, entryName.data(), encoding);
   } else {
-    ok = zip_file_add(archive, entryName.data(), zipBuffer, ZIP_FL_ENC_UTF_8) >=
-         0;
+    ok = zip_file_add(archive, entryName.data(), zipBuffer, encoding) >= 0;
   }
 
   return ok;
