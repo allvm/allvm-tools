@@ -1,32 +1,29 @@
+#include "Allexe.h"
 #include <llvm/ADT/Twine.h>
+#include <llvm/Bitcode/ReaderWriter.h>
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Module.h>
-#include <llvm/Bitcode/ReaderWriter.h>
 #include <llvm/Support/raw_ostream.h>
-#include "Allexe.h"
 
 using namespace allvm;
 using namespace llvm;
 
 const StringRef ALLEXE_MAIN = "main.bc";
 
-static std::unique_ptr<MemoryBuffer> moduleToBuffer(const Module *M)
-{
+static std::unique_ptr<MemoryBuffer> moduleToBuffer(const Module *M) {
   std::string X;
   raw_string_ostream OS(X);
-  WriteBitcodeToFile(M, OS); 
+  WriteBitcodeToFile(M, OS);
   return MemoryBuffer::getMemBufferCopy(OS.str());
 }
 
 Allexe::Allexe(std::unique_ptr<ZipArchive> zipArchive)
-  : archive(std::move(zipArchive)) {
-}
+    : archive(std::move(zipArchive)) {}
 
-size_t Allexe::getNumModules() const {
-  return archive->listFiles().size();
-}
+size_t Allexe::getNumModules() const { return archive->listFiles().size(); }
 
-ErrorOr<std::unique_ptr<Allexe>> Allexe::open(StringRef filename, bool overwrite) {
+ErrorOr<std::unique_ptr<Allexe>> Allexe::open(StringRef filename,
+                                              bool overwrite) {
   auto archive = ZipArchive::open(filename, overwrite);
   if (!archive) {
     return std::error_code{};
@@ -34,8 +31,9 @@ ErrorOr<std::unique_ptr<Allexe>> Allexe::open(StringRef filename, bool overwrite
   return std::unique_ptr<Allexe>(new Allexe(std::move(*archive)));
 }
 
-ErrorOr<std::unique_ptr<Module>> Allexe::getModule(size_t idx, LLVMContext &ctx,
-                                                   uint32_t *crc, bool shouldLoadLazyMetaData) {
+ErrorOr<std::unique_ptr<Module>>
+Allexe::getModule(size_t idx, LLVMContext &ctx, uint32_t *crc,
+                  bool shouldLoadLazyMetaData) {
   assert(idx < getNumModules() && "invalid module idx");
   auto bitcode = archive->getEntry(idx, crc);
   return getLazyBitcodeModule(std::move(bitcode), ctx, shouldLoadLazyMetaData);

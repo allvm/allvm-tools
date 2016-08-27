@@ -14,7 +14,7 @@ using namespace llvm;
 namespace allvm {
 
 ImageExecutor::ImageExecutor(std::unique_ptr<Module> &&module, bool UseCache)
-: M(module.get()) {
+    : M(module.get()) {
   EngineBuilder builder(std::move(module));
   builder.setEngineKind(EngineKind::JIT);
   std::string error;
@@ -25,7 +25,7 @@ ImageExecutor::ImageExecutor(std::unique_ptr<Module> &&module, bool UseCache)
     exit(1);
   }
 
-  SmallString <20> CacheDir;
+  SmallString<20> CacheDir;
   if (!sys::path::user_cache_directory(CacheDir, "allvm", "objects"))
     CacheDir = "allvm-cache";
 
@@ -40,7 +40,7 @@ ImageExecutor::ImageExecutor(std::unique_ptr<Module> &&module, bool UseCache)
 ImageExecutor::~ImageExecutor() {}
 
 int ImageExecutor::runBinary(const std::vector<std::string> &argv,
-    const char **envp) {
+                             const char **envp) {
   Function *main = M->getFunction("main");
   EE->finalizeObject();
   EE->runStaticConstructorsDestructors(false);

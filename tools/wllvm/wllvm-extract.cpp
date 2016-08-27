@@ -29,28 +29,28 @@ using namespace allvm;
 using namespace llvm;
 
 namespace {
-  // TODO: Emit "ALLEXE"/"ALLSO" format (zip)?
-  enum class OutputKind { SingleBitcode, BitcodeArchive };
+// TODO: Emit "ALLEXE"/"ALLSO" format (zip)?
+enum class OutputKind { SingleBitcode, BitcodeArchive };
 
-  cl::opt<OutputKind> EmitOutputKind(
-      "output-kind", cl::desc("Choose output kind"),
-      cl::init(OutputKind::SingleBitcode),
-      cl::values(clEnumValN(OutputKind::SingleBitcode, "single-bc",
-                            "Single bitcode file"),
-                 clEnumValN(OutputKind::BitcodeArchive, "archive",
-                            "Archive of multiple bitcode files"),
-                 clEnumValEnd));
+cl::opt<OutputKind>
+    EmitOutputKind("output-kind", cl::desc("Choose output kind"),
+                   cl::init(OutputKind::SingleBitcode),
+                   cl::values(clEnumValN(OutputKind::SingleBitcode, "single-bc",
+                                         "Single bitcode file"),
+                              clEnumValN(OutputKind::BitcodeArchive, "archive",
+                                         "Archive of multiple bitcode files"),
+                              clEnumValEnd));
 
-  cl::opt<std::string> InputFilename(cl::Positional, cl::Required,
-                                     cl::desc("<input file built with wllvm>"));
+cl::opt<std::string> InputFilename(cl::Positional, cl::Required,
+                                   cl::desc("<input file built with wllvm>"));
 
-  cl::opt<std::string> OutputFilename("o", cl::desc("Override output filename"),
-                                      cl::value_desc("filename"));
+cl::opt<std::string> OutputFilename("o", cl::desc("Override output filename"),
+                                    cl::value_desc("filename"));
 
-  cl::opt<bool> InternalizeHidden(
-      "internalize-hidden",
-      cl::desc("Don't internalize hidden variables. Only for single bc."),
-      cl::init(true));
+cl::opt<bool> InternalizeHidden(
+    "internalize-hidden",
+    cl::desc("Don't internalize hidden variables. Only for single bc."),
+    cl::init(true));
 
 } // end anon namespace
 

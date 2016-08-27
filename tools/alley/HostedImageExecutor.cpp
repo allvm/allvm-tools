@@ -11,7 +11,6 @@
 
 static const size_t INIT_STACK_MAX = 1024;
 
-
 using namespace llvm;
 namespace allvm {
 int ImageExecutor::runHostedBinary(const std::vector<std::string> &argv,
@@ -89,7 +88,7 @@ int ImageExecutor::runHostedBinary(const std::vector<std::string> &argv,
   addAuxv(AT_EGID, getegid());
   addAuxv(AT_PAGESZ, static_cast<uint64_t>(getpagesize()));
   addAuxv(AT_SECURE, 0);
-  addAuxv(AT_HWCAP, 0); // I guess?
+  addAuxv(AT_HWCAP, 0);  // I guess?
   addAuxv(AT_RANDOM, 0); // pointer to 16 bytes of random :(
   // Others we might want:
   // * AT_BASE/AT_PHDR/related
@@ -101,7 +100,7 @@ int ImageExecutor::runHostedBinary(const std::vector<std::string> &argv,
   // Move all this into a stack allocation:
   assert(stack_init.size() < INIT_STACK_MAX && "Too many vars!");
   size_t stack_size = stack_init.size() * sizeof(stack_init[0]);
-  uint64_t *stack = static_cast<uint64_t*>(alloca(stack_size));
+  uint64_t *stack = static_cast<uint64_t *>(alloca(stack_size));
   memcpy(stack, stack_init.data(), stack_size);
   stack_init.clear();
 
@@ -116,7 +115,7 @@ int ImageExecutor::runHostedBinary(const std::vector<std::string> &argv,
 
   EE->finalizeObject();
 
-  typedef int (*mainty)(int, char**, char**);
+  typedef int (*mainty)(int, char **, char **);
   typedef int (*startty)(mainty, int, char **);
 
   // TODO: Run static constructors, but AFTER initializing libc components...

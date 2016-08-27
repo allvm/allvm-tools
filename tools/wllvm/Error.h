@@ -27,8 +27,7 @@ static void inline reportError(Twine Msg) {
 }
 
 LLVM_ATTRIBUTE_NORETURN
-static void inline reportError(StringRef Input,
-                                                       std::error_code EC) {
+static void inline reportError(StringRef Input, std::error_code EC) {
   if (Input == "-")
     Input = "<stdin>";
 
@@ -36,8 +35,7 @@ static void inline reportError(StringRef Input,
 }
 
 LLVM_ATTRIBUTE_NORETURN
-static void inline reportError(StringRef Input,
-                                                       StringRef Message) {
+static void inline reportError(StringRef Input, StringRef Message) {
   if (Input == "-")
     Input = "<stdin>";
 
@@ -57,7 +55,5 @@ static void inline reportError(StringRef Input, Error Err) {
 }
 
 } // end namespace allvm
-
-
 
 #endif // ALLVM_Error_h

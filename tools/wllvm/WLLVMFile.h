@@ -39,9 +39,7 @@ public:
 
   SectionRef getWLLVMSection();
 
-  ArrayRef<StringRef> getBCFilenames() const {
-    return BCEntries;
-  }
+  ArrayRef<StringRef> getBCFilenames() const { return BCEntries; }
 
 private:
   void parseWLLVMSection();
@@ -53,6 +51,5 @@ private:
 };
 
 } // end namespace allvm
-
 
 #endif // ALLVM_WLLVMFile_h

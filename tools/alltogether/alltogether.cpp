@@ -33,7 +33,6 @@
 using namespace allvm;
 using namespace llvm;
 
-
 namespace {
 // TODO: Refactor everything in this ns to a common location!
 std::string getDefaultLibNone() {
@@ -46,8 +45,9 @@ std::string getDefaultLibNone() {
 static cl::opt<std::string> LibNone("libnone", cl::desc("Path of libnone.a"),
                                     cl::init(getDefaultLibNone()));
 
-static cl::opt<bool> Overwrite("f", cl::desc("overwrite existing alltogether'd file"),
-                               cl::init(false));
+static cl::opt<bool>
+    Overwrite("f", cl::desc("overwrite existing alltogether'd file"),
+              cl::init(false));
 
 const StringRef ALLEXE_MAIN = "main.bc";
 } // end namespace REFACTORME
@@ -55,19 +55,17 @@ const StringRef ALLEXE_MAIN = "main.bc";
 static cl::opt<std::string> InputFilename(cl::Positional, cl::Required,
                                           cl::desc("<input allvm file>"));
 
-static cl::opt<std::string>
-OutputFilename("o", cl::desc("Override output filename"),
-               cl::value_desc("filename"));
+static cl::opt<std::string> OutputFilename("o",
+                                           cl::desc("Override output filename"),
+                                           cl::value_desc("filename"));
 
-static cl::opt<bool>
-DisableOpt("disable-opt", cl::desc("Disable optimizations, only link"),
-           cl::init(false));
+static cl::opt<bool> DisableOpt("disable-opt",
+                                cl::desc("Disable optimizations, only link"),
+                                cl::init(false));
 
-
-static cl::opt<bool>
-Quiet("quiet", cl::desc("Don't print informational messages"));
-static cl::alias
-QuietA("q", cl::desc("Alias for -quiet"), cl::aliasopt(Quiet));
+static cl::opt<bool> Quiet("quiet",
+                           cl::desc("Don't print informational messages"));
+static cl::alias QuietA("q", cl::desc("Alias for -quiet"), cl::aliasopt(Quiet));
 
 static inline void info(const Twine &Message) {
   if (!Quiet) {
@@ -152,8 +150,8 @@ int main(int argc, const char **argv, const char **envp) {
       return 1;
     }
     auto ErrOrMod =
-      LTOModule::createFromBuffer(Context, bitcode->getBufferStart(),
-                                  bitcode->getBufferSize(), Options, bcEntry);
+        LTOModule::createFromBuffer(Context, bitcode->getBufferStart(),
+                                    bitcode->getBufferSize(), Options, bcEntry);
     info("Adding...");
     auto &LTOMod = *ErrOrMod;
     if (!CodeGen.addModule(LTOMod.get())) {
@@ -181,7 +179,8 @@ int main(int argc, const char **argv, const char **envp) {
   info("Creating merged module...\n");
 
   SmallString<32> TempBCPath;
-  if (auto ec = sys::fs::createTemporaryFile("allvm-merged", "bc", TempBCPath)) {
+  if (auto ec =
+          sys::fs::createTemporaryFile("allvm-merged", "bc", TempBCPath)) {
     errs() << "Error creating temporary file\n";
     return 1;
   }

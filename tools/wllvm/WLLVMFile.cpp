@@ -61,7 +61,8 @@ void WLLVMFile::parseWLLVMSection() {
   SectionData.assign(Contents.begin(), Contents.end());
 
   for (auto &c : SectionData)
-    if (!c) c = ' ';
+    if (!c)
+      c = ' ';
 
   // Must be null-terminated for line_iterator
   SectionData.push_back(0);

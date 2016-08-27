@@ -11,8 +11,7 @@ using namespace llvm;
 
 namespace allvm {
 
-void ImageCache::notifyObjectCompiled(const Module *M,
-                                      MemoryBufferRef Obj) {
+void ImageCache::notifyObjectCompiled(const Module *M, MemoryBufferRef Obj) {
   const std::string &ModuleID = M->getModuleIdentifier();
   std::string CacheName;
   if (!getCacheFilename(ModuleID, CacheName))
@@ -42,7 +41,6 @@ bool ImageCache::hasObjectFor(const Module *M) {
   // If the file isn't there, that's OK.
   return !!IRObjectBuffer;
 }
-
 
 std::unique_ptr<MemoryBuffer> ImageCache::getObject(StringRef Name) {
   std::string CacheName;

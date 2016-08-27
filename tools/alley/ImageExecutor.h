@@ -20,6 +20,7 @@ class ImageExecutor final {
   llvm::Module *M;
   std::unique_ptr<llvm::ExecutionEngine> EE;
   std::unique_ptr<ImageCache> Cache;
+
 public:
   ImageExecutor(std::unique_ptr<llvm::Module> &&mainModule,
                 bool UseCache = true);
@@ -30,7 +31,6 @@ public:
   int runHostedBinary(const std::vector<std::string> &argv, const char **envp,
                       llvm::StringRef LibNone);
 };
-
 }
 
 #endif

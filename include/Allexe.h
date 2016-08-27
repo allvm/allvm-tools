@@ -3,8 +3,8 @@
 
 #include "llvm/Support/ErrorOr.h"
 #include <memory>
-#include <vector>
 #include <string>
+#include <vector>
 
 #include "ZipArchive.h"
 
@@ -25,30 +25,29 @@ public:
   size_t getNumModules() const;
 
   std::unique_ptr<llvm::MemoryBuffer> getModuleBuffer(size_t idx,
-                                                      uint32_t *crc=nullptr) {
+                                                      uint32_t *crc = nullptr) {
     return archive->getEntry(idx, crc);
   }
 
-  llvm::ErrorOr<std::unique_ptr<llvm::Module>> getModule(size_t i,
-                                                         llvm::LLVMContext &,
-                                                         uint32_t *crc=nullptr,
-                                                         bool shouldLoadLazyMetaData=true);
+  llvm::ErrorOr<std::unique_ptr<llvm::Module>>
+  getModule(size_t i, llvm::LLVMContext &, uint32_t *crc = nullptr,
+            bool shouldLoadLazyMetaData = true);
 
   llvm::StringRef getModuleName(size_t idx) const;
 
   /// add a module to this allexe
   bool addModule(std::unique_ptr<llvm::Module>,
-                 llvm::StringRef moduleName="");
+                 llvm::StringRef moduleName = "");
 
   /// load a module from disk and add it to this allexe
-  bool addModule(llvm::StringRef filename,
-                 llvm::StringRef moduleName="");
+  bool addModule(llvm::StringRef filename, llvm::StringRef moduleName = "");
 
   /// update a module, return true if succeeds
   bool updateModule(size_t idx, std::unique_ptr<llvm::Module>);
 
   /// open a allexe for reading and writign
-  static llvm::ErrorOr<std::unique_ptr<Allexe>> open(llvm::StringRef, bool overwrite=false);
+  static llvm::ErrorOr<std::unique_ptr<Allexe>> open(llvm::StringRef,
+                                                     bool overwrite = false);
 };
 }
 
