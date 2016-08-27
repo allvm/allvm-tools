@@ -1,3 +1,7 @@
+#include "Allexe.h"
+#include "ImageCache.h" // For naming, TODO: better design
+#include "ImageExecutor.h"
+
 #include <llvm/Bitcode/ReaderWriter.h>
 #include <llvm/ExecutionEngine/MCJIT.h>
 #include <llvm/IR/LLVMContext.h>
@@ -9,10 +13,6 @@
 #include <llvm/Support/SourceMgr.h>
 #include <llvm/Support/TargetSelect.h>
 #include <llvm/Support/raw_os_ostream.h>
-
-#include "Allexe.h"
-#include "ImageCache.h" // For naming, TODO: better design
-#include "ImageExecutor.h"
 
 using namespace allvm;
 using namespace llvm;

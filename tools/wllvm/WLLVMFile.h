@@ -11,11 +11,11 @@
 #ifndef ALLVM_WLLVMFile_h
 #define ALLVM_WLLVMFile_h
 
+#include "Error.h"
+
 #include <llvm/ADT/ArrayRef.h>
 #include <llvm/Object/Binary.h>
 #include <llvm/Object/ObjectFile.h>
-
-#include "Error.h"
 
 namespace allvm {
 
