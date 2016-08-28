@@ -31,7 +31,7 @@ ready to go:
 $ nix-shell '<allvm>' -A allvm-tools
 [nix-shell:~/allvm-tools]$ # easy as that
 ```
-This shell is `impure` and retains elements of your normal shell,
+This shell is 'impure' and retains elements of your normal shell,
 which usually is a good mix (so your editor/etc are still available).
 
 If this causes problems, you can request a more pure shell
