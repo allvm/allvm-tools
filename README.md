@@ -43,8 +43,8 @@ as you would normally:
 
 ```console
 [nix-shell:~/allvm-tools]$ mkdir build && cd build
-[nix-shell:~/allvm-tools]$ ../configure --enable-optimized
-[nix-shell:~/allvm-tools]$ make -j
+[nix-shell:~/allvm-tools/build]$ ../configure --enable-optimized
+[nix-shell:~/allvm-tools/build]$ make -j
 ```
 
 
