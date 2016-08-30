@@ -14,6 +14,12 @@
 #include <llvm/Support/TargetSelect.h>
 #include <llvm/Support/raw_os_ostream.h>
 
+// For testing: static code generation.
+#include "StaticCodeGen.h"
+#include "llvm/Support/ToolOutputFile.h"
+#include "llvm/Support/PrettyStackTrace.h"
+#include "llvm/Support/Signals.h"
+
 using namespace allvm;
 using namespace llvm;
 
@@ -36,6 +42,10 @@ static cl::list<std::string> InputArgv(cl::ConsumeAfter,
 const StringRef ALLEXE_MAIN = "main.bc";
 
 int main(int argc, const char **argv, const char **envp) {
+  sys::PrintStackTraceOnErrorSignal(argv[0]);
+  PrettyStackTraceProgram X(argc, argv);
+  EnableDebugBuffering = true;
+
   // Link in necessary libraries
   InitializeNativeTarget();
   InitializeNativeTargetAsmPrinter();
@@ -55,6 +65,23 @@ int main(int argc, const char **argv, const char **envp) {
   if (allexe.getNumModules() == 0) {
     errs() << "allexe contained no files!\n";
     return 1;
+  }
+
+  // For testing: static code generation.
+  if (allexe.getNumModules() == 1) {
+    // Open an output file.
+    std::string OutputFilename = "a.out";
+    std::error_code EC;
+    sys::fs::OpenFlags OpenFlags = sys::fs::F_None;
+    auto FDOut =
+      llvm::make_unique<tool_output_file>(OutputFilename, EC, OpenFlags);
+    if (EC) {
+      errs() << EC.message() << '\n';
+      return 1;
+    }
+    // Do static code generation.
+    compileAllexeWithLlcDefaults(allexe, FDOut->os(), context);
+    FDOut->keep();
   }
 
   auto mainFile = allexe.getModuleName(0);
