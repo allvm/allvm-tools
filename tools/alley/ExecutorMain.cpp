@@ -85,7 +85,6 @@ int main(int argc, const char **argv, const char **envp) {
 int execWithJITCompilation(allvm::Allexe &allexe, const char **envp) {
 
   auto mainFile = allexe.getModuleName(0);
-  LLVMContext context;
 
   if (mainFile != ALLEXE_MAIN) {
     errs() << "Could not open " << InputFilename << ": ";
@@ -94,6 +93,7 @@ int execWithJITCompilation(allvm::Allexe &allexe, const char **envp) {
     return 1;
   }
 
+  LLVMContext context;
   auto LoadModule = [&](unsigned idx) {
     uint32_t crc;
     auto M = allexe.getModule(idx, context, &crc);
@@ -142,7 +142,6 @@ execWithStaticCompilation(allvm::Allexe &allexe, const char **envp) {
 
   assert(allexe.getNumModules() == 1 && "The input must be an allexe with a single module");
   auto mainFile = allexe.getModuleName(0);
-  LLVMContext context;
 
   if (mainFile != ALLEXE_MAIN) {
     errs() << "Could not open " << InputFilename << ": ";
@@ -151,6 +150,7 @@ execWithStaticCompilation(allvm::Allexe &allexe, const char **envp) {
     return 1;
   }
 
+  LLVMContext context;
   //Setting up hash key as the Module identifier
   uint32_t crc;
   auto M = allexe.getModule(0, context, &crc);
