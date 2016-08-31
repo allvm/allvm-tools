@@ -20,8 +20,8 @@
 using namespace allvm;
 using namespace llvm;
 
-int staticCodeGen(allvm::Allexe&, const char **);
-int dynamicCodeGen(allvm::Allexe&, const char **) ;
+int execWithStaticCompilation(allvm::Allexe&, const char **);
+int execWithJITCompilation(allvm::Allexe&, const char **) ;
 void initializeImageCache(std::unique_ptr<ImageCache>&) ;
 
 static std::string getDefaultLibNone() {
@@ -41,7 +41,7 @@ static cl::list<std::string> InputArgv(cl::ConsumeAfter,
                                        cl::desc("<program arguments>..."));
 
 static cl::opt<bool> EnableJIT("enableJIT", cl::init(true),
-		   cl::desc("Choose between the mode of compilation JIT (dafault) or static compilation"));
+		   cl::desc("Choose between JIT or static compilation (default: JIT)"));
 
 
 const StringRef ALLEXE_MAIN = "main.bc";
@@ -68,21 +68,21 @@ int main(int argc, const char **argv, const char **envp) {
 
   //Choose the code generation mode Dynamic (using JIT) or Static
   if(EnableJIT) {
-    return dynamicCodeGen(allexe, envp);
+    return execWithJITCompilation(allexe, envp);
   } else {
-    return staticCodeGen(allexe, envp);
+    return execWithStaticCompilation(allexe, envp);
   }
 }
 
 /****************************************************************
- * Name:        dynamicCodeGen
+ * Name:        execWithJITCompilation
  *
  * Input:       A source file in allexe format & program’s environment.
  *
  * Output:      Create an JIT Executaion Engine which takes the mainmodule 
  *              and library modules (embedded in the input file) and executes it.
  ****************************************************************/
-int dynamicCodeGen(allvm::Allexe &allexe, const char **envp) {
+int execWithJITCompilation(allvm::Allexe &allexe, const char **envp) {
 
   auto mainFile = allexe.getModuleName(0);
   LLVMContext context;
@@ -125,7 +125,7 @@ int dynamicCodeGen(allvm::Allexe &allexe, const char **envp) {
 }
 
 /****************************************************************
- * Name:        staticCodeGen
+ * Name:        execWithStaticCompilation
  *
  * Input:       A source file in allexe format & program’s environment.
  *
@@ -138,7 +138,7 @@ int dynamicCodeGen(allvm::Allexe &allexe, const char **envp) {
  *              which is what alltogether does.
  ****************************************************************/
 int 
-staticCodeGen(allvm::Allexe &allexe, const char **envp) {
+execWithStaticCompilation(allvm::Allexe &allexe, const char **envp) {
 
   auto mainFile = allexe.getModuleName(0);
   LLVMContext context;
