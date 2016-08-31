@@ -22,7 +22,7 @@ using namespace llvm;
 
 int execWithStaticCompilation(allvm::Allexe&, const char **);
 int execWithJITCompilation(allvm::Allexe&, const char **) ;
-void initializeImageCache(std::unique_ptr<ImageCache>&) ;
+std::unique_ptr<ImageCache> initializeImageCache() ;
 
 static std::string getDefaultLibNone() {
   static int StaticSymbol;
@@ -129,7 +129,7 @@ int execWithJITCompilation(allvm::Allexe &allexe, const char **envp) {
  *
  * Input:       A source file in allexe format & program’s environment.
  *
- * Output:      Compiles the 'single' module embedded in allexe,and creates 
+ * Output:      Compiles the 'single' module embedded in allexe and creates 
  *              an object file out of it.
  *
  * Assumptions: The allexe embeds a single module and is obtained       
@@ -140,6 +140,7 @@ int execWithJITCompilation(allvm::Allexe &allexe, const char **envp) {
 int 
 execWithStaticCompilation(allvm::Allexe &allexe, const char **envp) {
 
+  assert(allexe.getNumModules() == 1 && "The input must be an allexe with a single module");
   auto mainFile = allexe.getModuleName(0);
   LLVMContext context;
 
@@ -162,8 +163,7 @@ execWithStaticCompilation(allvm::Allexe &allexe, const char **envp) {
   M.get()->setModuleIdentifier(ImageCache::generateName(name, crc));
 
   //Setting Up the Cache
-  std::unique_ptr<ImageCache> Cache;
-  initializeImageCache(Cache);
+  std::unique_ptr<ImageCache> Cache  = initializeImageCache();
   
   //Query the cache before the static compilation for an existing Image
   Module* Mod = M.get().get();
@@ -224,10 +224,13 @@ execWithStaticCompilation(allvm::Allexe &allexe, const char **envp) {
   return 0;
 }
 
-void initializeImageCache(std::unique_ptr<ImageCache> &Cache) {
+std::unique_ptr<ImageCache> initializeImageCache() {
+  std::unique_ptr<ImageCache> Cache;
   SmallString<20> CacheDir;
+
   if (!sys::path::user_cache_directory(CacheDir, "allvm", "objects"))
     CacheDir = "allvm-cache";
   Cache.reset(new ImageCache(CacheDir));
+  return Cache;
 }
 
