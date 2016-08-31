@@ -16,7 +16,10 @@ CXXFLAGS += $(DEBUGFLAGS) $(OPTFLAGS)
 CFLAGS += $(DEBUGFLAGS) $(OPTFLAGS)
 
 CXXFLAGS += -I$(topsrcdir)/include
-CXXFLAGS += $(filter-out -O%,$(shell $(LLVMCONFIG) --cxxflags))
+LLVM_CXXFLAGS := $(shell $(LLVMCONFIG) --cxxflags)
+LLVM_CXXFLAGS := $(filter-out -O%,$(LLVM_CXXFLAGS))
+LLVM_CXXFLAGS := $(filter-out -DNDEBUG,$(LLVM_CXXFLAGS))
+CXXFLAGS += $(LLVM_CXXFLAGS)
 LDFLAGS += $(shell $(LLVMCONFIG) --ldflags --libs)
 
 LAZY_CXXFLAGS = -MD -MP -MF .deps/$(@F).pp
