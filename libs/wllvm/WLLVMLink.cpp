@@ -61,7 +61,7 @@ static void internalizeHidden(Module *M) {
 
 
 std::unique_ptr<llvm::Module>
-WLLVMFile::getLinkedModule(LLVMContext &C, bool InternalizeHidden) {
+WLLVMFile::getLinkedModule(LLVMContext &C, bool InternalizeHidden) const {
   // TODO: Rework how WLLVMFile* handles errors!
   SMDiagnostic Err;
 
