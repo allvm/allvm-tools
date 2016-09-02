@@ -1,7 +1,8 @@
 LIBRARIES += wllvm
 
 wllvm_SOURCES += \
-  WLLVMFile.cpp
+  WLLVMFile.cpp \
+  WLLVMLink.cpp
 
 wllvm_LIBRARIES += \
   archive-rw
