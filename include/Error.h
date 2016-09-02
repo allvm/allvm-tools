@@ -21,7 +21,7 @@ using namespace llvm;
 
 LLVM_ATTRIBUTE_NORETURN
 static void inline reportError(Twine Msg) {
-  errs() << "\nError reading file: " << Msg << ".\n";
+  errs() << "\nError: " << Msg << ".\n";
   errs().flush();
   exit(1);
 }
