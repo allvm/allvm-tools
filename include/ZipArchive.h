@@ -17,6 +17,8 @@ class Twine;
 
 namespace allvm {
 
+static const size_t ZIP_INDEX_LAST = static_cast<size_t>(-1);
+
 class ZipArchive final {
   zip_t *archive;
   std::vector<std::string> files;
@@ -27,8 +29,8 @@ class ZipArchive final {
   std::vector<std::unique_ptr<llvm::MemoryBuffer>> writeBuffers;
 
   // helper function to write `buf` to an archive entry
-  // if `idx` is negative, it will append the buf as a new entry
-  bool writeBufferToEntry(ssize_t idx, std::unique_ptr<llvm::MemoryBuffer> buf,
+  // if `idx` is ZIP_INDEX_LAST, it wlil append the buf as a new entry.
+  bool writeBufferToEntry(size_t idx, std::unique_ptr<llvm::MemoryBuffer> buf,
                           llvm::StringRef);
 
   ZipArchive() : archive(nullptr) {}
