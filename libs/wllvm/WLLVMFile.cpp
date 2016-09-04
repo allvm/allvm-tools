@@ -64,11 +64,13 @@ void WLLVMFile::parseWLLVMSection() {
     if (!c)
       c = ' ';
 
-  // Must be null-terminated for line_iterator
+  // Be sure the memory is null-terminated
   SectionData.push_back(0);
 
+  // But don't include the null in the stringref, since
+  // memory buffer seems to want to read one past it?
   auto Mem = MemoryBuffer::getMemBuffer(
-      StringRef(SectionData.data(), SectionData.size()));
+      StringRef(SectionData.data(), SectionData.size() - 1));
   for (line_iterator I(*Mem, true), E; I != E; ++I) {
     StringRef Entry = I->trim();
 
