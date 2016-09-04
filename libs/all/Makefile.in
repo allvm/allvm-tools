@@ -1,6 +1,0 @@
-LIBRARIES += all
-
-all_SOURCES += \
-	Allexe.cpp
-
-all_LIBRARIES += archive-rw
