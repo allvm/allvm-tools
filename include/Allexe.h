@@ -1,5 +1,5 @@
-#ifndef _ALLVM_ALLEXE_
-#define _ALLVM_ALLEXE_
+#ifndef ALLVM_ALLEXE
+#define ALLVM_ALLEXE
 
 #include "ZipArchive.h"
 
@@ -52,4 +52,4 @@ public:
 };
 }
 
-#endif // _ALLVM_ALLEXE_
+#endif // ALLVM_ALLEXE
