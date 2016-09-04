@@ -137,9 +137,8 @@ int main(int argc, const char **argv, const char **envp) {
   CodeGen.addMustPreserveSymbol("main");
 
   // Extract modules and add to LTOCodeGen
-  uint32_t crc;
   info("Extracting and merging modules...\n");
-  for (unsigned i = 0, e = exe.getNumModules(); i != e; ++i) {
+  for (size_t i = 0, e = exe.getNumModules(); i != e; ++i) {
     auto bcEntry = exe.getModuleName(i);
     info("  " + bcEntry + ":\n");
     info("    Loading...");

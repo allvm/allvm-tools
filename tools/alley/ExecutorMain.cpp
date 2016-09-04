@@ -94,7 +94,7 @@ int execWithJITCompilation(allvm::Allexe &allexe, const char **envp) {
   }
 
   LLVMContext context;
-  auto LoadModule = [&](unsigned idx) {
+  auto LoadModule = [&](size_t idx) {
     uint32_t crc;
     auto M = allexe.getModule(idx, context, &crc);
     auto name = allexe.getModuleName(idx);
@@ -111,7 +111,7 @@ int execWithJITCompilation(allvm::Allexe &allexe, const char **envp) {
   auto executor = make_unique<ImageExecutor>(LoadModule(0));
 
   // Add supporting libraries
-  for (unsigned i = 1, e = allexe.getNumModules(); i != e; ++i) {
+  for (size_t i = 1, e = allexe.getNumModules(); i != e; ++i) {
     executor->addModule(LoadModule(i));
   }
 

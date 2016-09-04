@@ -75,10 +75,10 @@ bool ZipArchive::updateEntry(size_t idx, std::unique_ptr<MemoryBuffer> entry,
 bool ZipArchive::addEntry(std::unique_ptr<MemoryBuffer> entry,
                           StringRef entryName) {
   files.push_back(entryName);
-  return writeBufferToEntry(-1, std::move(entry), entryName);
+  return writeBufferToEntry(ZIP_INDEX_LAST, std::move(entry), entryName);
 }
 
-bool ZipArchive::writeBufferToEntry(ssize_t idx,
+bool ZipArchive::writeBufferToEntry(size_t idx,
                                     std::unique_ptr<MemoryBuffer> buf,
                                     StringRef entryName) {
   auto *zipBuffer = zip_source_buffer(archive, buf->getBufferStart(),
@@ -90,7 +90,7 @@ bool ZipArchive::writeBufferToEntry(ssize_t idx,
 
   bool ok;
   const auto encoding = ZIP_FL_ENC_UTF_8;
-  if (idx >= 0) {
+  if (idx != ZIP_INDEX_LAST) {
     ok = zip_file_replace(archive, idx, zipBuffer, encoding) >= 0;
     if (!entryName.empty())
       ok = ok && zip_file_rename(archive, idx, entryName.data(), encoding);
