@@ -47,7 +47,7 @@ cl::opt<std::string> OutputFilename("o", cl::desc("Override output filename"),
 
 cl::opt<bool> InternalizeHidden(
     "internalize-hidden",
-    cl::desc("Don't internalize hidden variables. Only for single bc."),
+    cl::desc("Don't internalize hidden variables. Only for single bc/allexe."),
     cl::init(true));
 
 cl::opt<bool> ForceOutput("f", cl::desc("Replace output allexe if it exists"),
