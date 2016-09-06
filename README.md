@@ -52,3 +52,12 @@ as you would normally:
 This is tested with llvm-trunk (llvm 4.0?). You will need a copy of llvm built with this [patch](https://gitlab-beta.engr.illinois.edu/llvm/allvm-nixpkgs/raw/master/pkgs/development/compilers/llvm/master/patches/llvm-R_X86_64_NONE.patch)
 
 Once the `llvm-config` in your `$PATH` is pointed to the patched llvm, you can just configure and make.
+
+## Troubleshooting
+
+See the [issues page](https://gitlab-beta.engr.illinois.edu/llvm/allvm/issues) for known problems and to report a new one.
+
+The following issues are believed to be fixed but are listed here in case they crop up again.
+Please let us know if you encounter them in the latest version:
+
+* [assertion failure "isInt<32>(RealOffset)" when using alley to JIT an allexe](#1)
