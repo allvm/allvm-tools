@@ -1,5 +1,4 @@
 # TODO: this file needs cleanup; the escaping is pretty horrible
-# TODO: clean up musl properly on `make clean`
 
 enable_language(ASM)
 
@@ -27,6 +26,7 @@ add_custom_command(OUTPUT ${MUSL}/lib/libc.a
   COMMENT "Building ${MUSL}..."
 )
 add_custom_target(musl DEPENDS ${MUSL}/lib/libc.a)
+set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "${MUSL}")
 
 # Compile our little libunwind bits into a library, then merge in musl's libc.a.
 add_library(none STATIC UnwindRegistersRestore.S UnwindRegistersSave.S)
