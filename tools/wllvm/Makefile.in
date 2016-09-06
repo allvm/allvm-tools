@@ -4,4 +4,4 @@ wllvm-dump_SOURCES += wllvm-dump.cpp
 wllvm-dump_LIBRARIES += wllvm
 
 wllvm-extract_SOURCES += wllvm-extract.cpp
-wllvm-extract_LIBRARIES += wllvm
+wllvm-extract_LIBRARIES += wllvm all
