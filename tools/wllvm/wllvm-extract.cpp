@@ -14,14 +14,11 @@
 #include <llvm/Bitcode/ReaderWriter.h>
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Module.h>
-#include <llvm/IRReader/IRReader.h>
-#include <llvm/Linker/Linker.h>
 #include <llvm/Object/ArchiveWriter.h>
 #include <llvm/Support/CommandLine.h>
 #include <llvm/Support/Path.h>
 #include <llvm/Support/PrettyStackTrace.h>
 #include <llvm/Support/Signals.h>
-#include <llvm/Support/SourceMgr.h>
 #include <llvm/Support/ToolOutputFile.h>
 #include <llvm/Support/raw_os_ostream.h>
 
@@ -63,47 +60,6 @@ static std::string getDefaultSuffix(OutputKind K) {
   }
 }
 
-static bool internalizeHidden(GlobalValue &GV) {
-  if (!GV.hasHiddenVisibility())
-    return false;
-
-  // Don't mess with comdat globals,
-  // they're designed to handle being linked together.
-  if (GV.hasComdat())
-    return false;
-
-  // Don't internalize references to externally defined symbols
-  if (GV.isDeclaration())
-    return false;
-
-  // These are useful for opts, and should be dropped while linking.
-  if (GV.hasAvailableExternallyLinkage())
-    return false;
-
-  // Pretty sure weak-any will break things if we don't do something
-  // See FunctionImportUtils.cpp for some details.
-  // (it might make sense to try to leverage that work, part of ThinLTO)
-  assert(!GV.hasWeakAnyLinkage());
-
-  // Hopefully that's most of the things we'll run into,
-  // go ahead and convert this global to private (and non-hidden):
-  GV.setLinkage(GlobalValue::PrivateLinkage);
-
-  // (Setting local linkage type should change visibility)
-  assert(!GV.hasHiddenVisibility());
-
-  return true;
-}
-
-static void internalizeHidden(Module *M) {
-  for (auto &Func : *M)
-    internalizeHidden(Func);
-  for (auto &Global : M->globals())
-    internalizeHidden(Global);
-  for (auto &Alias : M->aliases())
-    internalizeHidden(Alias);
-}
-
 int main(int argc, const char **argv, const char **envp) {
   sys::PrintStackTraceOnErrorSignal(argv[0]);
   PrettyStackTraceProgram X(argc, argv);
@@ -123,7 +79,6 @@ int main(int argc, const char **argv, const char **envp) {
 
   switch (EmitOutputKind) {
   case OutputKind::SingleBitcode: {
-    SMDiagnostic Err;
 
     // Initialize output file, error early if unavailable
     std::unique_ptr<tool_output_file> Out;
@@ -136,21 +91,12 @@ int main(int argc, const char **argv, const char **envp) {
       return 1;
     }
 
-    // Create an empty module to link these into
-    auto Composite = make_unique<Module>("linked", C);
-    Linker L(*Composite);
-    for (auto &BCFilename : WLLVMFile->getBCFilenames()) {
-      auto M = parseIRFile(BCFilename, Err, C);
-      if (!M) {
-        Err.print(argv[0], errs());
-        return 1;
-      }
-      if (L.linkInModule(std::move(M)))
-        reportError(BCFilename, "error linking module");
+    auto Composite = WLLVMFile->getLinkedModule(C, InternalizeHidden);
+    if (!Composite) {
+      errs() << "Error linking into single module\n";
+      errs().flush();
+      return 1;
     }
-
-    if (InternalizeHidden)
-      internalizeHidden(Composite.get());
 
     WriteBitcodeToFile(Composite.get(), Out->os());
 
