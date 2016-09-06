@@ -17,6 +17,10 @@
 #include <llvm/Object/Binary.h>
 #include <llvm/Object/ObjectFile.h>
 
+namespace llvm {
+  class Module;
+}
+
 namespace allvm {
 
 using namespace llvm;
@@ -40,6 +44,9 @@ public:
   SectionRef getWLLVMSection();
 
   ArrayRef<StringRef> getBCFilenames() const { return BCEntries; }
+
+  std::unique_ptr<llvm::Module>
+  getLinkedModule(LLVMContext &C, bool InternalizeHidden = true) const;
 
 private:
   void parseWLLVMSection();

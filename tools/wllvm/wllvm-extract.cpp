@@ -8,20 +8,18 @@
 //
 //===----------------------------------------------------------------------===//
 
+#include "Allexe.h"
 #include "Error.h"
 #include "WLLVMFile.h"
 
 #include <llvm/Bitcode/ReaderWriter.h>
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Module.h>
-#include <llvm/IRReader/IRReader.h>
-#include <llvm/Linker/Linker.h>
 #include <llvm/Object/ArchiveWriter.h>
 #include <llvm/Support/CommandLine.h>
 #include <llvm/Support/Path.h>
 #include <llvm/Support/PrettyStackTrace.h>
 #include <llvm/Support/Signals.h>
-#include <llvm/Support/SourceMgr.h>
 #include <llvm/Support/ToolOutputFile.h>
 #include <llvm/Support/raw_os_ostream.h>
 
@@ -29,17 +27,17 @@ using namespace allvm;
 using namespace llvm;
 
 namespace {
-// TODO: Emit "ALLEXE"/"ALLSO" format (zip)?
-enum class OutputKind { SingleBitcode, BitcodeArchive };
+enum class OutputKind { SingleBitcode, BitcodeArchive, Allexe };
 
-cl::opt<OutputKind>
-    EmitOutputKind("output-kind", cl::desc("Choose output kind"),
-                   cl::init(OutputKind::SingleBitcode),
-                   cl::values(clEnumValN(OutputKind::SingleBitcode, "single-bc",
-                                         "Single bitcode file"),
-                              clEnumValN(OutputKind::BitcodeArchive, "archive",
-                                         "Archive of multiple bitcode files"),
-                              clEnumValEnd));
+cl::opt<OutputKind> EmitOutputKind(
+    "output-kind", cl::desc("Choose output kind"),
+    cl::init(OutputKind::SingleBitcode),
+    cl::values(clEnumValN(OutputKind::SingleBitcode, "single-bc",
+                          "Single bitcode file"),
+               clEnumValN(OutputKind::BitcodeArchive, "archive",
+                          "Archive of multiple bitcode files"),
+               clEnumValN(OutputKind::Allexe, "allexe", "ALLEXE format"),
+               clEnumValEnd));
 
 cl::opt<std::string> InputFilename(cl::Positional, cl::Required,
                                    cl::desc("<input file built with wllvm>"));
@@ -49,8 +47,11 @@ cl::opt<std::string> OutputFilename("o", cl::desc("Override output filename"),
 
 cl::opt<bool> InternalizeHidden(
     "internalize-hidden",
-    cl::desc("Don't internalize hidden variables. Only for single bc."),
+    cl::desc("Don't internalize hidden variables. Only for single bc/allexe."),
     cl::init(true));
+
+cl::opt<bool> ForceOutput("f", cl::desc("Replace output allexe if it exists"),
+                          cl::init(false));
 
 } // end anon namespace
 
@@ -60,57 +61,94 @@ static std::string getDefaultSuffix(OutputKind K) {
     return ".bc";
   case OutputKind::BitcodeArchive:
     return ".bc.a";
+  case OutputKind::Allexe:
+    return ".allexe";
   }
 }
 
-static bool internalizeHidden(GlobalValue &GV) {
-  if (!GV.hasHiddenVisibility())
-    return false;
+static int writeAsSingleBC(const WLLVMFile &File, StringRef Filename) {
+  // Initialize output file, error early if unavailable
+  std::unique_ptr<tool_output_file> Out;
+  std::error_code EC;
+  Out.reset(new tool_output_file(Filename, EC, sys::fs::F_None));
+  if (EC) {
+    errs() << "Error opening file '" << Filename << "': ";
+    errs() << EC.message() << "\n";
+    errs().flush();
+    return 1;
+  }
 
-  // Don't mess with comdat globals,
-  // they're designed to handle being linked together.
-  if (GV.hasComdat())
-    return false;
+  LLVMContext C;
+  auto Composite = File.getLinkedModule(C, InternalizeHidden);
+  if (!Composite) {
+    errs() << "Error linking into single module\n";
+    errs().flush();
+    return 1;
+  }
 
-  // Don't internalize references to externally defined symbols
-  if (GV.isDeclaration())
-    return false;
+  WriteBitcodeToFile(Composite.get(), Out->os());
 
-  // These are useful for opts, and should be dropped while linking.
-  if (GV.hasAvailableExternallyLinkage())
-    return false;
-
-  // Pretty sure weak-any will break things if we don't do something
-  // See FunctionImportUtils.cpp for some details.
-  // (it might make sense to try to leverage that work, part of ThinLTO)
-  assert(!GV.hasWeakAnyLinkage());
-
-  // Hopefully that's most of the things we'll run into,
-  // go ahead and convert this global to private (and non-hidden):
-  GV.setLinkage(GlobalValue::PrivateLinkage);
-
-  // (Setting local linkage type should change visibility)
-  assert(!GV.hasHiddenVisibility());
-
-  return true;
+  // We made it this far without error, keep the result.
+  Out->keep();
+  return 0;
 }
 
-static void internalizeHidden(Module *M) {
-  for (auto &Func : *M)
-    internalizeHidden(Func);
-  for (auto &Global : M->globals())
-    internalizeHidden(Global);
-  for (auto &Alias : M->aliases())
-    internalizeHidden(Alias);
+static int writeAsBitcodeArchive(const WLLVMFile &File, StringRef Filename) {
+  std::vector<NewArchiveMember> Members;
+  std::vector<std::unique_ptr<MemoryBuffer>> Buffers;
+  size_t unique_id = 0;
+  for (auto &BCFilename : File.getBCFilenames()) {
+    auto Member =
+        NewArchiveMember::getFile(BCFilename, /* deterministic */ true);
+    if (!Member)
+      reportError(BCFilename, Member.takeError());
+
+    // Make copy of buffer so we can give it a name :(
+    Buffers.push_back(std::move(Member->Buf));
+    Member->Buf = MemoryBuffer::getMemBufferCopy(
+        Buffers.back()->getBuffer(),
+        Twine(unique_id++) + "-" + sys::path::filename(BCFilename));
+    Members.push_back(std::move(*Member));
+  }
+  auto result =
+      writeArchive(Filename, Members, true /* writeSymTab */, Archive::K_GNU,
+                   true /* deterministic */, false /* thin */);
+  if (result.second)
+    reportError(result.first, result.second);
+
+  return 0;
 }
+
+static int writeAsAllexe(const WLLVMFile &File, StringRef Filename) {
+  LLVMContext C;
+
+  auto Output = Allexe::open(Filename, ForceOutput);
+  if (!Output)
+    reportError(Filename, Output.getError());
+
+  auto Composite = File.getLinkedModule(C, InternalizeHidden);
+  if (!Composite) {
+    errs() << "Error linking into single module\n";
+    return 1;
+  }
+
+  if (!(*Output)->addModule(std::move(Composite),
+                      "main.bc" /* FIXME: magic string */)) {
+    errs() << "Error adding module to allexe!\n";
+    return 1;
+  }
+
+  // (Writes output in destructor of class Allexe)
+
+  return 0;
+}
+
 
 int main(int argc, const char **argv, const char **envp) {
   sys::PrintStackTraceOnErrorSignal(argv[0]);
   PrettyStackTraceProgram X(argc, argv);
   llvm_shutdown_obj Y; // Call llvm_shutdown() on exit.
   cl::ParseCommandLineOptions(argc, argv);
-
-  LLVMContext C;
 
   // Open the specified file
   auto WLLVMFile = WLLVMFile::open(InputFilename);
@@ -122,67 +160,14 @@ int main(int argc, const char **argv, const char **envp) {
   }
 
   switch (EmitOutputKind) {
-  case OutputKind::SingleBitcode: {
-    SMDiagnostic Err;
-
-    // Initialize output file, error early if unavailable
-    std::unique_ptr<tool_output_file> Out;
-    std::error_code EC;
-    Out.reset(new tool_output_file(OutputFilename, EC, sys::fs::F_None));
-    if (EC) {
-      errs() << "Error opening file '" << OutputFilename << "': ";
-      errs() << EC.message() << "\n";
-      errs().flush();
-      return 1;
-    }
-
-    // Create an empty module to link these into
-    auto Composite = make_unique<Module>("linked", C);
-    Linker L(*Composite);
-    for (auto &BCFilename : WLLVMFile->getBCFilenames()) {
-      auto M = parseIRFile(BCFilename, Err, C);
-      if (!M) {
-        Err.print(argv[0], errs());
-        return 1;
-      }
-      if (L.linkInModule(std::move(M)))
-        reportError(BCFilename, "error linking module");
-    }
-
-    if (InternalizeHidden)
-      internalizeHidden(Composite.get());
-
-    WriteBitcodeToFile(Composite.get(), Out->os());
-
-    // We made it this far without error, keep the result.
-    Out->keep();
-    break;
-  }
-  case OutputKind::BitcodeArchive: {
-    std::vector<NewArchiveMember> Members;
-    std::vector<std::unique_ptr<MemoryBuffer>> Buffers;
-    size_t unique_id = 0;
-    for (auto &BCFilename : WLLVMFile->getBCFilenames()) {
-      auto Member =
-          NewArchiveMember::getFile(BCFilename, /* deterministic */ true);
-      if (!Member)
-        reportError(BCFilename, Member.takeError());
-
-      // Make copy of buffer so we can give it a name :(
-      Buffers.push_back(std::move(Member->Buf));
-      Member->Buf = MemoryBuffer::getMemBufferCopy(
-          Buffers.back()->getBuffer(),
-          Twine(unique_id++) + "-" + sys::path::filename(BCFilename));
-      Members.push_back(std::move(*Member));
-    }
-    auto result = writeArchive(OutputFilename, Members, true /* writeSymTab */,
-                               Archive::K_GNU, true /* deterministic */,
-                               false /* thin */);
-    if (result.second)
-      reportError(result.first, result.second);
-    break;
-  }
+  case OutputKind::SingleBitcode:
+    return writeAsSingleBC(*WLLVMFile, OutputFilename);
+  case OutputKind::BitcodeArchive:
+    return writeAsBitcodeArchive(*WLLVMFile, OutputFilename);
+  case OutputKind::Allexe:
+    return writeAsAllexe(*WLLVMFile, OutputFilename);
   }
 
+  // unreachable
   return 0;
 }
