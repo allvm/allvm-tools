@@ -63,3 +63,12 @@ $ make -j$(nproc)
 
 If you installed llvm to `/usr`, you can leave out the `-D LLVM_DIR=...` option
 and CMake will find llvm automatically.
+
+## Troubleshooting
+
+See the [issues page](https://gitlab-beta.engr.illinois.edu/llvm/allvm/issues) for known problems and to report a new one.
+
+The following issues are believed to be fixed but are listed here in case they crop up again.
+Please let us know if you encounter them in the latest version:
+
+* [assertion failure "isInt<32>(RealOffset)" when using alley to JIT an allexe](#1)
