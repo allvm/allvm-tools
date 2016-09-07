@@ -52,7 +52,8 @@ static bool internalizeHidden(GlobalValue &GV) {
 
 static void internalizeHidden(Module *M) {
   for (auto &Func : *M)
-    internalizeHidden(Func);
+    if (Func.getName() != "main")
+      internalizeHidden(Func);
   for (auto &Global : M->globals())
     internalizeHidden(Global);
   for (auto &Alias : M->aliases())
