@@ -10,7 +10,6 @@ find_package(LLVM 4.0.0 REQUIRED CONFIG)
 list(APPEND CMAKE_CXX_FLAGS -fno-rtti) # TODO: what if someone builds llvm with RTTI enabled?
 link_directories(${LLVM_LIBRARY_DIR})
 include_directories(${LLVM_INCLUDE_DIR})
-add_definitions(${LLVM_DEFINITIONS}) # TODO: not for everything!
 
 include_directories ("${PROJECT_SOURCE_DIR}/include")
 
