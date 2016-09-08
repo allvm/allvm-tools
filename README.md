@@ -43,7 +43,7 @@ as you would normally:
 
 ```console
 [nix-shell:~/allvm-tools]$ mkdir build && cd build
-[nix-shell:~/allvm-tools/build]$ ../configure --enable-optimized
+[nix-shell:~/allvm-tools/build]$ cmake .. -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_INSTALL_PREFIX=$PWD/../install
 [nix-shell:~/allvm-tools/build]$ make -j
 ```
 
