@@ -19,7 +19,7 @@ add_custom_command(OUTPUT ${MUSL}/config.mak
   COMMENT "Configuring ${MUSL}"
 )
 add_custom_command(OUTPUT ${MUSL}/lib/libc.a
-  COMMAND make -C ${MUSL}
+  COMMAND $(MAKE) -C ${MUSL}
   DEPENDS ${MUSL}/config.mak
   COMMENT "Building ${MUSL}..."
 )
