@@ -1,6 +1,0 @@
-BINARIES += alley
-alley_SOURCES += ExecutorMain.cpp \
-								 ImageExecutor.cpp \
-								 HostedImageExecutor.cpp \
-								 ImageCache.cpp
-alley_LIBRARIES += all StaticCodeGen

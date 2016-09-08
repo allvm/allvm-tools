@@ -1,2 +1,0 @@
-# FIXME: Order apparently does matter
-DIRS += archive-rw none all StaticCodeGen wllvm

@@ -49,9 +49,20 @@ as you would normally:
 
 
 ## How to build (without using allvm-nixpkgs)
-This is tested with llvm-trunk (llvm 4.0?). You will need a copy of llvm built with this [patch](https://gitlab-beta.engr.illinois.edu/llvm/allvm-nixpkgs/raw/master/pkgs/development/compilers/llvm/master/patches/llvm-R_X86_64_NONE.patch)
 
-Once the `llvm-config` in your `$PATH` is pointed to the patched llvm, you can just configure and make.
+This is tested with llvm-trunk (llvm 4.0?). You will need a copy of llvm built
+with this [patch](https://gitlab-beta.engr.illinois.edu/llvm/allvm-nixpkgs/raw/master/pkgs/development/compilers/llvm/master/patches/llvm-R_X86_64_NONE.patch).
+Install llvm somewhere. Then you can build ALLVM as follows, replacing
+`YOUR_LLVM_PREFIX` with the directory you installed llvm to:
+
+```console
+$ mkdir build && cd build
+$ cmake -D LLVM_DIR=YOUR_LLVM_PREFIX/lib/cmake/llvm ..
+$ make -j$(nproc)
+```
+
+If you installed llvm to `/usr`, you can leave out the `-D LLVM_DIR=...` option
+and CMake will find llvm automatically.
 
 ## Troubleshooting
 

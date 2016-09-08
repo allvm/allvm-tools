@@ -1,4 +1,0 @@
-LIBRARIES += StaticCodeGen
-
-StaticCodeGen_SOURCES += \
-	StaticCodeGen.cpp

@@ -1,3 +1,0 @@
-libs:: # Make sure that libs still runs first.
-
-DIRS += libs tools
