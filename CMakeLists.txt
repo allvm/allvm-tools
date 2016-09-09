@@ -9,6 +9,8 @@ add_definitions(-Wall)
 
 find_package(LLVM 4.0.0 REQUIRED CONFIG)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
 message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
 
