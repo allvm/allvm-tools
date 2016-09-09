@@ -1,7 +1,14 @@
-add_llvm_executable(wllvm-dump
-  wllvm-dump.cpp
+set(LLVM_LINK_COMPONENTS
+  BitWriter
+  Core
+  IRReader
+  Linker
+  Object
 )
 
-llvm_map_components_to_libnames(wllvm_llvm_libs core bitwriter object irreader linker)
-target_link_libraries(wllvm-dump wllvm ${wllvm_llvm_libs})
+add_llvm_tool(wllvm-dump
+  wllvm-dump.cpp
+)
+target_link_libraries(wllvm-dump wllvm)
+
 add_definitions(${LLVM_DEFINITIONS})
