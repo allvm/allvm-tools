@@ -1,4 +1,4 @@
-add_library(wllvm
+llvm_add_library(wllvm
   WLLVMFile.cpp
   WLLVMLink.cpp
 )
