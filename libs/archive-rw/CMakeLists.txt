@@ -1,6 +1,6 @@
 find_package( ZLIB REQUIRED )
 
-add_library(archive-rw
+add_llvm_library(archive-rw
   ZipArchive.cpp
   zip_source_file.c
   zip_add.c

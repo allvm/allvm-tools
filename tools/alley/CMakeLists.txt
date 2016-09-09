@@ -1,4 +1,4 @@
-add_executable(alley
+add_llvm_executable(alley
   ExecutorMain.cpp
   ImageExecutor.cpp
   HostedImageExecutor.cpp

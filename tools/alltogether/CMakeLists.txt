@@ -1,4 +1,4 @@
-add_executable(alltogether
+add_llvm_executable(alltogether
   alltogether.cpp
 )
 

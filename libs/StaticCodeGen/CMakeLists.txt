@@ -1,3 +1,3 @@
-add_library(StaticCodeGen
+llvm_add_library(StaticCodeGen
   StaticCodeGen.cpp
 )
