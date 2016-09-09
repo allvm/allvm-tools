@@ -106,5 +106,5 @@ llvm_add_library(archive-rw
   zip_utf-8.c
 )
 
-include_directories ( ${ZLIB_INCLUDE_DIRS} )
-target_link_libraries ( archive-rw PUBLIC ${ZLIB_LIBRARIES})
+include_directories (${ZLIB_INCLUDE_DIRS})
+target_link_libraries (archive-rw PUBLIC ${ZLIB_LIBRARIES})
