@@ -8,6 +8,10 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 add_definitions(-Wall)
 
 find_package(LLVM 4.0.0 REQUIRED CONFIG)
+
+message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
+message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
+
 if(NOT LLVM_CONFIG_HAS_RTTI)
   list(APPEND CMAKE_CXX_FLAGS -fno-rtti)
 endif()
