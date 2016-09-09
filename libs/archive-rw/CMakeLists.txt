@@ -2,7 +2,7 @@ find_package( ZLIB REQUIRED )
 
 set(LLVM_LINK_COMPONENTS Core)
 
-llvm_add_library(archive-rw
+add_llvm_library(archive-rw
   ZipArchive.cpp
   zip_source_file.c
   zip_add.c

@@ -27,7 +27,7 @@ add_custom_target(musl DEPENDS ${MUSL}/lib/libc.a)
 set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "${MUSL}")
 
 # Compile our little libunwind bits into a library, then merge in musl's libc.a.
-add_llvm_library(none STATIC UnwindRegistersRestore.S UnwindRegistersSave.S)
+add_library(none STATIC UnwindRegistersRestore.S UnwindRegistersSave.S)
 add_dependencies(none musl)
 # http://stackoverflow.com/questions/3821916/how-to-merge-two-ar-static-libraries-into-one
 configure_file(merge.ar merge.ar)
