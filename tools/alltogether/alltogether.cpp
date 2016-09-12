@@ -80,12 +80,6 @@ int main(int argc, const char **argv, const char **envp) {
   llvm_shutdown_obj Y; // Call llvm_shutdown() on exit.
   cl::ParseCommandLineOptions(argc, argv);
 
-  // Initialize the configured targets
-  InitializeAllTargets();
-  InitializeAllTargetMCs();
-  InitializeAllAsmPrinters();
-  InitializeAllAsmParsers();
-
   if (OutputFilename.empty()) {
     if (StringRef(InputFilename) != "-") {
       SmallString<64> Output{StringRef(InputFilename)};

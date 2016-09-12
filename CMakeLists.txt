@@ -8,9 +8,24 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 add_definitions(-Wall)
 
 find_package(LLVM 4.0.0 REQUIRED CONFIG)
-if(NOT LLVM_CONFIG_HAS_RTTI)
-  list(APPEND CMAKE_CXX_FLAGS -fno-rtti)
-endif()
+
+message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
+message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
+
+list(APPEND CMAKE_MODULE_PATH "${LLVM_CMAKE_DIR}")
+include(AddLLVM)
+include(HandleLLVMOptions)
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(LLVM_BUILD_TOOLS ON)
+
+# Put libs and bins in expected place.
+# XXX: We don't setup CMAKE_CFG_INTDIR to distinguish Release/Debug/etc.
+set(LLVM_RUNTIME_OUTPUT_INTDIR
+    ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/bin)
+set(LLVM_LIBRARY_OUTPUT_INTDIR
+    ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/lib${LLVM_LIBDIR_SUFFIX})
+
 link_directories(${LLVM_LIBRARY_DIR})
 include_directories(${LLVM_INCLUDE_DIR})
 

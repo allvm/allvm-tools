@@ -1,6 +1,8 @@
 find_package( ZLIB REQUIRED )
 
-add_library(archive-rw
+set(LLVM_LINK_COMPONENTS Core)
+
+add_llvm_library(archive-rw
   ZipArchive.cpp
   zip_source_file.c
   zip_add.c
@@ -104,5 +106,5 @@ add_library(archive-rw
   zip_utf-8.c
 )
 
-include_directories ( ${ZLIB_INCLUDE_DIRS} )
-target_link_libraries ( archive-rw ${ZLIB_LIBRARIES} )
+include_directories (${ZLIB_INCLUDE_DIRS})
+target_link_libraries (archive-rw PUBLIC ${ZLIB_LIBRARIES})
