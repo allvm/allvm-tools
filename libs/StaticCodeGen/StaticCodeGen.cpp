@@ -98,7 +98,8 @@ static inline void setFunctionAttributes(StringRef CPU, StringRef Features,
               if (F->getIntrinsicID() == Intrinsic::debugtrap ||
                   F->getIntrinsicID() == Intrinsic::trap)
                 Call->addAttribute(llvm::AttributeSet::FunctionIndex,
-                                   "trap-func-name", TrapFuncName.getValue());
+                                   Attribute::get(Ctx, "trap-func-name",
+                                                  TrapFuncName.getValue()));
 
     // Let NewAttrs override Attrs.
     NewAttrs = Attrs.addAttributes(Ctx, AttributeSet::FunctionIndex, NewAttrs);
