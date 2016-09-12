@@ -1,5 +1,6 @@
 set(LLVM_LINK_COMPONENTS
-  all # FIXME
+  Core
+  LTO
 )
 
 add_llvm_tool(alltogether
