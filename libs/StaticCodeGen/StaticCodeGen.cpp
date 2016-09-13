@@ -1,10 +1,10 @@
 #include "StaticCodeGen.h"
 #include "Allexe.h"
 
-#include "llvm/IR/DiagnosticPrinter.h"
-#include "llvm/Support/Errc.h"
-#include "llvm/Support/Error.h"
-#include "llvm/Support/ToolOutputFile.h"
+#include <llvm/IR/DiagnosticPrinter.h>
+#include <llvm/Support/Errc.h>
+#include <llvm/Support/Error.h>
+#include <llvm/Support/ToolOutputFile.h>
 #include <llvm/ADT/StringExtras.h>
 #include <llvm/ADT/Triple.h>
 #include <llvm/Analysis/TargetLibraryInfo.h>

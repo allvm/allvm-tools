@@ -2,8 +2,8 @@
 #include "ImageCache.h" // For naming, TODO: better design
 #include "ImageExecutor.h"
 
-#include "llvm/CodeGen/CommandFlags.h"
-#include "llvm/Support/TargetRegistry.h"
+#include <llvm/CodeGen/CommandFlags.h>
+#include <llvm/Support/TargetRegistry.h>
 #include <llvm/Bitcode/ReaderWriter.h>
 #include <llvm/ExecutionEngine/MCJIT.h>
 #include <llvm/IR/LLVMContext.h>
