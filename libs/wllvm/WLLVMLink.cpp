@@ -60,7 +60,6 @@ static void internalizeHidden(Module *M) {
     internalizeHidden(Alias);
 }
 
-
 std::unique_ptr<llvm::Module>
 WLLVMFile::getLinkedModule(LLVMContext &C, bool InternalizeHidden) const {
   // TODO: Rework how WLLVMFile* handles errors!

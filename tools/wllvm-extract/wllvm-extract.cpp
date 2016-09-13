@@ -133,7 +133,7 @@ static int writeAsAllexe(const WLLVMFile &File, StringRef Filename) {
   }
 
   if (!(*Output)->addModule(std::move(Composite),
-                      "main.bc" /* FIXME: magic string */)) {
+                            "main.bc" /* FIXME: magic string */)) {
     errs() << "Error adding module to allexe!\n";
     return 1;
   }
@@ -142,7 +142,6 @@ static int writeAsAllexe(const WLLVMFile &File, StringRef Filename) {
 
   return 0;
 }
-
 
 int main(int argc, const char **argv, const char **envp) {
   sys::PrintStackTraceOnErrorSignal(argv[0]);

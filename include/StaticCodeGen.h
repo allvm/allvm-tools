@@ -80,7 +80,7 @@ int compileAllexeWithLlcDefaults(Allexe &, llvm::raw_pwrite_stream &,
 ///
 /// \returns an llvm ObjectFile object on success.
 llvm::ErrorOr<std::unique_ptr<llvm::object::ObjectFile>>
-compileAllexe(Allexe &, llvm::StringRef , const CompilationOptions &,
+compileAllexe(Allexe &, llvm::StringRef, const CompilationOptions &,
               llvm::LLVMContext &);
 
 /// Compiles the module contained in the given allexe and writes the
