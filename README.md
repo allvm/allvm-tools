@@ -64,6 +64,20 @@ $ make -j$(nproc)
 If you installed llvm to `/usr`, you can leave out the `-D LLVM_DIR=...` option
 and CMake will find llvm automatically.
 
+## Coding Style
+
+Canonical coding style reference is the [LLVM Coding Standards](http://llvm.org/docs/CodingStandards.html) document,
+and code should be formatted with an appropriate `clang-format`.  This process has been automated, as described below.
+
+### Automatic Formatting and Checking
+
+Build the `check-format` target to check that all files pass format style applied by `clang-format`.
+
+If this fails, you may consider updating the source with the `update-format` target.
+
+All contributed code should pass these checks.  Currently using clang-format corresponding
+to LLVM version used to build the tools, we may pin a particular version in the future.
+
 ## Troubleshooting
 
 See the [issues page](https://gitlab-beta.engr.illinois.edu/llvm/allvm/issues) for known problems and to report a new one.

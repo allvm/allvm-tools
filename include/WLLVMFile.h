@@ -18,7 +18,7 @@
 #include <llvm/Object/ObjectFile.h>
 
 namespace llvm {
-  class Module;
+class Module;
 }
 
 namespace allvm {

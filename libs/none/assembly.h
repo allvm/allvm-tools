@@ -19,7 +19,7 @@
 #if defined(__POWERPC__) || defined(__powerpc__) || defined(__ppc__)
 #define SEPARATOR @
 #elif defined(__arm64__)
-#define SEPARATOR %%
+#define SEPARATOR % %
 #else
 #define SEPARATOR ;
 #endif
@@ -30,7 +30,7 @@
 #define HIDDEN_DIRECTIVE .hidden
 #endif
 
-#define GLUE2(a, b) a ## b
+#define GLUE2(a, b) a##b
 #define GLUE(a, b) GLUE2(a, b)
 #define SYMBOL_NAME(name) GLUE(__USER_LABEL_PREFIX__, name)
 
@@ -38,28 +38,24 @@
 #define SYMBOL_IS_FUNC(name)
 #elif defined(__ELF__)
 #if defined(__arm__)
-#define SYMBOL_IS_FUNC(name) .type name,%function
+#define SYMBOL_IS_FUNC(name) .type name, % function
 #else
-#define SYMBOL_IS_FUNC(name) .type name,@function
+#define SYMBOL_IS_FUNC(name) .type name, @function
 #endif
 #else
 #define SYMBOL_IS_FUNC(name)                                                   \
-  .def name SEPARATOR                                                          \
-    .scl 2 SEPARATOR                                                           \
-    .type 32 SEPARATOR                                                         \
-  .endef
+  .def name SEPARATOR.scl 2 SEPARATOR.type 32 SEPARATOR.endef
 #endif
 
-#define DEFINE_LIBUNWIND_FUNCTION(name)                   \
-  .globl SYMBOL_NAME(name) SEPARATOR                      \
-  SYMBOL_IS_FUNC(SYMBOL_NAME(name)) SEPARATOR             \
-  SYMBOL_NAME(name):
+#define DEFINE_LIBUNWIND_FUNCTION(name)                                        \
+  .globl SYMBOL_NAME(name) SEPARATOR SYMBOL_IS_FUNC(SYMBOL_NAME(name))         \
+      SEPARATOR SYMBOL_NAME(name)                                              \
+      :
 
-#define DEFINE_LIBUNWIND_PRIVATE_FUNCTION(name)           \
-  .globl SYMBOL_NAME(name) SEPARATOR                      \
-  HIDDEN_DIRECTIVE SYMBOL_NAME(name) SEPARATOR            \
-  SYMBOL_IS_FUNC(SYMBOL_NAME(name)) SEPARATOR             \
-  SYMBOL_NAME(name):
+#define DEFINE_LIBUNWIND_PRIVATE_FUNCTION(name)                                \
+  .globl SYMBOL_NAME(name) SEPARATOR HIDDEN_DIRECTIVE SYMBOL_NAME(name)        \
+      SEPARATOR SYMBOL_IS_FUNC(SYMBOL_NAME(name)) SEPARATOR SYMBOL_NAME(name)  \
+      :
 
 #if defined(__arm__)
 #if !defined(__ARM_ARCH)

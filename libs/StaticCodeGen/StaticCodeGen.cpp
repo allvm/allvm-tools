@@ -1,12 +1,15 @@
 #include "StaticCodeGen.h"
 #include "Allexe.h"
 
+#include "llvm/IR/DiagnosticPrinter.h"
+#include "llvm/Support/Errc.h"
+#include "llvm/Support/Error.h"
+#include "llvm/Support/ToolOutputFile.h"
 #include <llvm/ADT/StringExtras.h>
 #include <llvm/ADT/Triple.h>
 #include <llvm/Analysis/TargetLibraryInfo.h>
 #include <llvm/IR/DataLayout.h>
 #include <llvm/IR/DiagnosticInfo.h>
-#include "llvm/IR/DiagnosticPrinter.h"
 #include <llvm/IR/Instructions.h>
 #include <llvm/IR/IntrinsicInst.h>
 #include <llvm/IR/LLVMContext.h>
@@ -15,10 +18,7 @@
 #include <llvm/IR/Verifier.h>
 #include <llvm/MC/SubtargetFeature.h>
 #include <llvm/Object/ObjectFile.h>
-#include "llvm/Support/Errc.h"
-#include "llvm/Support/Error.h"
 #include <llvm/Support/TargetRegistry.h>
-#include "llvm/Support/ToolOutputFile.h"
 #include <llvm/Target/TargetMachine.h>
 
 using namespace allvm;
@@ -75,16 +75,14 @@ static inline void setFunctionAttributes(StringRef CPU, StringRef Features,
                                        "target-features", Features);
 
     if (DisableFPElim.hasValue())
-      NewAttrs =
-        NewAttrs.addAttribute(Ctx, AttributeSet::FunctionIndex,
-                              "no-frame-pointer-elim",
-                              DisableFPElim.getValue() ? "true" : "false");
+      NewAttrs = NewAttrs.addAttribute(
+          Ctx, AttributeSet::FunctionIndex, "no-frame-pointer-elim",
+          DisableFPElim.getValue() ? "true" : "false");
 
     if (DisableTailCalls.hasValue())
-      NewAttrs =
-        NewAttrs.addAttribute(Ctx, AttributeSet::FunctionIndex,
-                              "disable-tail-calls",
-                              toStringRef(DisableTailCalls.getValue()));
+      NewAttrs = NewAttrs.addAttribute(
+          Ctx, AttributeSet::FunctionIndex, "disable-tail-calls",
+          toStringRef(DisableTailCalls.getValue()));
 
     if (StackRealign)
       NewAttrs = NewAttrs.addAttribute(Ctx, AttributeSet::FunctionIndex,
@@ -131,7 +129,7 @@ static int compileModule(std::unique_ptr<Module> &M, raw_pwrite_stream &OS,
   // Get the target specific parser.
   std::string Error;
   const Target *TheTarget =
-    TargetRegistry::lookupTarget(Options.MArch, TheTriple, Error);
+      TargetRegistry::lookupTarget(Options.MArch, TheTriple, Error);
   if (!TheTarget) {
     errs() << "allvm static code generator: " << Error;
     return 1;
@@ -140,10 +138,9 @@ static int compileModule(std::unique_ptr<Module> &M, raw_pwrite_stream &OS,
   std::string CPUStr = getCPUStr(Options.MCPU);
   std::string FeaturesStr = getFeaturesStr(Options.MCPU, Options.MAttrs);
 
-  std::unique_ptr<TargetMachine> Target(
-      TheTarget->createTargetMachine(TheTriple.getTriple(), CPUStr, FeaturesStr,
-                                     Options.TOptions, Options.RelocModel,
-                                     Options.CMModel, Options.OLvl));
+  std::unique_ptr<TargetMachine> Target(TheTarget->createTargetMachine(
+      TheTriple.getTriple(), CPUStr, FeaturesStr, Options.TOptions,
+      Options.RelocModel, Options.CMModel, Options.OLvl));
 
   assert(Target && "Could not allocate target machine!");
 
@@ -219,10 +216,10 @@ int compileAllexe(Allexe &Input, raw_pwrite_stream &OS,
 }
 
 // Initialize compilation flags to the llc default values.
-CompilationOptions::CompilationOptions() :
-  CMModel(CodeModel::Default), RelocModel(None), OLvl(CodeGenOpt::Default),
-  NoVerify(false), DisableSimplifyLibCalls(false), DisableFPElim(None),
-  DisableTailCalls(None), StackRealign(false), TrapFuncName(None) {
+CompilationOptions::CompilationOptions()
+    : CMModel(CodeModel::Default), RelocModel(None), OLvl(CodeGenOpt::Default),
+      NoVerify(false), DisableSimplifyLibCalls(false), DisableFPElim(None),
+      DisableTailCalls(None), StackRealign(false), TrapFuncName(None) {
 
   // The following options are iniitialized as desired by their default
   // constructors:
@@ -252,8 +249,7 @@ compileAllexe(Allexe &Input, StringRef Filename,
     // Open the output file.
     std::error_code EC;
     sys::fs::OpenFlags OpenFlags = sys::fs::F_None;
-    auto FDOut =
-      llvm::make_unique<tool_output_file>(Filename, EC, OpenFlags);
+    auto FDOut = llvm::make_unique<tool_output_file>(Filename, EC, OpenFlags);
     if (EC)
       return EC;
     assert(FDOut->os().supportsSeeking());
@@ -280,4 +276,4 @@ compileAllexeWithLlcDefaults(Allexe &Input, StringRef Filename,
   return compileAllexe(Input, Filename, Options, Context);
 }
 
-}  // end namespace allvm
+} // end namespace allvm
