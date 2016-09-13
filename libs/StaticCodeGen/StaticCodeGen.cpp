@@ -1,15 +1,12 @@
 #include "StaticCodeGen.h"
 #include "Allexe.h"
 
-#include <llvm/IR/DiagnosticPrinter.h>
-#include <llvm/Support/Errc.h>
-#include <llvm/Support/Error.h>
-#include <llvm/Support/ToolOutputFile.h>
 #include <llvm/ADT/StringExtras.h>
 #include <llvm/ADT/Triple.h>
 #include <llvm/Analysis/TargetLibraryInfo.h>
 #include <llvm/IR/DataLayout.h>
 #include <llvm/IR/DiagnosticInfo.h>
+#include <llvm/IR/DiagnosticPrinter.h>
 #include <llvm/IR/Instructions.h>
 #include <llvm/IR/IntrinsicInst.h>
 #include <llvm/IR/LLVMContext.h>
@@ -18,7 +15,10 @@
 #include <llvm/IR/Verifier.h>
 #include <llvm/MC/SubtargetFeature.h>
 #include <llvm/Object/ObjectFile.h>
+#include <llvm/Support/Errc.h>
+#include <llvm/Support/Error.h>
 #include <llvm/Support/TargetRegistry.h>
+#include <llvm/Support/ToolOutputFile.h>
 #include <llvm/Target/TargetMachine.h>
 
 using namespace allvm;
