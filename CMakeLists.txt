@@ -66,9 +66,9 @@ foreach(file IN LISTS files)
   math(EXPR i ${i}+1)
 endforeach()
 
-add_custom_target(allvm-check-format DEPENDS ${check_format_depends})
-set_target_properties(allvm-check-format PROPERTIES FOLDER "ALLVM")
+add_custom_target(check-format DEPENDS ${check_format_depends})
+set_target_properties(check-format PROPERTIES FOLDER "ALLVM")
 
-add_custom_target(allvm-update-format DEPENDS ${update_format_depends})
-set_target_properties(allvm-update-format PROPERTIES FOLDER "ALLVM")
+add_custom_target(update-format DEPENDS ${update_format_depends})
+set_target_properties(update-format PROPERTIES FOLDER "ALLVM")
 
