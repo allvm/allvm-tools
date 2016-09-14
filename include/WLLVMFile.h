@@ -11,11 +11,10 @@
 #ifndef ALLVM_WLLVMFile_h
 #define ALLVM_WLLVMFile_h
 
-#include "Error.h"
-
 #include <llvm/ADT/ArrayRef.h>
 #include <llvm/Object/Binary.h>
 #include <llvm/Object/ObjectFile.h>
+#include <llvm/Support/Error.h>
 
 namespace llvm {
 class Module;
@@ -30,31 +29,22 @@ const StringRef WLLVMSectionName = ".llvm_bc";
 
 class WLLVMFile {
   StringRef Name;
-  OwningBinary<Binary> File;
   std::vector<StringRef> BCEntries;
   std::vector<char> SectionData;
 
 public:
-  WLLVMFile(StringRef _Name, OwningBinary<Binary> Binary)
-      : Name(_Name), File(std::move(Binary)) {
-    parseWLLVMSection();
+  WLLVMFile(StringRef _Name, StringRef BCSectionContents) : Name(_Name) {
+    parseWLLVMSection(BCSectionContents);
   }
-  static std::unique_ptr<WLLVMFile> open(StringRef Input);
-
-  SectionRef getWLLVMSection();
+  static llvm::Expected<std::unique_ptr<WLLVMFile>> open(StringRef Input);
 
   ArrayRef<StringRef> getBCFilenames() const { return BCEntries; }
 
-  std::unique_ptr<llvm::Module>
+  llvm::Expected<std::unique_ptr<llvm::Module>>
   getLinkedModule(LLVMContext &C, bool InternalizeHidden = true) const;
 
 private:
-  void parseWLLVMSection();
-  LLVM_ATTRIBUTE_NORETURN void error(StringRef Msg) { reportError(Name, Msg); }
-  void check(std::error_code ec) {
-    if (ec)
-      reportError(Name, ec);
-  }
+  void parseWLLVMSection(StringRef Contents);
 };
 
 } // end namespace allvm
