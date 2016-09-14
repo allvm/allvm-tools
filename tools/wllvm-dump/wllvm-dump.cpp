@@ -29,9 +29,13 @@ int main(int argc, const char **argv, const char **envp) {
   cl::ParseCommandLineOptions(argc, argv);
 
   // Open the specified file
-  auto WLLVMFile = WLLVMFile::open(InputFilename);
+  auto Input = WLLVMFile::open(InputFilename);
+  if (!Input) {
+    logAllUnhandledErrors(Input.takeError(), errs(), argv[0]);
+    return 1;
+  }
 
-  for (auto &BCFilename : WLLVMFile->getBCFilenames()) {
+  for (auto &BCFilename : (*Input)->getBCFilenames()) {
     errs() << "Entry: [" << BCFilename << "]\n";
   }
 

@@ -11,6 +11,7 @@
 #include "WLLVMFile.h"
 
 #include <llvm/IR/Module.h>
+#include <llvm/Support/Errc.h>
 #include <llvm/IRReader/IRReader.h>
 #include <llvm/Linker/Linker.h>
 #include <llvm/Support/SourceMgr.h>
@@ -60,7 +61,7 @@ static void internalizeHidden(Module *M) {
     internalizeHidden(Alias);
 }
 
-std::unique_ptr<llvm::Module>
+Expected<std::unique_ptr<llvm::Module>>
 WLLVMFile::getLinkedModule(LLVMContext &C, bool InternalizeHidden) const {
   // TODO: Rework how WLLVMFile* handles errors!
   SMDiagnostic Err;
@@ -75,7 +76,8 @@ WLLVMFile::getLinkedModule(LLVMContext &C, bool InternalizeHidden) const {
       return nullptr;
     }
     if (L.linkInModule(std::move(M)))
-      reportError(BCFilename, "error linking module");
+      return make_error<StringError>(BCFilename + ": error linking module",
+                                     errc::invalid_argument);
   }
 
   if (InternalizeHidden)
