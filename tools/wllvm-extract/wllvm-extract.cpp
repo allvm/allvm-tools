@@ -170,8 +170,8 @@ int main(int argc, const char **argv, const char **envp) {
   }
 
   Error E = writeAs(*WLLVMFile.get(), OutputFilename, EmitOutputKind);
-  if (!E) {
-    logAllUnhandledErrors(std::move(E), errs(), argv[0]);
+  if (E) {
+    logAllUnhandledErrors(std::move(E), errs(), StringRef(argv[0]) + ": ");
     return 1;
   }
 
