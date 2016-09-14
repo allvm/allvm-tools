@@ -73,7 +73,9 @@ WLLVMFile::getLinkedModule(LLVMContext &C, bool InternalizeHidden) const {
     auto M = parseIRFile(BCFilename, Err, C);
     if (!M) {
       Err.print("WLLVM-link", errs());
-      return nullptr;
+      return make_error<StringError>("Error opening referenced module '" +
+                                         BCFilename + "'",
+                                     errc::invalid_argument);
     }
     if (L.linkInModule(std::move(M)))
       return make_error<StringError>(BCFilename + ": error linking module",
