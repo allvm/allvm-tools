@@ -85,5 +85,5 @@ WLLVMFile::getLinkedModule(LLVMContext &C, bool InternalizeHidden) const {
   if (InternalizeHidden)
     internalizeHidden(Composite.get());
 
-  return Composite;
+  return std::move(Composite);
 }
