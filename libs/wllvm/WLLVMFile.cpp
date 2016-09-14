@@ -10,53 +10,57 @@
 
 #include "WLLVMFile.h"
 
-#include "Error.h"
-
 #include <llvm/Object/Archive.h>
 #include <llvm/Object/ObjectFile.h>
+#include <llvm/Support/Errc.h>
 #include <llvm/Support/LineIterator.h>
 
 using namespace allvm;
 
-std::unique_ptr<WLLVMFile> WLLVMFile::open(StringRef file) {
+Expected<std::unique_ptr<WLLVMFile>> WLLVMFile::open(StringRef file) {
 
   auto BinaryOrErr = createBinary(file);
   if (!BinaryOrErr)
-    reportError(file, BinaryOrErr.takeError());
-  return make_unique<WLLVMFile>(file, std::move(BinaryOrErr.get()));
-}
+    return BinaryOrErr.takeError();
+  auto &Binary = *BinaryOrErr.get().getBinary();
 
-SectionRef WLLVMFile::getWLLVMSection() {
-  // Check the filetype, later we might want to support more of these.
-  auto &Binary = *File.getBinary();
   if (Archive *a = dyn_cast<Archive>(&Binary))
-    error("archives are not yet supported");
+    return make_error<StringError>("archives are not yet supported",
+                                   errc::invalid_argument);
   ObjectFile *o = dyn_cast<ObjectFile>(&Binary);
   if (!o)
-    error(
-        "invalid or unsupported file format, unable to read as an object file");
+    return make_error<StringError>(
+        "invalid or unsupported file format (expected object file)",
+        errc::invalid_argument);
   if (!o->isELF())
-    error("not an ELF object file");
+    return make_error<StringError>("not an ELF object file",
+                                   errc::invalid_argument);
   for (auto &S : o->sections()) {
     StringRef SecName;
-    check(S.getName(SecName));
+    if (auto ec = S.getName(SecName))
+      return make_error<StringError>("error reading name for section '" +
+                                         SecName + "'",
+                                     errc::invalid_argument);
 
     if (SecName == WLLVMSectionName) {
       if (S.getSize() == 0)
-        error("WLLVM section found, but size was zero");
+        return make_error<StringError>("empty WLLVM section found",
+                                       errc::invalid_argument);
 
-      return S;
+      StringRef Contents;
+      if (auto ec = S.getContents(Contents))
+        return make_error<StringError>("Error reading section contents: " +
+                                           ec.message(),
+                                       errc::invalid_argument);
+
+      return make_unique<WLLVMFile>(file, Contents);
     }
   }
-  error("Unable to find WLLVM section");
+  return make_error<StringError>("unable to find WLLVM section",
+                                 errc::invalid_argument);
 }
 
-void WLLVMFile::parseWLLVMSection() {
-  auto S = getWLLVMSection();
-
-  StringRef Contents;
-  check(S.getContents(Contents));
-
+void WLLVMFile::parseWLLVMSection(StringRef Contents) {
   // Make copy for editing, replace nulls with spaces
   SectionData.assign(Contents.begin(), Contents.end());
 

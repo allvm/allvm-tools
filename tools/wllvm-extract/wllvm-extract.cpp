@@ -9,7 +9,6 @@
 //===----------------------------------------------------------------------===//
 
 #include "Allexe.h"
-#include "Error.h"
 #include "WLLVMFile.h"
 
 #include <llvm/Bitcode/ReaderWriter.h>
@@ -17,6 +16,7 @@
 #include <llvm/IR/Module.h>
 #include <llvm/Object/ArchiveWriter.h>
 #include <llvm/Support/CommandLine.h>
+#include <llvm/Support/Errc.h>
 #include <llvm/Support/Path.h>
 #include <llvm/Support/PrettyStackTrace.h>
 #include <llvm/Support/Signals.h>
@@ -66,34 +66,28 @@ static std::string getDefaultSuffix(OutputKind K) {
   }
 }
 
-static int writeAsSingleBC(const WLLVMFile &File, StringRef Filename) {
+static Error writeAsSingleBC(const WLLVMFile &File, StringRef Filename) {
   // Initialize output file, error early if unavailable
   std::unique_ptr<tool_output_file> Out;
   std::error_code EC;
   Out.reset(new tool_output_file(Filename, EC, sys::fs::F_None));
-  if (EC) {
-    errs() << "Error opening file '" << Filename << "': ";
-    errs() << EC.message() << "\n";
-    errs().flush();
-    return 1;
-  }
+  if (EC)
+    return make_error<StringError>(
+        "error opening output file '" + Filename + "'", EC);
 
   LLVMContext C;
   auto Composite = File.getLinkedModule(C, InternalizeHidden);
-  if (!Composite) {
-    errs() << "Error linking into single module\n";
-    errs().flush();
-    return 1;
-  }
+  if (!Composite)
+    return Composite.takeError();
 
-  WriteBitcodeToFile(Composite.get(), Out->os());
+  WriteBitcodeToFile((*Composite).get(), Out->os());
 
   // We made it this far without error, keep the result.
   Out->keep();
-  return 0;
+  return Error::success();
 }
 
-static int writeAsBitcodeArchive(const WLLVMFile &File, StringRef Filename) {
+static Error writeAsBitcodeArchive(const WLLVMFile &File, StringRef Filename) {
   std::vector<NewArchiveMember> Members;
   std::vector<std::unique_ptr<MemoryBuffer>> Buffers;
   size_t unique_id = 0;
@@ -101,7 +95,7 @@ static int writeAsBitcodeArchive(const WLLVMFile &File, StringRef Filename) {
     auto Member =
         NewArchiveMember::getFile(BCFilename, /* deterministic */ true);
     if (!Member)
-      reportError(BCFilename, Member.takeError());
+      return Member.takeError();
 
     // Make copy of buffer so we can give it a name :(
     Buffers.push_back(std::move(Member->Buf));
@@ -114,33 +108,45 @@ static int writeAsBitcodeArchive(const WLLVMFile &File, StringRef Filename) {
       writeArchive(Filename, Members, true /* writeSymTab */, Archive::K_GNU,
                    true /* deterministic */, false /* thin */);
   if (result.second)
-    reportError(result.first, result.second);
+    return make_error<StringError>(result.first, result.second);
 
-  return 0;
+  return Error::success();
 }
 
-static int writeAsAllexe(const WLLVMFile &File, StringRef Filename) {
+static Error writeAsAllexe(const WLLVMFile &File, StringRef Filename) {
   LLVMContext C;
 
-  auto Output = Allexe::open(Filename, ForceOutput);
+  auto Output = errorOrToExpected(Allexe::open(Filename, ForceOutput));
   if (!Output)
-    reportError(Filename, Output.getError());
+    return Output.takeError();
 
   auto Composite = File.getLinkedModule(C, InternalizeHidden);
-  if (!Composite) {
-    errs() << "Error linking into single module\n";
-    return 1;
-  }
+  if (!Composite)
+    return Composite.takeError();
 
-  if (!(*Output)->addModule(std::move(Composite),
-                            "main.bc" /* FIXME: magic string */)) {
-    errs() << "Error adding module to allexe!\n";
-    return 1;
-  }
+  if (!(*Output)->addModule(std::move(*Composite),
+                            "main.bc" /* FIXME: magic string */))
+    // "invalid argument"? :(
+    return make_error<StringError>("error adding module to allexe",
+                                   errc::invalid_argument);
 
   // (Writes output in destructor of class Allexe)
 
-  return 0;
+  return Error::success();
+}
+
+Error writeAs(const WLLVMFile &File, StringRef OutputFilename,
+              OutputKind Kind) {
+  switch (EmitOutputKind) {
+  case OutputKind::SingleBitcode:
+    return writeAsSingleBC(File, OutputFilename);
+  case OutputKind::BitcodeArchive:
+    return writeAsBitcodeArchive(File, OutputFilename);
+  case OutputKind::Allexe:
+    return writeAsAllexe(File, OutputFilename);
+  }
+
+  llvm_unreachable("unhandled outputkind");
 }
 
 int main(int argc, const char **argv, const char **envp) {
@@ -151,6 +157,11 @@ int main(int argc, const char **argv, const char **envp) {
 
   // Open the specified file
   auto WLLVMFile = WLLVMFile::open(InputFilename);
+  if (!WLLVMFile) {
+    errs() << "Error reading file: " << InputFilename << "\n";
+    logAllUnhandledErrors(WLLVMFile.takeError(), errs(), argv[0]);
+    return 1;
+  }
 
   // Figure out where we're writing...
   if (OutputFilename.empty()) {
@@ -158,15 +169,11 @@ int main(int argc, const char **argv, const char **envp) {
       OutputFilename = InputFilename + getDefaultSuffix(EmitOutputKind);
   }
 
-  switch (EmitOutputKind) {
-  case OutputKind::SingleBitcode:
-    return writeAsSingleBC(*WLLVMFile, OutputFilename);
-  case OutputKind::BitcodeArchive:
-    return writeAsBitcodeArchive(*WLLVMFile, OutputFilename);
-  case OutputKind::Allexe:
-    return writeAsAllexe(*WLLVMFile, OutputFilename);
+  Error E = writeAs(*WLLVMFile.get(), OutputFilename, EmitOutputKind);
+  if (E) {
+    logAllUnhandledErrors(std::move(E), errs(), StringRef(argv[0]) + ": ");
+    return 1;
   }
 
-  // unreachable
   return 0;
 }
