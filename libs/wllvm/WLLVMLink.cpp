@@ -11,9 +11,9 @@
 #include "WLLVMFile.h"
 
 #include <llvm/IR/Module.h>
-#include <llvm/Support/Errc.h>
 #include <llvm/IRReader/IRReader.h>
 #include <llvm/Linker/Linker.h>
+#include <llvm/Support/Errc.h>
 #include <llvm/Support/SourceMgr.h>
 
 using namespace allvm;

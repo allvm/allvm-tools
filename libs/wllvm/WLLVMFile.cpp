@@ -33,7 +33,8 @@ Expected<std::unique_ptr<WLLVMFile>> WLLVMFile::open(StringRef file) {
         "invalid or unsupported file format (expected object file)",
         errc::invalid_argument);
   if (!o->isELF())
-    return make_error<StringError>("not an ELF object file", errc::invalid_argument);
+    return make_error<StringError>("not an ELF object file",
+                                   errc::invalid_argument);
   for (auto &S : o->sections()) {
     StringRef SecName;
     if (auto ec = S.getName(SecName))
@@ -55,7 +56,8 @@ Expected<std::unique_ptr<WLLVMFile>> WLLVMFile::open(StringRef file) {
       return make_unique<WLLVMFile>(file, Contents);
     }
   }
-  return make_error<StringError>("unable to find WLLVM section", errc::invalid_argument);
+  return make_error<StringError>("unable to find WLLVM section",
+                                 errc::invalid_argument);
 }
 
 void WLLVMFile::parseWLLVMSection(StringRef Contents) {
