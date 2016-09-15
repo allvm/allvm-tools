@@ -1,0 +1,23 @@
+# vim: set filetype=python:
+
+import os
+import lit.formats
+
+config.name = "allvm"
+config.test_format = lit.formats.ShTest(True)
+config.test_source_root = "@CMAKE_SOURCE_DIR@/test"
+config.test_exec_root = "@CMAKE_BINARY_DIR@/test"
+config.suffixes = ['.ll', '.c', '.cpp', '.test']
+
+curpath = os.environ.get('PATH', '')
+
+newpath = "@LLVM_RUNTIME_OUTPUT_INTDIR@:@LLVM_TOOLS_BINARY_DIR@"
+curpath = os.environ.get('PATH', '')
+if curpath:
+    newpath += ":" + curpath
+config.environment['PATH'] = newpath
+
+libpath = os.environ.get('LD_LIBRARY_PATH', '')
+if libpath:
+    libpath = ":" + libpath
+config.environment['LD_LIBRARY_PATH'] = "@OBJDIR@/prefix/lib" + libpath
