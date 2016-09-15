@@ -1,5 +1,5 @@
 create libnone.a.merged
-addlib libnone.a
+addlib ${LLVM_LIBRARY_OUTPUT_INTDIR}/libnone.a
 addlib ${MUSL}/lib/libc.a
 save
 end
