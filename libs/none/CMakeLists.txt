@@ -3,11 +3,16 @@ enable_language(ASM)
 set(MUSL musl-1.1.15)
 
 set(MUSL_PATCHES
-  musl-patches/0001-Build-with-fPIC-to-workaround-RTDyLd-relocation-limi.patch
   musl-patches/0002-Disable-vdso-support-on-x86_64-we-don-t-support-it-y.patch
   musl-patches/0003-Remove-simple-malloc-gets-in-way-of-real-malloc.patch
   musl-patches/0004-KLUDGE-More-workaround-weak-alias-this-time-tackling.patch
 )
+
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+  list(APPEND MUSL_PATCHES
+    musl-patches/0001-Build-with-fPIC-to-workaround-RTDyLd-relocation-limi.patch
+  )
+endif()
 
 add_custom_command(OUTPUT ${MUSL}/config.mak
   COMMAND rm -rf "${MUSL}"
