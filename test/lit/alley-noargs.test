@@ -1,0 +1,6 @@
+// Very basic test, checks:
+// - running 'alley' without arguments returns non-zero exit status
+// - the expected string appears in the output
+// RUN: not alley 2>&1 | FileCheck %s
+
+// CHECK: Not enough positional command line arguments specified
