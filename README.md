@@ -43,26 +43,37 @@ as you would normally:
 
 ```console
 [nix-shell:~/allvm-tools]$ mkdir build && cd build
-[nix-shell:~/allvm-tools/build]$ cmake .. -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_INSTALL_PREFIX=$PWD/../install
-[nix-shell:~/allvm-tools/build]$ make -j
+[nix-shell:~/allvm-tools/build]$ cmake .. -DCMAKE_INSTALL_PREFIX=$PWD/../install
+[nix-shell:~/allvm-tools/build]$ make check -j
 ```
 
 
 ## How to build (without using allvm-nixpkgs)
 
-This is tested with llvm-trunk (llvm 4.0?). You will need a copy of llvm built
-with this [patch](https://gitlab-beta.engr.illinois.edu/llvm/allvm-nixpkgs/raw/master/pkgs/development/compilers/llvm/master/patches/llvm-R_X86_64_NONE.patch).
-Install llvm somewhere. Then you can build ALLVM as follows, replacing
+First you'll need to build and install the requirements as described below,
+then you can build ALLVM as follows, replacing
 `YOUR_LLVM_PREFIX` with the directory you installed llvm to:
 
 ```console
 $ mkdir build && cd build
 $ cmake -D LLVM_DIR=YOUR_LLVM_PREFIX/lib/cmake/llvm ..
-$ make -j$(nproc)
+$ make check -j$(nproc)
 ```
 
 If you installed llvm to `/usr`, you can leave out the `-D LLVM_DIR=...` option
 and CMake will find llvm automatically.
+
+### Requirements
+
+The main requirement is LLVM.  The latest version of LLVM tested and known to work
+can be found here: [llvm-version-info.log](https://gitlab-beta.engr.illinois.edu/llvm/allvm-nixpkgs/blob/master/llvm-version-info.log).
+Building trunk may work, but if you run into problems check that they're not resolved by using a known-working revision.
+
+For the time being, you'll also need to apply this [patch](https://gitlab-beta.engr.illinois.edu/llvm/allvm-nixpkgs/raw/master/pkgs/development/compilers/llvm/master/patches/llvm-R_X86_64_NONE.patch).
+
+In addition, in order to run the regression tests you'll need a copy of LLVM's `lit`.  This is now available as a python package on most systems.
+
+If you built LLVM from source (and still have the source around) you may not need to install lit, but this hasn't been tested.
 
 ## Coding Style
 
