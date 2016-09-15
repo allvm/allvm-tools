@@ -11,6 +11,7 @@ list(APPEND ALLVM_TEST_DEPENDS
   alley
   alltogether
   bc2allvm
+  none
 )
 set(ALLVM_TEST_PARAMS
   allvm_site_config=${CMAKE_CURRENT_BINARY_DIR}/lit.site.cfg
