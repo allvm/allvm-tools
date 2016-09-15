@@ -17,6 +17,10 @@ set(ALLVM_TEST_PARAMS
 set(LIT_REPORT ${CMAKE_CURRENT_BINARY_DIR}/report.xml)
 set(ALLVM_TEST_EXTRA_ARGS -sv --xunit-xml-output=${LIT_REPORT})
 
+# try to find 'lit'
+find_program(LIT_COMMAND llvm-lit)
+find_program(LIT_COMMAND lit)
+
 add_lit_testsuite(check "Running ALLVM regression tests"
   ${CMAKE_CURRENT_BINARY_DIR}
   PARAMS ${ALLVM_TEST_PARAMS}
@@ -27,7 +31,3 @@ add_lit_testsuites(ALLVM ${CMAKE_CURRENT_SOURCE_DIR}
   PARAMS ${ALLVM_TEST_PARAMS}
   DEPENDS ${ALLVM_TEST_DEPENDS}
 )
-
-# try to find 'lit'
-find_program(LIT_COMMAND llvm-lit)
-find_program(LIT_COMMAND lit)
