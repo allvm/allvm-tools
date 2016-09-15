@@ -22,6 +22,9 @@ set(ALLVM_TEST_EXTRA_ARGS -sv --xunit-xml-output=${LIT_REPORT})
 # try to find 'lit'
 find_program(LIT_COMMAND llvm-lit)
 find_program(LIT_COMMAND lit)
+if (EXISTS ${LLVM_INSTALL_PREFIX}/lit/lit.py)
+  set(LIT_COMMAND ${LLVM_INSTALL_PREFIX}/lit/lit.py)
+endif()
 
 add_lit_testsuite(check "Running ALLVM regression tests"
   ${CMAKE_CURRENT_BINARY_DIR}
