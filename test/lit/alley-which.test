@@ -1,0 +1,2 @@
+// Test that we can execute a simple allexe
+// RUN: alley %p/samples/which alley
