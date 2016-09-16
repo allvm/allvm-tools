@@ -1,0 +1,17 @@
+
+// Get an allexe:
+// RUN: llvm-as %p/Inputs/simplest.ll -o %t.bc
+// RUN: bc2allvm %t.bc -f -o %t
+
+// Verify that we can run it with alley explicitly:
+// RUN: alley %t
+
+// Verify the file itself is executable:
+// RUN: %t
+
+// And that it has our shebang:
+// RUN: head -n1 %t | grep alley
+
+// This doesn't actually work yet! :)
+// (See https://gitlab-beta.engr.illinois.edu/llvm/allvm/issues/14)
+// XFAIL: *

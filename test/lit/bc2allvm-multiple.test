@@ -5,4 +5,7 @@
 // RUN: alley %t
 
 // bc2allvm doesn't actually support this yet!
+// (See https://gitlab-beta.engr.illinois.edu/llvm/allvm/issues/26)
 // XFAIL: *
+
+
