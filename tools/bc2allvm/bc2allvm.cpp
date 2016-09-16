@@ -64,7 +64,7 @@ int main(int argc, const char **argv, const char **envp) {
       return 1;
     }
 
-    if (Output.get()->addModule(InputFilename, "main.bc")) {
+    if (!Output.get()->addModule(InputFilename, "main.bc")) {
       // XXX: This needs much better error reporting!
       errs() << "Error adding file to allexe, unknown reason\n";
       return 1;
