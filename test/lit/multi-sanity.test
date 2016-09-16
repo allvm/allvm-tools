@@ -1,0 +1,5 @@
+// Make sure our little multi-file example works:
+// RUN: llc %p/Inputs/multi-main.ll -filetype=obj -o %t-main.o
+// RUN: llc %p/Inputs/multi-lib.ll -filetype=obj -o %t-lib.o
+// RUN: cc %t-main.o %t-lib.o -o %t
+// RUN: %t
