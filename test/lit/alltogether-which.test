@@ -1,5 +1,5 @@
 // Test that we can run alltogether on a simple allexe
-// RUN: alltogether %p/samples/which -f -o %t
+// RUN: alltogether %p/Inputs/which -f -o %t
 
 // Test that we can run the resulting allexe
 // RUN: alley %t alley
