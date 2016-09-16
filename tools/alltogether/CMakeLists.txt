@@ -1,6 +1,7 @@
 set(LLVM_LINK_COMPONENTS
   Core
   LTO
+  ${LLVM_TARGETS_TO_BUILD}
 )
 
 add_llvm_tool(alltogether
