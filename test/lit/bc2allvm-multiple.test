@@ -1,0 +1,6 @@
+// RUN: llvm-as %p/Inputs/multi-main.ll -o %t-main.bc
+// RUN: llvm-as %p/Inputs/multi-lib.ll -o %t-lib.bc
+// RUN: bc2allvm %t-main.bc %t-lib.bc -f -o %t
+
+// bc2allvm doesn't actually support this yet!
+// XFAIL: *
