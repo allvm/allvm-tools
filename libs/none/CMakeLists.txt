@@ -37,7 +37,7 @@ install(TARGETS none DESTINATION lib)
 set_output_directory(none BINARY_DIR ${LLVM_RUNTIME_OUTPUT_INTDIR} LIBRARY_DIR ${LLVM_LIBRARY_OUTPUT_INTDIR})
 add_dependencies(none musl)
 # http://stackoverflow.com/questions/3821916/how-to-merge-two-ar-static-libraries-into-one
-configure_file(merge.ar merge.ar)
+configure_file(merge.ar.in merge.ar)
 add_custom_command(TARGET none POST_BUILD
   COMMAND ar -M <merge.ar
   COMMAND mv libnone.a.merged ${LLVM_LIBRARY_OUTPUT_INTDIR}/libnone.a
