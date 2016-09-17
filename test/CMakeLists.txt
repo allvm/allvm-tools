@@ -41,6 +41,8 @@ if (NOT LIT_COMMAND) # if it ends in the suffix -NOTFOUND -> false! Marvelous.
     pip install lit
       OR
     easy_install /path/to/llvm-source/utils/lit
+
+    (If you're wondering why it isn't install with LLVM, see: http://llvm.org/PR8496)
   ")
 endif()
 
