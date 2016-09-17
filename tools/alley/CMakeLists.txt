@@ -12,6 +12,7 @@ add_llvm_tool(alley
   ImageExecutor.cpp
   HostedImageExecutor.cpp
   ImageCache.cpp
+  StaticBinaryCache.cpp
 )
 target_link_libraries(alley liball StaticCodeGen)
 

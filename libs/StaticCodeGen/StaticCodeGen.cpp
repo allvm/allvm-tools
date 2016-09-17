@@ -230,9 +230,96 @@ CompilationOptions::CompilationOptions()
 
   // The default constructor of TargetOptions initializes the object as desired
   // except for two members.
-  TargetOptions Options;
-  Options.UseInitArray = true;
-  Options.MCOptions.AsmVerbose = true;
+  TOptions.UseInitArray = true;
+  TOptions.MCOptions.AsmVerbose = true;
+}
+
+std::string CompilationOptions::serializeCompilationOptions() {
+  std::string buffer;
+
+  //Serialize TargetTriple
+  buffer += TargetTriple.str();
+  //Serialize MArch
+  buffer += MArch.str();
+  //Serialize MCPU
+  buffer += MCPU.str();
+  //Serialize MAttrs
+  for(auto attr : MAttrs) {
+    buffer += attr.str();    
+  }
+  //Serialize CMModel
+  buffer += std::to_string(CMModel);
+  //Serialize RelocModel
+  if(RelocModel.hasValue()) {
+    buffer += std::to_string(RelocModel.getValue());
+  }
+  //Serialize OLvl
+  buffer += std::to_string(OLvl);
+  //Serialize TargetOptions
+  buffer += std::to_string(TOptions.PrintMachineCode);
+  buffer += std::to_string(TOptions.LessPreciseFPMADOption);
+  buffer += std::to_string(TOptions.UnsafeFPMath);
+  buffer += std::to_string(TOptions.NoInfsFPMath);
+  buffer += std::to_string(TOptions.NoNaNsFPMath);
+  buffer += std::to_string(TOptions.NoTrappingFPMath);
+  buffer += std::to_string(TOptions.HonorSignDependentRoundingFPMathOption);
+  buffer += std::to_string(TOptions.NoZerosInBSS);
+  buffer += std::to_string(TOptions.GuaranteedTailCallOpt);
+  buffer += std::to_string(TOptions.StackAlignmentOverride);
+  buffer += std::to_string(TOptions.StackSymbolOrdering);
+  buffer += std::to_string(TOptions.EnableFastISel);
+  buffer += std::to_string(TOptions.UseInitArray);
+  buffer += std::to_string(TOptions.DisableIntegratedAS);
+  buffer += std::to_string(TOptions.CompressDebugSections);
+  buffer += std::to_string(TOptions.RelaxELFRelocations);
+  buffer += std::to_string(TOptions.FunctionSections);
+  buffer += std::to_string(TOptions.DataSections);
+  buffer += std::to_string(TOptions.UniqueSectionNames);
+  buffer += std::to_string(TOptions.TrapUnreachable);
+  buffer += std::to_string(TOptions.EmulatedTLS);
+  buffer += std::to_string(TOptions.EnableIPRA);
+  buffer += std::to_string(TOptions.FloatABIType);
+  buffer += std::to_string(TOptions.AllowFPOpFusion);
+  buffer += std::to_string(TOptions.JTType);
+  buffer += std::to_string(TOptions.ThreadModel);
+  buffer += std::to_string(static_cast<int> (TOptions.EABIVersion));
+  buffer += std::to_string(static_cast<int> (TOptions.DebuggerTuning));
+  buffer += std::to_string(TOptions.FPDenormalType);
+  buffer += std::to_string(static_cast<int> (TOptions.ExceptionModel));
+  buffer += std::to_string(TOptions.MCOptions.SanitizeAddress);
+  buffer += std::to_string(TOptions.MCOptions.MCRelaxAll);
+  buffer += std::to_string(TOptions.MCOptions.MCNoExecStack);
+  buffer += std::to_string(TOptions.MCOptions.MCFatalWarnings);
+  buffer += std::to_string(TOptions.MCOptions.MCNoWarn);
+  buffer += std::to_string(TOptions.MCOptions.MCSaveTempLabels);
+  buffer += std::to_string(TOptions.MCOptions.MCUseDwarfDirectory);
+  buffer += std::to_string(TOptions.MCOptions.MCIncrementalLinkerCompatible);
+  buffer += std::to_string(TOptions.MCOptions.ShowMCEncoding);
+  buffer += std::to_string(TOptions.MCOptions.ShowMCInst);
+  buffer += std::to_string(TOptions.MCOptions.AsmVerbose);
+  buffer += std::to_string(TOptions.MCOptions.PreserveAsmComments);
+  buffer += std::to_string(TOptions.MCOptions.DwarfVersion);
+  buffer += TOptions.MCOptions.ABIName;
+  // Serialize NoVerify
+  buffer += std::to_string(NoVerify);
+  // Serialize DisableSimplifyLibCalls
+  buffer += std::to_string(DisableSimplifyLibCalls);
+  // Serialize DisableFPElim
+  if(DisableFPElim.hasValue()) {
+    buffer += std::to_string(DisableFPElim.getValue());
+  }
+  // Serialize DisableTailCalls
+  if(DisableTailCalls.hasValue()) {
+    buffer += std::to_string(DisableTailCalls.getValue());
+  }
+  // Serialize StackRealign
+  buffer += std::to_string(StackRealign);
+  // Serialize TrapFuncName
+  if(TrapFuncName.hasValue()) {
+    buffer += TrapFuncName.getValue();
+  }
+
+  return buffer;
 }
 
 int compileAllexeWithLlcDefaults(Allexe &Input, raw_pwrite_stream &OS,
