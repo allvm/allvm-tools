@@ -18,7 +18,7 @@ if curpath:
     newpath += ":" + curpath
 config.environment['PATH'] = newpath
 
-libpath = os.environ.get('LD_LIBRARY_PATH', '')
-if libpath:
-    libpath = ":" + libpath
-config.environment['LD_LIBRARY_PATH'] = "@OBJDIR@/prefix/lib" + libpath
+#libpath = os.environ.get('LD_LIBRARY_PATH', '')
+#if libpath:
+#    libpath = ":" + libpath
+#config.environment['LD_LIBRARY_PATH'] = "@OBJDIR@/prefix/lib" + libpath
