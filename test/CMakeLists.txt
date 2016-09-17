@@ -25,6 +25,24 @@ find_program(LIT_COMMAND lit)
 if (EXISTS ${LLVM_INSTALL_PREFIX}/lit/lit.py)
   set(LIT_COMMAND ${LLVM_INSTALL_PREFIX}/lit/lit.py)
 endif()
+if (NOT LIT_COMMAND) # if it ends in the suffix -NOTFOUND -> false! Marvelous.
+  message(FATAL_ERROR "
+  Unable to find location of LLVM lit!
+
+  If you have it available please either add it to your PATH or specify its location
+  by setting the 'LIT_COMMAND' option:
+    cmake ... -DLIT_COMMAND=/path/to/llvm-lit
+      OR
+    cmake ... -DLIT_COMMAND=/path/to/lit
+      OR
+    cmake ... -DLIT_COMMAND=/path/to/llvm-source/utils/lit/lit.py
+
+  Alternatively you may install it as a python package:
+    pip install lit
+      OR
+    easy_install /path/to/llvm-source/utils/lit
+  ")
+endif()
 
 add_lit_testsuite(check "Running ALLVM regression tests"
   ${CMAKE_CURRENT_BINARY_DIR}
