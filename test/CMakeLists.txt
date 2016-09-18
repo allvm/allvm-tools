@@ -38,3 +38,5 @@ add_lit_testsuites(ALLVM ${CMAKE_CURRENT_SOURCE_DIR}
   PARAMS ${ALLVM_TEST_PARAMS}
   DEPENDS ${ALLVM_TEST_DEPENDS}
 )
+
+message(STATUS "Using lit command: ${LIT_COMMAND}")
