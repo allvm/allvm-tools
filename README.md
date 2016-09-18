@@ -4,16 +4,19 @@
 
 ### Building
 If you just want a built version of this repository, run the following:
+
 ```console
 $ nix-build '<allvm>' -A allvm-tools
 ```
 
 or equivalently (if you don't have `NIX_PATH` configured for allvm):
+
 ```console
 $ nix-build /path/to/allvm-nixpkgs/allvm -A allvm-tools
 ```
 
 And if you want to make it easy to use them while doing other tasks:
+
 ```console
 $ nix-env -f '<allvm>' -iA allvm-tools
 ```
@@ -27,6 +30,7 @@ sources as you change them.
 Nix has a very useful tool called `nix-shell` that can
 be used to enter a shell that has all the needed dependencies
 ready to go:
+
 ```console
 $ nix-shell '<allvm>' -A allvm-tools
 [nix-shell:~/allvm-tools]$ # easy as that
@@ -65,15 +69,12 @@ and CMake will find llvm automatically.
 
 ### Requirements
 
-The main requirement is LLVM.  The latest version of LLVM tested and known to work
-can be found here: [llvm-version-info.log](https://gitlab-beta.engr.illinois.edu/llvm/allvm-nixpkgs/blob/master/llvm-version-info.log).
-Building trunk may work, but if you run into problems check that they're not resolved by using a known-working revision.
+The main requirement is LLVM.
+To ensure your built LLVM will work and contains the required functionality:
 
-For the time being, you'll also need to apply this [patch](https://gitlab-beta.engr.illinois.edu/llvm/allvm-nixpkgs/raw/master/pkgs/development/compilers/llvm/master/patches/llvm-R_X86_64_NONE.patch).
-
-In addition, in order to run the regression tests you'll need a copy of LLVM's `lit`.  This is now available as a python package on most systems.
-
-If you built LLVM from source (and still have the source around) you may not need to install lit, but this hasn't been tested.
+* Use a supported version.  The latest version tested and known to work is tracked here: [llvm-version-info.log](https://gitlab-beta.engr.illinois.edu/llvm/allvm-nixpkgs/blob/master/llvm-version-info.log).
+* Be sure to apply this [patch](https://gitlab-beta.engr.illinois.edu/llvm/allvm-nixpkgs/raw/master/pkgs/development/compilers/llvm/master/patches/llvm-R_X86_64_NONE.patch).
+* Enable the `LLVM_INSTALL_UTILS` CMake option to ensure required tools like `FileCheck` are also installed.
 
 ## Coding Style
 
