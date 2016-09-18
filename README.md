@@ -54,19 +54,6 @@ as you would normally:
 
 ## How to build (without using allvm-nixpkgs)
 
-First you'll need to build and install the requirements as described below,
-then you can build ALLVM as follows, replacing
-`YOUR_LLVM_PREFIX` with the directory you installed llvm to:
-
-```console
-$ mkdir build && cd build
-$ cmake -D LLVM_DIR=YOUR_LLVM_PREFIX/lib/cmake/llvm ..
-$ make check -j$(nproc)
-```
-
-If you installed llvm to `/usr`, you can leave out the `-D LLVM_DIR=...` option
-and CMake will find llvm automatically.
-
 ### Requirements
 
 The main requirement is LLVM.
@@ -75,6 +62,21 @@ To ensure your built LLVM will work and contains the required functionality:
 * Use a supported version.  The latest version tested and known to work is tracked here: [llvm-version-info.log](https://gitlab-beta.engr.illinois.edu/llvm/allvm-nixpkgs/blob/master/llvm-version-info.log).
 * Be sure to apply this [patch](https://gitlab-beta.engr.illinois.edu/llvm/allvm-nixpkgs/raw/master/pkgs/development/compilers/llvm/master/patches/llvm-R_X86_64_NONE.patch).
 * Enable the `LLVM_INSTALL_UTILS` CMake option to ensure required tools like `FileCheck` are also installed.
+
+### Building ALLVM Tools
+
+After building LLVM as described above, you can build ALLVM as follows,
+replacing `YOUR_LLVM_PREFIX` with the directory containing your installed LLVM:
+
+```console
+$ mkdir build && cd build
+$ cmake -DLLVM_DIR=YOUR_LLVM_PREFIX/lib/cmake/llvm ..
+$ make check -j$(nproc)
+```
+
+If you installed llvm to `/usr`, you can leave out the `-D LLVM_DIR=...` option
+and CMake will find llvm automatically.
+
 
 ## Coding Style
 
