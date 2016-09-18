@@ -28,6 +28,17 @@ if (NOT LIT_COMMAND)
   set(LIT_COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/utils/lit/lit.py)
 endif()
 
+# Check we have FileCheck utility, as indicator of the LLVM utilities.
+find_program(FILECHECK_PATH FileCheck HINTS ${LLVM_TOOLS_BINARY_DIR})
+if (NOT FILECHECK_PATH)
+  message(STATUS "LLVM Tools path: ${LLVM_TOOLS_BINARY_DIR}")
+  message(FATAL_ERROR "
+     Unable to find required 'FileCheck' utility.
+     Check that LLVM_INSTALL_UTILS was enabled when you built LLVM.")
+else()
+  message(STATUS "Found FileCheck: ${FILECHECK_PATH}")
+endif()
+
 add_lit_testsuite(check "Running ALLVM regression tests"
   ${CMAKE_CURRENT_BINARY_DIR}
   PARAMS ${ALLVM_TEST_PARAMS}
