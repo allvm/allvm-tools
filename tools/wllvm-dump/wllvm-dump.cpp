@@ -22,7 +22,7 @@ static cl::opt<std::string>
     InputFilename(cl::Positional, cl::Required,
                   cl::desc("<input file built with wllvm>"));
 
-int main(int argc, const char **argv, const char **envp) {
+int main(int argc, const char **argv) {
   sys::PrintStackTraceOnErrorSignal(argv[0]);
   PrettyStackTraceProgram X(argc, argv);
   llvm_shutdown_obj Y; // Call llvm_shutdown() on exit.

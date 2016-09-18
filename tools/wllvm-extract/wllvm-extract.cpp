@@ -149,7 +149,7 @@ Error writeAs(const WLLVMFile &File, StringRef OutputFilename,
   llvm_unreachable("unhandled outputkind");
 }
 
-int main(int argc, const char **argv, const char **envp) {
+int main(int argc, const char **argv) {
   sys::PrintStackTraceOnErrorSignal(argv[0]);
   PrettyStackTraceProgram X(argc, argv);
   llvm_shutdown_obj Y; // Call llvm_shutdown() on exit.

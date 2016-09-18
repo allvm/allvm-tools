@@ -9,6 +9,7 @@
 #include <llvm/IR/Module.h>
 #include <llvm/IRReader/IRReader.h>
 #include <llvm/Support/CommandLine.h>
+#include <llvm/Support/Compiler.h>
 #include <llvm/Support/MemoryBuffer.h>
 #include <llvm/Support/Path.h>
 #include <llvm/Support/SourceMgr.h>
@@ -137,7 +138,8 @@ int execWithJITCompilation(allvm::Allexe &allexe, const char **envp) {
  *              module is to merge all the librraies with the main module
  *              which is what alltogether does.
  ****************************************************************/
-int execWithStaticCompilation(allvm::Allexe &allexe, const char **envp) {
+int execWithStaticCompilation(allvm::Allexe &allexe,
+                              LLVM_ATTRIBUTE_UNUSED const char **envp) {
 
   assert(allexe.getNumModules() == 1 &&
          "The input must be an allexe with a single module");
