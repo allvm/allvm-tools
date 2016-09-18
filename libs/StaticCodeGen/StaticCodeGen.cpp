@@ -234,28 +234,28 @@ CompilationOptions::CompilationOptions()
   TOptions.MCOptions.AsmVerbose = true;
 }
 
-std::string CompilationOptions::serializeCompilationOptions() {
+std::string CompilationOptions::serializeCompilationOptions() const {
   std::string buffer;
 
-  //Serialize TargetTriple
+  // Serialize TargetTriple
   buffer += TargetTriple.str();
-  //Serialize MArch
+  // Serialize MArch
   buffer += MArch.str();
-  //Serialize MCPU
+  // Serialize MCPU
   buffer += MCPU.str();
-  //Serialize MAttrs
-  for(auto attr : MAttrs) {
-    buffer += attr.str();    
+  // Serialize MAttrs
+  for (auto attr : MAttrs) {
+    buffer += attr.str();
   }
-  //Serialize CMModel
+  // Serialize CMModel
   buffer += std::to_string(CMModel);
-  //Serialize RelocModel
-  if(RelocModel.hasValue()) {
+  // Serialize RelocModel
+  if (RelocModel.hasValue()) {
     buffer += std::to_string(RelocModel.getValue());
   }
-  //Serialize OLvl
+  // Serialize OLvl
   buffer += std::to_string(OLvl);
-  //Serialize TargetOptions
+  // Serialize TargetOptions
   buffer += std::to_string(TOptions.PrintMachineCode);
   buffer += std::to_string(TOptions.LessPreciseFPMADOption);
   buffer += std::to_string(TOptions.UnsafeFPMath);
@@ -282,10 +282,10 @@ std::string CompilationOptions::serializeCompilationOptions() {
   buffer += std::to_string(TOptions.AllowFPOpFusion);
   buffer += std::to_string(TOptions.JTType);
   buffer += std::to_string(TOptions.ThreadModel);
-  buffer += std::to_string(static_cast<int> (TOptions.EABIVersion));
-  buffer += std::to_string(static_cast<int> (TOptions.DebuggerTuning));
+  buffer += std::to_string(static_cast<int>(TOptions.EABIVersion));
+  buffer += std::to_string(static_cast<int>(TOptions.DebuggerTuning));
   buffer += std::to_string(TOptions.FPDenormalType);
-  buffer += std::to_string(static_cast<int> (TOptions.ExceptionModel));
+  buffer += std::to_string(static_cast<int>(TOptions.ExceptionModel));
   buffer += std::to_string(TOptions.MCOptions.SanitizeAddress);
   buffer += std::to_string(TOptions.MCOptions.MCRelaxAll);
   buffer += std::to_string(TOptions.MCOptions.MCNoExecStack);
@@ -305,17 +305,17 @@ std::string CompilationOptions::serializeCompilationOptions() {
   // Serialize DisableSimplifyLibCalls
   buffer += std::to_string(DisableSimplifyLibCalls);
   // Serialize DisableFPElim
-  if(DisableFPElim.hasValue()) {
+  if (DisableFPElim.hasValue()) {
     buffer += std::to_string(DisableFPElim.getValue());
   }
   // Serialize DisableTailCalls
-  if(DisableTailCalls.hasValue()) {
+  if (DisableTailCalls.hasValue()) {
     buffer += std::to_string(DisableTailCalls.getValue());
   }
   // Serialize StackRealign
   buffer += std::to_string(StackRealign);
   // Serialize TrapFuncName
-  if(TrapFuncName.hasValue()) {
+  if (TrapFuncName.hasValue()) {
     buffer += TrapFuncName.getValue();
   }
 

@@ -1,8 +1,9 @@
 #include "Allexe.h"
 #include "ImageCache.h" // For naming, TODO: better design
-#include "StaticBinaryCache.h" // For naming, TODO: better design
 #include "ImageExecutor.h"
+#include "StaticBinaryCache.h" // For naming, TODO: better design
 
+#include "llvm/Object/ObjectFile.h"
 #include <llvm/Bitcode/ReaderWriter.h>
 #include <llvm/CodeGen/CommandFlags.h>
 #include <llvm/ExecutionEngine/MCJIT.h>
@@ -16,7 +17,6 @@
 #include <llvm/Support/TargetRegistry.h>
 #include <llvm/Support/TargetSelect.h>
 #include <llvm/Support/raw_os_ostream.h>
-#include "llvm/Object/ObjectFile.h"
 
 using namespace allvm;
 using namespace llvm;
@@ -161,8 +161,10 @@ int execWithStaticCompilation(allvm::Allexe &allexe, const char **envp) {
     // XXX: Do something with M's error
     exit(1);
   }
-  CompilationOptions Options;
-  M.get()->setModuleIdentifier(StaticBinaryCache::generateName(name, crc, &Options));
+
+  const CompilationOptions Options;
+  M.get()->setModuleIdentifier(
+      StaticBinaryCache::generateName(name, crc, &Options));
 
   // Setting Up the Cache
   std::unique_ptr<StaticBinaryCache> Cache(new StaticBinaryCache());
@@ -178,12 +180,13 @@ int execWithStaticCompilation(allvm::Allexe &allexe, const char **envp) {
   }
 
   // The following is just for testing the current implementation of caching.
-  llvm::ErrorOr<std::unique_ptr<object::ObjectFile>> ObjFile = 
-    compileAllexe(allexe, "test.out", Options, context);
+  llvm::ErrorOr<std::unique_ptr<object::ObjectFile>> ObjFile =
+      compileAllexe(allexe, "test.out", Options, context);
 
-  ErrorOr<std::unique_ptr<MemoryBuffer>> FileOrErr = MemoryBuffer::getFile("test.out");
+  ErrorOr<std::unique_ptr<MemoryBuffer>> FileOrErr =
+      MemoryBuffer::getFile("test.out");
   if (std::error_code EC = FileOrErr.getError()) {
-    errs() << " Error reading fbject file to buffer '" << ALLEXE_MAIN << "'\n";
+    errs() << " Error reading object file to buffer '" << ALLEXE_MAIN << "'\n";
     return 1;
   }
   std::unique_ptr<MemoryBuffer> Buffer = std::move(FileOrErr.get());

@@ -58,21 +58,20 @@ struct CompilationOptions {
   /// values used by llc.
   CompilationOptions();
 
-  /// All the members of struct CompilationOptions is used by StaticBinaryCache 
-  /// to compute a unique hash. This is done by converting the 'statically' allocated
-  /// data pointed by the members of this struct into an array of bytes. This array
-  /// is later used to compute the unique hash.
-  /// As this struct contains dynamic pointers in the form of vectors and strings, 
-  /// the raw bytes of this strcut cannot be used to create the unique hash, as they
-  /// will change with every time an instance of CompilationOptions is created even
-  /// if the static data that the insatnce represents is the same. 
+  /// All the members of struct CompilationOptions are used by StaticBinaryCache
+  /// to compute a unique hash. This is done by converting the 'statically'
+  /// allocated data pointed by the members of this struct into an array of
+  /// bytes. This array is later used to compute the unique hash. As this
+  // struct contains dynamic pointers in the form of vectors and strings, the
+  /// raw bytes of this struct cannot be used to create the unique hash, as
+  /// they will change with every time an instance of CompilationOptions is
+  /// created even if the static data that the instance represents is the same.
   //===--------------------------Limitation-----------------------------------===//
-  /// Curretly the member CompilationOptions::TOptions::Reciprocals is not handled.
-  /// Reciprocals is of type TargetRecip whose member are defined by the target   
-  /// machine during Codegen. But certain hashing decisons (like, if the binary is already
-  /// present in cache) need to be made before Codegen.
-  /// 
-  std::string serializeCompilationOptions();
+  /// Currently the member CompilationOptions::TOptions::Reciprocals is not
+  /// handled. Reciprocals is of type TargetRecip, whose members are defined by
+  /// the target machine during Codegen. But certain hashing decisions (like, if
+  /// the binary is already present in cache) need to be made before Codegen.
+  std::string serializeCompilationOptions() const;
 };
 
 /// Compiles the module contained in the given allexe with the given options

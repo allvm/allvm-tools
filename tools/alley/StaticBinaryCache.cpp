@@ -10,7 +10,8 @@ using namespace llvm;
 
 namespace allvm {
 
-StaticBinaryCache::StaticBinaryCache(llvm::StringRef _CacheDir) : CacheDir(_CacheDir) {
+StaticBinaryCache::StaticBinaryCache(llvm::StringRef _CacheDir)
+    : CacheDir(_CacheDir) {
   // Add trailing '/' to cache dir if necessary.
   if (!CacheDir.empty() && CacheDir[CacheDir.size() - 1] != '/') {
     CacheDir += '/';
@@ -18,22 +19,22 @@ StaticBinaryCache::StaticBinaryCache(llvm::StringRef _CacheDir) : CacheDir(_Cach
 }
 
 StaticBinaryCache::StaticBinaryCache() {
-  
+
   SmallString<20> CDir;
   if (!sys::path::user_cache_directory(CDir, "allvm", "static_binaries")) {
     CDir = "allvm-cache";
   }
 
-  StringRef toStrRef = CDir;
-  CacheDir = toStrRef;
+  CacheDir = CDir.str();
 
-  //Add trailing '/' to cache dir if necessary.
+  // Add trailing '/' to cache dir if necessary.
   if (!CacheDir.empty() && CacheDir[CacheDir.size() - 1] != '/') {
-      CacheDir += '/';
+    CacheDir += '/';
   }
 }
 
-void StaticBinaryCache::notifyObjectCompiled(const Module *M, MemoryBufferRef Obj) {
+void StaticBinaryCache::notifyObjectCompiled(const Module *M,
+                                             MemoryBufferRef Obj) {
   const std::string &ModuleID = M->getModuleIdentifier();
   std::string CacheName;
   if (!getCacheFilename(ModuleID, CacheName))
@@ -81,7 +82,8 @@ std::unique_ptr<MemoryBuffer> StaticBinaryCache::getObject(StringRef Name) {
   return MemoryBuffer::getMemBufferCopy(IRObjectBuffer.get()->getBuffer());
 }
 
-bool StaticBinaryCache::getCacheFilename(StringRef ModID, std::string &CacheName) {
+bool StaticBinaryCache::getCacheFilename(StringRef ModID,
+                                         std::string &CacheName) {
   std::string Prefix("allexe:");
   size_t PrefixLength = Prefix.length();
   if (ModID.substr(0, PrefixLength) != Prefix)
@@ -100,11 +102,12 @@ bool StaticBinaryCache::getCacheFilename(StringRef ModID, std::string &CacheName
   return true;
 }
 
-std::string StaticBinaryCache::generateName(StringRef Name, uint32_t crc, CompilationOptions*  Options) {
-  if(NULL != Options) {
+std::string StaticBinaryCache::generateName(StringRef Name, uint32_t crc,
+                                            const CompilationOptions *Options) {
+  if (NULL != Options) {
     std::string buffer = Options->serializeCompilationOptions();
     size_t size = buffer.length();
-    const unsigned char* raw_bytes = (const unsigned char*) buffer.c_str();
+    const unsigned char *raw_bytes = (const unsigned char *)buffer.c_str();
     crc = crc32(crc, raw_bytes, size);
   }
   std::string crcHex = utohexstr(crc);
