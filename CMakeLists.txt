@@ -19,6 +19,15 @@ include(HandleLLVMOptions)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(LLVM_BUILD_TOOLS ON)
 
+option(USE_CLANG_WERROR_FLAGS OFF)
+
+if (USE_CLANG_WERROR_FLAGS)
+  set(WARNING_FLAGS -Weverything
+    -Wno-unknown-warning-option -Wno-c++98-compat
+    -Wno-global-constructors -Wno-exit-time-destructors)
+  list(APPEND LLVM_DEFINITIONS ${WARNING_FLAGS} -Werror)
+endif()
+
 # Put libs and bins in expected place.
 # XXX: We don't setup CMAKE_CFG_INTDIR to distinguish Release/Debug/etc.
 set(LLVM_RUNTIME_OUTPUT_INTDIR
