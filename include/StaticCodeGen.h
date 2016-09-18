@@ -30,9 +30,14 @@ namespace allvm {
 /// specified within corresponding compilation passes and target-specific
 /// options are specified with the corresponding target machine.
 
-// TODO: Currently the pass-specific options and target-specific options can
-// only be tuned by command line flags. Maybe we will want to make these flags
-// part of the library API in the future.
+/// TODO: Currently the pass-specific options and target-specific options can
+/// only be tuned by command line flags. Maybe we will want to make these flags
+/// part of the library API in the future.
+
+/// NOTE: Any member variable added to this struct should be utilized for
+/// computing the hash. This requires serialization of that member to bytes
+/// which is done in member function serializeCompilationOptions.
+
 struct CompilationOptions {
   llvm::StringRef TargetTriple;
   llvm::StringRef MArch;
@@ -52,6 +57,21 @@ struct CompilationOptions {
   /// Default constructor that initializes the various options to the default
   /// values used by llc.
   CompilationOptions();
+
+  /// All the members of struct CompilationOptions are used by StaticBinaryCache
+  /// to compute a unique hash. This is done by converting the 'statically'
+  /// allocated data pointed by the members of this struct into an array of
+  /// bytes. This array is later used to compute the unique hash. As this
+  // struct contains dynamic pointers in the form of vectors and strings, the
+  /// raw bytes of this struct cannot be used to create the unique hash, as
+  /// they will change with every time an instance of CompilationOptions is
+  /// created even if the static data that the instance represents is the same.
+  //===--------------------------Limitation-----------------------------------===//
+  /// Currently the member CompilationOptions::TOptions::Reciprocals is not
+  /// handled. Reciprocals is of type TargetRecip, whose members are defined by
+  /// the target machine during Codegen. But certain hashing decisions (like, if
+  /// the binary is already present in cache) need to be made before Codegen.
+  std::string serializeCompilationOptions() const;
 };
 
 /// Compiles the module contained in the given allexe with the given options

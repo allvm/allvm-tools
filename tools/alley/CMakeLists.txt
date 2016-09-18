@@ -9,9 +9,10 @@ set(LLVM_LINK_COMPONENTS
 
 add_llvm_tool(alley
   ExecutorMain.cpp
-  ImageExecutor.cpp
   HostedImageExecutor.cpp
   ImageCache.cpp
+  ImageExecutor.cpp
+  StaticBinaryCache.cpp
 )
 target_link_libraries(alley liball StaticCodeGen)
 

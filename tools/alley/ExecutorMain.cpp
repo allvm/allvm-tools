@@ -1,7 +1,9 @@
 #include "Allexe.h"
 #include "ImageCache.h" // For naming, TODO: better design
 #include "ImageExecutor.h"
+#include "StaticBinaryCache.h" // For naming, TODO: better design
 
+#include "llvm/Object/ObjectFile.h"
 #include <llvm/Bitcode/ReaderWriter.h>
 #include <llvm/CodeGen/CommandFlags.h>
 #include <llvm/ExecutionEngine/MCJIT.h>
@@ -22,7 +24,6 @@ using namespace llvm;
 
 int execWithStaticCompilation(allvm::Allexe &, const char **);
 int execWithJITCompilation(allvm::Allexe &, const char **);
-std::unique_ptr<ImageCache> initializeImageCache();
 
 static std::string getDefaultLibNone() {
   static int StaticSymbol;
@@ -162,78 +163,36 @@ int execWithStaticCompilation(allvm::Allexe &allexe,
     // XXX: Do something with M's error
     exit(1);
   }
-  M.get()->setModuleIdentifier(ImageCache::generateName(name, crc));
+
+  const CompilationOptions Options;
+  M.get()->setModuleIdentifier(
+      StaticBinaryCache::generateName(name, crc, &Options));
 
   // Setting Up the Cache
-  std::unique_ptr<ImageCache> Cache = initializeImageCache();
+  std::unique_ptr<StaticBinaryCache> Cache(new StaticBinaryCache());
 
   // Query the cache before the static compilation for an existing Image
   Module *Mod = M.get().get();
   bool isCached = Cache->hasObjectFor(Mod);
-  llvm::errs() << "isPresent:" << isCached << "\n";
+  llvm::errs() << "\nisPresent:" << isCached << "\n";
 
   if (isCached) {
-    // Cache Hit
+    // Cache Hit; Execute
     return 0;
   }
 
-  // Cache Miss
+  // The following is just for testing the current implementation of caching.
+  llvm::ErrorOr<std::unique_ptr<object::ObjectFile>> ObjFile =
+      compileAllexe(allexe, "test.out", Options, context);
 
-  /*  1. Generate the object file
-  **  2. And cache it at the end
-  **    2.1 using ImageCache::notifyObjectCompiled(const Module *M,
-  *MemoryBufferRef Obj)
-  **/
-
-  // NOTE: THE FOLLOWING CODE IS NON-COMPLETE AND PURELY EXPERIMENTAL
-  /*
-  uint32_t crc;
-  auto M = allexe.getModule(0, context, &crc);
-  llvm::Module* Mod = M.get().get();
-  char *ErrorMessage;
-  std::string TheTriple;
-  TheTriple = M.get()->getTargetTriple();
-  std::string Error;
-  const Target *TheTarget = TargetRegistry::lookupTarget(TheTriple, Error);
-
-  if (!TheTarget) {
-    errs() <<  Error;
+  ErrorOr<std::unique_ptr<MemoryBuffer>> FileOrErr =
+      MemoryBuffer::getFile("test.out");
+  if (std::error_code EC = FileOrErr.getError()) {
+    errs() << " Error reading object file to buffer '" << ALLEXE_MAIN << "'\n";
     return 1;
   }
-
-  std::string CPUStr = getCPUStr(), FeaturesStr = getFeaturesStr();
-
-  CodeGenOpt::Level OLvl = CodeGenOpt::Default;
-
-  TargetOptions Options = InitTargetOptionsFromCodeGenFlags();
-
-  std::unique_ptr<TargetMachine> Target(
-      TheTarget->createTargetMachine(TheTriple, CPUStr, FeaturesStr,
-                                     Options, getRelocModel(), CMModel, OLvl));
-
-  assert(Target && "Could not allocate target machine!");
-  LLVMTargetMachineRef TMRef = (LLVMTargetMachineRef) (Target.get());
-  LLVMModuleRef MRef = ( LLVMModuleRef) (Mod);
-  //llvm::errs() << *Mod << "\n\n";
-
-  //llvm::errs() << "Triple: " << TheTriple << "\n";
-  //llvm::errs() << "Module: " << *(reinterpret_cast<Module *>(MRef)) << "\n";
-
-  LLVMTargetMachineEmitToFile(TMRef, MRef,  "outTheEXE", LLVMObjectFile,
-  &ErrorMessage);
+  std::unique_ptr<MemoryBuffer> Buffer = std::move(FileOrErr.get());
+  Cache->notifyObjectCompiled(Mod, Buffer->getMemBufferRef());
 
   return 0;
-  */
-
-  return 0;
-}
-
-std::unique_ptr<ImageCache> initializeImageCache() {
-  std::unique_ptr<ImageCache> Cache;
-  SmallString<20> CacheDir;
-
-  if (!sys::path::user_cache_directory(CacheDir, "allvm", "objects"))
-    CacheDir = "allvm-cache";
-  Cache.reset(new ImageCache(CacheDir));
-  return Cache;
 }
