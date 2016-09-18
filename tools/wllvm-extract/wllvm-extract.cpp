@@ -135,15 +135,15 @@ static Error writeAsAllexe(const WLLVMFile &File, StringRef Filename) {
   return Error::success();
 }
 
-Error writeAs(const WLLVMFile &File, StringRef OutputFilename,
-              OutputKind Kind) {
+static Error writeAs(const WLLVMFile &File, StringRef Filename,
+                     OutputKind Kind) {
   switch (Kind) {
   case OutputKind::SingleBitcode:
-    return writeAsSingleBC(File, OutputFilename);
+    return writeAsSingleBC(File, Filename);
   case OutputKind::BitcodeArchive:
-    return writeAsBitcodeArchive(File, OutputFilename);
+    return writeAsBitcodeArchive(File, Filename);
   case OutputKind::Allexe:
-    return writeAsAllexe(File, OutputFilename);
+    return writeAsAllexe(File, Filename);
   }
 
   llvm_unreachable("unhandled outputkind");
