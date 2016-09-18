@@ -137,7 +137,7 @@ static Error writeAsAllexe(const WLLVMFile &File, StringRef Filename) {
 
 Error writeAs(const WLLVMFile &File, StringRef OutputFilename,
               OutputKind Kind) {
-  switch (EmitOutputKind) {
+  switch (Kind) {
   case OutputKind::SingleBitcode:
     return writeAsSingleBC(File, OutputFilename);
   case OutputKind::BitcodeArchive:
