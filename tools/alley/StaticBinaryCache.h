@@ -5,7 +5,6 @@
 #include <llvm/ExecutionEngine/ObjectCache.h>
 #include <llvm/Support/FileSystem.h>
 #include <llvm/Support/Path.h>
-#include <zlib.h>
 
 #include <string>
 

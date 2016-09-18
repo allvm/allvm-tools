@@ -1,5 +1,5 @@
-#ifndef _ALLVM_STATIC_CODE_GEN_
-#define _ALLVM_STATIC_CODE_GEN_
+#ifndef ALLVM_STATIC_CODE_GEN
+#define ALLVM_STATIC_CODE_GEN
 
 #include <llvm/ADT/Optional.h>
 #include <llvm/ADT/StringRef.h>
@@ -115,4 +115,4 @@ compileAllexeWithLlcDefaults(Allexe &, llvm::StringRef, llvm::LLVMContext &);
 
 } // end namespace allvm
 
-#endif // _ALLVM_STATIC_CODE_GEN_
+#endif // ALLVM_STATIC_CODE_GEN

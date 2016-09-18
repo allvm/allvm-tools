@@ -6,6 +6,8 @@
 #include <llvm/Support/FileSystem.h>
 #include <llvm/Support/raw_ostream.h>
 
+#include <zlib.h>
+
 using namespace llvm;
 
 namespace allvm {
@@ -107,8 +109,9 @@ std::string StaticBinaryCache::generateName(StringRef Name, uint32_t crc,
   if (NULL != Options) {
     std::string buffer = Options->serializeCompilationOptions();
     size_t size = buffer.length();
-    const unsigned char *raw_bytes = (const unsigned char *)buffer.c_str();
-    crc = crc32(crc, raw_bytes, size);
+    auto *raw_bytes = reinterpret_cast<const Bytef *>(buffer.data());
+    assert(size <= UINT32_MAX);
+    crc = static_cast<uint32_t>(crc32(crc, raw_bytes, static_cast<uint32_t>(size)));
   }
   std::string crcHex = utohexstr(crc);
   return ("allexe:" + crcHex + "-" + Name).str();
