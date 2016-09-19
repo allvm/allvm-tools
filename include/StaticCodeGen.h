@@ -61,9 +61,9 @@ struct CompilationOptions {
 /// bitcode module.
 ///
 /// \returns 0 on success.
-int
-compileAllexe(Allexe &Input, llvm::raw_pwrite_stream &OS,
-              const CompilationOptions &Options, llvm::LLVMContext &Context);
+int compileAllexe(Allexe &Input, llvm::raw_pwrite_stream &OS,
+                  const CompilationOptions &Options,
+                  llvm::LLVMContext &Context);
 
 /// Compiles the module contained in the given allexe and writes the
 /// corresponding object file to the provided stream. The various compilation
@@ -72,9 +72,8 @@ compileAllexe(Allexe &Input, llvm::raw_pwrite_stream &OS,
 /// module.
 ///
 /// \returns 0 on success.
-int
-compileAllexeWithLlcDefaults(Allexe &Input, llvm::raw_pwrite_stream &OS,
-                             llvm::LLVMContext &Context);
+int compileAllexeWithLlcDefaults(Allexe &Input, llvm::raw_pwrite_stream &OS,
+                                 llvm::LLVMContext &Context);
 
 /// Compiles the module contained in the given allexe with the given options
 /// and writes the corresponding object file to the provided disk location. This
@@ -98,27 +97,29 @@ compileAllexeWithLlcDefaults(Allexe &Input, llvm::StringRef Filename,
                              llvm::LLVMContext &Context);
 
 /// Compiles the module contained in the given allexe with the given options,
-/// links the resulted object file with the given libnone object, and writes the
-/// corresponding executable to the provided disk location. This function
-/// assumes that the allexe has been merged and contains exactly one bitcode
-/// module.
+/// links the resulted object file with the given libnone object and linker
+/// driver, and writes the corresponding executable to the provided disk
+/// location. This function assumes that the allexe has been merged and contains
+/// exactly one bitcode module.
 ///
 /// \returns an llvm Binary object on success.
 llvm::ErrorOr<std::unique_ptr<llvm::object::Binary>>
 compileAndLinkAllexe(Allexe &Input, llvm::StringRef LibNone,
-                     llvm::StringRef Filename,
+                     llvm::StringRef Linker, llvm::StringRef Filename,
                      const CompilationOptions &Options,
                      llvm::LLVMContext &Context);
 
 /// Compiles the module contained in the given allexe, links the resulted object
-/// file with the given libnone object, and writes the corresponding object file
-/// to the provided disk location. The various compilation options are
-/// initialized to the default values used by llc. This function assumes that
-/// the allexe has been merged and contains exactly one bitcode module.
+/// file with the given libnone objecti and linker driver, and writes the
+/// corresponding object file to the provided disk location. The various
+/// compilation options are initialized to the default values used by llc. This
+/// function assumes that the allexe has been merged and contains exactly one
+/// bitcode module.
 ///
 /// \returns an llvm Binary object on success.
 llvm::ErrorOr<std::unique_ptr<llvm::object::Binary>>
 compileAndLinkAllexeWithLlcDefaults(Allexe &Input, llvm::StringRef LibNone,
+                                    llvm::StringRef Linker,
                                     llvm::StringRef Filename,
                                     llvm::LLVMContext &Context);
 

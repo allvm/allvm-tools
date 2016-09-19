@@ -278,8 +278,9 @@ compileAllexeWithLlcDefaults(Allexe &Input, StringRef Filename,
 }
 
 ErrorOr<std::unique_ptr<Binary>>
-compileAndLinkAllexe(Allexe &Input, StringRef LibNone, StringRef Filename,
-                     const CompilationOptions &Options, LLVMContext &Context) {
+compileAndLinkAllexe(Allexe &Input, StringRef LibNone, StringRef Linker,
+                     StringRef Filename, const CompilationOptions &Options,
+                     LLVMContext &Context) {
   // Compile the allexe.
   std::string ObjectFilename(Filename);
   ObjectFilename.append(".o");
@@ -290,13 +291,12 @@ compileAndLinkAllexe(Allexe &Input, StringRef LibNone, StringRef Filename,
   // Link the allexe.
   // TODO: For now we use gcc for linking, maybe we should add more
   // sophisticated linking in the future.
-  const char *DefaultLinker = "gcc";
-  auto ErrorOrLinkerProgram =  llvm::sys::findProgramByName(DefaultLinker);
+  auto ErrorOrLinkerProgram = llvm::sys::findProgramByName(Linker);
   if (!ErrorOrLinkerProgram)
     return ErrorOrLinkerProgram.getError();
   std::string &LinkerProgram = ErrorOrLinkerProgram.get();
 
-  SmallVector<const char*, 5> LinkerArgv;
+  SmallVector<const char *, 5> LinkerArgv;
   LinkerArgv.push_back(LinkerProgram.c_str());
   LinkerArgv.push_back(ObjectFilename.c_str());
   std::string LibNoneStr = LibNone.str();
@@ -328,9 +328,11 @@ compileAndLinkAllexe(Allexe &Input, StringRef LibNone, StringRef Filename,
 
 ErrorOr<std::unique_ptr<Binary>>
 compileAndLinkAllexeWithLlcDefaults(Allexe &Input, StringRef LibNone,
-                                    StringRef Filename, LLVMContext &Context) {
+                                    StringRef Linker, StringRef Filename,
+                                    LLVMContext &Context) {
   CompilationOptions Options;
-  return compileAndLinkAllexe(Input, LibNone, Filename, Options, Context);
+  return compileAndLinkAllexe(Input, LibNone, Linker, Filename, Options,
+                              Context);
 }
 
 } // end namespace allvm
