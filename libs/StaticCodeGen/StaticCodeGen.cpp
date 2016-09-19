@@ -17,6 +17,7 @@
 #include <llvm/Object/ObjectFile.h>
 #include <llvm/Support/Errc.h>
 #include <llvm/Support/Error.h>
+#include <llvm/Support/Program.h>
 #include <llvm/Support/TargetRegistry.h>
 #include <llvm/Support/ToolOutputFile.h>
 #include <llvm/Target/TargetMachine.h>
@@ -361,6 +362,64 @@ compileAllexeWithLlcDefaults(Allexe &Input, StringRef Filename,
                              LLVMContext &Context) {
   CompilationOptions Options;
   return compileAllexe(Input, Filename, Options, Context);
+}
+
+ErrorOr<std::unique_ptr<Binary>>
+compileAndLinkAllexe(Allexe &Input, StringRef LibNone, StringRef Linker,
+                     StringRef Filename, const CompilationOptions &Options,
+                     LLVMContext &Context) {
+  // Compile the allexe.
+  std::string ObjectFilename(Filename);
+  ObjectFilename.append(".o");
+  auto ErrorOrObject = compileAllexe(Input, ObjectFilename, Options, Context);
+  if (!ErrorOrObject)
+    return ErrorOrObject.getError();
+
+  // Link the allexe.
+  // TODO: For now we use gcc for linking, maybe we should add more
+  // sophisticated linking in the future.
+  auto ErrorOrLinkerProgram = llvm::sys::findProgramByName(Linker);
+  if (!ErrorOrLinkerProgram)
+    return ErrorOrLinkerProgram.getError();
+  std::string &LinkerProgram = ErrorOrLinkerProgram.get();
+
+  SmallVector<const char *, 5> LinkerArgv;
+  LinkerArgv.push_back(LinkerProgram.c_str());
+  LinkerArgv.push_back(ObjectFilename.c_str());
+  std::string LibNoneStr = LibNone.str();
+  LinkerArgv.push_back(LibNoneStr.c_str());
+  LinkerArgv.push_back("-o");
+  std::string FilenameStr = Filename.str();
+  LinkerArgv.push_back(FilenameStr.c_str());
+  LinkerArgv.push_back(nullptr);
+
+  std::string Error;
+  bool ExecutionFailed;
+  int Res = llvm::sys::ExecuteAndWait(LinkerProgram, LinkerArgv.data(),
+                                      /*env*/ nullptr, /*Redirects*/ nullptr,
+                                      /*secondsToWait*/ 0, /*memoryLimit*/ 0,
+                                      &Error, &ExecutionFailed);
+  if (!Error.empty()) {
+    assert(Res && "Error string set with 0 result code!");
+    errs() << "allvm static code generator: Linking failed: " << Error << "\n";
+    return make_error_code(errc::invalid_argument);
+  }
+
+  // Get a MemoryBuffer of the output file and use it to create the binary file.
+  auto ErrorOrBuffer = MemoryBuffer::getFile(Filename);
+  if (!ErrorOrBuffer)
+    return ErrorOrBuffer.getError();
+  MemoryBufferRef Buffer(**ErrorOrBuffer);
+  return expectedToErrorOr(createBinary(Buffer));
+}
+
+ErrorOr<std::unique_ptr<Binary>>
+compileAndLinkAllexeWithLlcDefaults(Allexe &Input, StringRef LibNone,
+                                    StringRef Linker, StringRef Filename,
+                                    LLVMContext &Context) {
+  CompilationOptions Options;
+  return compileAndLinkAllexe(Input, LibNone, Linker, Filename, Options,
+                              Context);
 }
 
 } // end namespace allvm
