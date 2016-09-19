@@ -78,6 +78,17 @@ If you installed llvm to `/usr`, you can leave out the `-D LLVM_DIR=...` option
 and CMake will find llvm automatically.
 
 
+## Troubleshooting
+
+See the [issues page](https://gitlab-beta.engr.illinois.edu/llvm/allvm/issues) for known problems or to report a new one.
+
+The following issue is believed to be fixed regardless of whether allvm is built with GCC or Clang.
+However it frequently crops up again.
+If you get these errors in the latest version of ALLVM please add a comment to the issue.
+
+* [Errors in RuntimeDyldELF.cpp when running alley](#1)
+
+
 ## Coding Style
 
 Canonical coding style reference is the [LLVM Coding Standards](http://llvm.org/docs/CodingStandards.html) document,
@@ -91,12 +102,3 @@ If this fails, you may consider updating the source with the `update-format` tar
 
 All contributed code should pass these checks.  Currently using clang-format corresponding
 to LLVM version used to build the tools, we may pin a particular version in the future.
-
-## Troubleshooting
-
-See the [issues page](https://gitlab-beta.engr.illinois.edu/llvm/allvm/issues) for known problems and to report a new one.
-
-The following issues are believed to be fixed but are listed here in case they crop up again.
-Please let us know if you encounter them in the latest version:
-
-* [assertion failure "isInt<32>(RealOffset)" when using alley to JIT an allexe](#1)
