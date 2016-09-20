@@ -24,7 +24,7 @@ Expected<std::unique_ptr<WLLVMFile>> WLLVMFile::open(StringRef file) {
     return BinaryOrErr.takeError();
   auto &Binary = *BinaryOrErr.get().getBinary();
 
-  if (Archive *a = dyn_cast<Archive>(&Binary))
+  if (isa<Archive>(&Binary))
     return make_error<StringError>("archives are not yet supported",
                                    errc::invalid_argument);
   ObjectFile *o = dyn_cast<ObjectFile>(&Binary);
