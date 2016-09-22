@@ -159,7 +159,8 @@ int main(int argc, const char **argv) {
   auto WLLVMFile = WLLVMFile::open(InputFilename);
   if (!WLLVMFile) {
     errs() << "Error reading file: " << InputFilename << "\n";
-    logAllUnhandledErrors(WLLVMFile.takeError(), errs(), argv[0]);
+    logAllUnhandledErrors(WLLVMFile.takeError(), errs(),
+                          StringRef(argv[0]) + ": ");
     return 1;
   }
 
