@@ -1,7 +1,7 @@
-From 6a28d7b29c7b1bc95ca53f387eb485134638f911 Mon Sep 17 00:00:00 2001
+From e341a66d84906b5155db563195a2251bb0d8357e Mon Sep 17 00:00:00 2001
 From: Will Dietz <w@wdtz.org>
 Date: Fri, 29 Jul 2016 07:48:18 -0500
-Subject: [PATCH 3/4] Remove simple malloc, gets in way of 'real' malloc.
+Subject: [PATCH 3/5] Remove simple malloc, gets in way of 'real' malloc.
 
 I think this is in place for use by musl's loader bits
 to be used before everything's ready.
@@ -10,8 +10,8 @@ Our runtime resolution doesn't resolve weak aliases
 the way they want us to, and so we end up using
 this when we shouldn't.  Remove for now.
 ---
- src/malloc/lite_malloc.c |   50 ----------------------------------------------
- 1 files changed, 0 insertions(+), 50 deletions(-)
+ src/malloc/lite_malloc.c | 50 ------------------------------------------------
+ 1 file changed, 50 deletions(-)
  delete mode 100644 src/malloc/lite_malloc.c
 
 diff --git a/src/malloc/lite_malloc.c b/src/malloc/lite_malloc.c
@@ -71,5 +71,5 @@ index a7e4a9f..0000000
 -weak_alias(__simple_malloc, malloc);
 -weak_alias(__simple_malloc, __malloc0);
 -- 
-1.7.1
+2.7.4
 
