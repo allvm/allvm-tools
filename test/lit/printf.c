@@ -1,7 +1,8 @@
 // (This is the source for Inputs/printf;
 //  manually built until we require building w/clang)
+//
+// Ensure that stdout actually works (when buffered especially)
 // RUN: alley %p/Inputs/printf |& FileCheck %s
-// XFAIL: *
 
 #include <stdio.h>
 

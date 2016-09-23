@@ -6,11 +6,12 @@ set(MUSL_PATCHES
   musl-patches/0002-Disable-vdso-support-on-x86_64-we-don-t-support-it-y.patch
   musl-patches/0003-Remove-simple-malloc-gets-in-way-of-real-malloc.patch
   musl-patches/0004-KLUDGE-More-workaround-weak-alias-this-time-tackling.patch
+  musl-patches/0005-Another-weak_alias-victim-destructors-for-stdio-and-.patch
 )
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
   list(APPEND MUSL_PATCHES
-    musl-patches/0001-Build-with-fPIC-to-workaround-RTDyLd-relocation-limi.patch
+    musl-patches/0001-Build-with-fPIC-large-code-model-to-workaround-RTDyL.patch
   )
 endif()
 

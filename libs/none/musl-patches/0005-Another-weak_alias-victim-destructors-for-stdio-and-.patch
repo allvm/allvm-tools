@@ -1,0 +1,95 @@
+From 82f68398d86daf3ccdf6e1f6ab1507fff737fc15 Mon Sep 17 00:00:00 2001
+From: Will Dietz <w@wdtz.org>
+Date: Fri, 23 Sep 2016 11:26:47 -0500
+Subject: [PATCH 5/5] Another weak_alias victim: destructors for stdio and
+ related.
+
+---
+ src/exit/exit.c             |  8 ++++++--
+ src/stdio/__stdio_exit.c    | 11 +++++++----
+ src/stdio/fflush.c          |  5 +++--
+ src/thread/pthread_create.c | 11 +++++++----
+ 4 files changed, 23 insertions(+), 12 deletions(-)
+
+diff --git a/src/exit/exit.c b/src/exit/exit.c
+index bf7835a..4755a95 100644
+--- a/src/exit/exit.c
++++ b/src/exit/exit.c
+@@ -8,9 +8,13 @@ static void dummy()
+ 
+ /* atexit.c and __stdio_exit.c override these. the latter is linked
+  * as a consequence of linking either __toread.c or __towrite.c. */
+-weak_alias(dummy, __funcs_on_exit);
+-weak_alias(dummy, __stdio_exit);
++//weak_alias(dummy, __funcs_on_exit);
++//weak_alias(dummy, __stdio_exit);
++extern void __funcs_on_exit(void);
++extern void __stdio_exit(void);
++
+ weak_alias(dummy, _fini);
++//extern void _fini(void);
+ 
+ __attribute__((__weak__, __visibility__("hidden")))
+ extern void (*const __fini_array_start)(void), (*const __fini_array_end)(void);
+diff --git a/src/stdio/__stdio_exit.c b/src/stdio/__stdio_exit.c
+index 191b445..8859fb9 100644
+--- a/src/stdio/__stdio_exit.c
++++ b/src/stdio/__stdio_exit.c
+@@ -1,9 +1,12 @@
+ #include "stdio_impl.h"
+ 
+-static FILE *volatile dummy_file = 0;
+-weak_alias(dummy_file, __stdin_used);
+-weak_alias(dummy_file, __stdout_used);
+-weak_alias(dummy_file, __stderr_used);
++//static FILE *volatile dummy_file = 0;
++//weak_alias(dummy_file, __stdin_used);
++//weak_alias(dummy_file, __stdout_used);
++//weak_alias(dummy_file, __stderr_used);
++extern FILE *volatile __stdin_used;
++extern FILE *volatile __stdout_used;
++extern FILE *volatile __stderr_used;
+ 
+ static void close_file(FILE *f)
+ {
+diff --git a/src/stdio/fflush.c b/src/stdio/fflush.c
+index c288106..c133df8 100644
+--- a/src/stdio/fflush.c
++++ b/src/stdio/fflush.c
+@@ -1,8 +1,9 @@
+ #include "stdio_impl.h"
+ 
+ /* stdout.c will override this if linked */
+-static FILE *volatile dummy = 0;
+-weak_alias(dummy, __stdout_used);
++//static FILE *volatile dummy = 0;
++// weak_alias(dummy, __stdout_used);
++extern FILE *volatile __stdout_used;
+ 
+ int fflush(FILE *f)
+ {
+diff --git a/src/thread/pthread_create.c b/src/thread/pthread_create.c
+index 4513f47..3fed33f 100644
+--- a/src/thread/pthread_create.c
++++ b/src/thread/pthread_create.c
+@@ -166,10 +166,13 @@ extern void *__pthread_tsd_main;
+ 
+ volatile int __block_new_threads = 0;
+ 
+-static FILE *volatile dummy_file = 0;
+-weak_alias(dummy_file, __stdin_used);
+-weak_alias(dummy_file, __stdout_used);
+-weak_alias(dummy_file, __stderr_used);
++extern FILE *volatile __stdin_used;
++extern FILE *volatile __stdout_used;
++extern FILE *volatile __stderr_used;
++//static FILE *volatile dummy_file = 0;
++//weak_alias(dummy_file, __stdin_used);
++//weak_alias(dummy_file, __stdout_used);
++//weak_alias(dummy_file, __stderr_used);
+ 
+ static void init_file_lock(FILE *f)
+ {
+-- 
+2.7.4
+
