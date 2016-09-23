@@ -3,8 +3,9 @@
 // but we don't currently require using a bitcode-capable
 // compiler to build these tools.
 
-// RUN: alley %p/Inputs/dlopen
 // RUN: alley %p/Inputs/dlopen |& FileCheck %s
+// (See printf.c)
+// XFAIL: *
 
 #include <dlfcn.h>
 #include <stdio.h>
