@@ -15,11 +15,13 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
   )
 endif()
 
+set(MUSL_CFLAGS -O2 -pipe -fPIC CACHE string "CFLAGS for building musl")
+
 add_custom_command(OUTPUT ${MUSL}/config.mak
   COMMAND rm -rf "${MUSL}"
   COMMAND tar xf "${CMAKE_CURRENT_SOURCE_DIR}/${MUSL}.tar.gz"
   COMMAND for PATCH in ${MUSL_PATCHES} \; do patch -p1 -d "${MUSL}" -i "${CMAKE_CURRENT_SOURCE_DIR}/$$PATCH" \; done
-  COMMAND cd ${MUSL} && CC=${CMAKE_C_COMPILER} ./configure --disable-shared CFLAGS=\"-O2 -pipe -fPIC\"
+  COMMAND cd ${MUSL} && CC=${CMAKE_C_COMPILER} ./configure --disable-shared CFLAGS="${MUSL_CFLAGS}"
   MAIN_DEPENDENCY ${MUSL}.tar.gz
   DEPENDS ${MUSL_PATCHES}
   COMMENT "Configuring ${MUSL}"
