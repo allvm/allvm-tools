@@ -1,7 +1,7 @@
 From 8579d9e2871b1ae783f5672a94f077c270bbc8f1 Mon Sep 17 00:00:00 2001
 From: Will Dietz <w@wdtz.org>
 Date: Fri, 29 Jul 2016 07:45:00 -0500
-Subject: [PATCH 1/5] Build with -fPIC/large code model to workaround RTDyLd
+Subject: [PATCH 1/6] Build with -fPIC/large code model to workaround RTDyLd
  relocation limitations.
 
 ---
