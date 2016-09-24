@@ -9,8 +9,8 @@ set(MUSL_PATCHES
   musl-patches/0005-Another-weak_alias-victim-destructors-for-stdio-and-.patch
   musl-patches/0006-configure-improve-tryflag-to-reject-ignored-opt-argu.patch
 )
-set(MUSL_CFLAGS -O2 -pipe -fPIC CACHE string "CFLAGS for building musl")
 
+set(CFLAGS_QUNUSED "")
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
   list(APPEND MUSL_PATCHES
     musl-patches/0001-Build-with-fPIC-large-code-model-to-workaround-RTDyL.patch
@@ -18,8 +18,10 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
   # Don't complain about 'unused' arguments
   # This happens when building assembly files using same CFLAGS used for C files,
   # lots of them don't make any sense for assembly code so they go unused.
-  set(MUSL_CFLAGS ${MUSL_CFLAGS} -Qunused-arguments)
+  set(CFLAGS_QUNUSED -Qunused-arguments)
 endif()
+
+set(MUSL_CFLAGS -O2 -pipe -fPIC ${CFLAGS_QUNUSED} CACHE string "CFLAGS for building musl")
 
 
 add_custom_command(OUTPUT ${MUSL}/config.mak
