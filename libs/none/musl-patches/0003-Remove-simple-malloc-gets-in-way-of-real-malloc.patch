@@ -1,7 +1,7 @@
 From e341a66d84906b5155db563195a2251bb0d8357e Mon Sep 17 00:00:00 2001
 From: Will Dietz <w@wdtz.org>
 Date: Fri, 29 Jul 2016 07:48:18 -0500
-Subject: [PATCH 3/5] Remove simple malloc, gets in way of 'real' malloc.
+Subject: [PATCH 3/6] Remove simple malloc, gets in way of 'real' malloc.
 
 I think this is in place for use by musl's loader bits
 to be used before everything's ready.

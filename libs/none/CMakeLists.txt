@@ -7,19 +7,28 @@ set(MUSL_PATCHES
   musl-patches/0003-Remove-simple-malloc-gets-in-way-of-real-malloc.patch
   musl-patches/0004-KLUDGE-More-workaround-weak-alias-this-time-tackling.patch
   musl-patches/0005-Another-weak_alias-victim-destructors-for-stdio-and-.patch
+  musl-patches/0006-configure-improve-tryflag-to-reject-ignored-opt-argu.patch
 )
 
+set(CFLAGS_QUNUSED "")
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
   list(APPEND MUSL_PATCHES
     musl-patches/0001-Build-with-fPIC-large-code-model-to-workaround-RTDyL.patch
   )
+  # Don't complain about 'unused' arguments
+  # This happens when building assembly files using same CFLAGS used for C files,
+  # lots of them don't make any sense for assembly code so they go unused.
+  set(CFLAGS_QUNUSED "-Qunused-arguments")
 endif()
+
+set(MUSL_CFLAGS "-O2 -pipe -fPIC ${CFLAGS_QUNUSED}" CACHE string "CFLAGS for building musl")
+
 
 add_custom_command(OUTPUT ${MUSL}/config.mak
   COMMAND rm -rf "${MUSL}"
   COMMAND tar xf "${CMAKE_CURRENT_SOURCE_DIR}/${MUSL}.tar.gz"
   COMMAND for PATCH in ${MUSL_PATCHES} \; do patch -p1 -d "${MUSL}" -i "${CMAKE_CURRENT_SOURCE_DIR}/$$PATCH" \; done
-  COMMAND cd ${MUSL} && CC=${CMAKE_C_COMPILER} ./configure --disable-shared CFLAGS=\"-O2 -pipe -fPIC\"
+  COMMAND cd ${MUSL} && CC=${CMAKE_C_COMPILER} ./configure --disable-shared CFLAGS=${MUSL_CFLAGS}
   MAIN_DEPENDENCY ${MUSL}.tar.gz
   DEPENDS ${MUSL_PATCHES}
   COMMENT "Configuring ${MUSL}"

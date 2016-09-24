@@ -1,7 +1,7 @@
 From 82f68398d86daf3ccdf6e1f6ab1507fff737fc15 Mon Sep 17 00:00:00 2001
 From: Will Dietz <w@wdtz.org>
 Date: Fri, 23 Sep 2016 11:26:47 -0500
-Subject: [PATCH 5/5] Another weak_alias victim: destructors for stdio and
+Subject: [PATCH 5/6] Another weak_alias victim: destructors for stdio and
  related.
 
 ---
