@@ -1,4 +1,4 @@
-//===-- bc2allvm.cpp ------------------------------------------------------===//
+ //===-- bc2allvm.cpp ------------------------------------------------------===//
 //
 // Author: Will Dietz (WD), wdietz2@uiuc.edu
 //
@@ -26,8 +26,8 @@ using namespace allvm;
 using namespace llvm;
 
 namespace {
-cl::opt<std::string> InputFilename(cl::Positional, cl::Required,
-                                   cl::desc("<input LLVM bitcode file>"));
+cl::list<std::string> InputFiles(cl::Positional, cl::OneOrMore,
+				 cl::desc("<input LLVM bitcode file>..."));
 
 cl::opt<std::string> OutputFilename("o", cl::desc("Override output filename"),
                                     cl::value_desc("filename"));
@@ -64,10 +64,12 @@ int main(int argc, const char **argv) {
       return 1;
     }
 
-    if (!Output.get()->addModule(InputFilename, "main.bc")) {
-      // XXX: This needs much better error reporting!
-      errs() << "Error adding file to allexe, unknown reason\n";
-      return 1;
+    for (const auto& it : InputFiles) {
+      if (!Output.get()->addModule(it, "")) {
+        // XXX: This needs much better error reporting!
+	errs() << "Error adding file to allexe, unknown reason\n";
+        return 1;
+      }
     }
 
     // TODO: Add (on by default?) feature for checking that
