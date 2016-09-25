@@ -60,6 +60,7 @@ int main(int argc, const char **argv, const char **envp) {
     return 1;
   }
 
+  // Fixup argv[0] to the allexe name without the allexe suffix.
   StringRef ProgName = InputFilename;
   if (sys::path::has_extension(InputFilename))
     ProgName = ProgName.drop_back(sys::path::extension(ProgName).size());
