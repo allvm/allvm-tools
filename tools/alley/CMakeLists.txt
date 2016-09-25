@@ -13,7 +13,7 @@ set(LLVM_LINK_COMPONENTS
 )
 
 add_llvm_tool(alley
-  ExecutorMain.cpp
+  alley.cpp
   HostedImageExecutor.cpp
   ImageCache.cpp
   ImageExecutor.cpp
