@@ -1,13 +1,14 @@
-From 52794d4e7f0ab58ad7f22657846ea2274279af28 Mon Sep 17 00:00:00 2001
+From 008f2582a536f4e38d62a006c3f118d836e62d9f Mon Sep 17 00:00:00 2001
 From: Will Dietz <w@wdtz.org>
 Date: Fri, 29 Jul 2016 07:51:23 -0500
-Subject: [PATCH 4/4] KLUDGE: More workaround weak alias, this time tackling pthread stuff.
+Subject: [PATCH 4/6] KLUDGE: More workaround weak alias, this time tackling
+ pthread stuff.
 
 In theory we'll now pull in pthread stuff when it's not strictly
 needed, but that seems okay for now.
 ---
- src/thread/pthread_create.c |   10 ++++++----
- 1 files changed, 6 insertions(+), 4 deletions(-)
+ src/thread/pthread_create.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
 diff --git a/src/thread/pthread_create.c b/src/thread/pthread_create.c
 index 9f6b98e..4513f47 100644
@@ -31,5 +32,5 @@ index 9f6b98e..4513f47 100644
  volatile int __block_new_threads = 0;
  
 -- 
-1.7.1
+2.7.4
 

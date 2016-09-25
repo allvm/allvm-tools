@@ -31,7 +31,7 @@ int main(int argc, const char **argv) {
   // Open the specified file
   auto Input = WLLVMFile::open(InputFilename);
   if (!Input) {
-    logAllUnhandledErrors(Input.takeError(), errs(), argv[0]);
+    logAllUnhandledErrors(Input.takeError(), errs(), StringRef(argv[0]) + ": ");
     return 1;
   }
 

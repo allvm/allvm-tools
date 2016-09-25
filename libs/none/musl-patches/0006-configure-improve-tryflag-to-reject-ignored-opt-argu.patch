@@ -1,0 +1,28 @@
+From 1104375bc81c6ecd03b96ca8a2d0370c6bf28e74 Mon Sep 17 00:00:00 2001
+From: Will Dietz <w@wdtz.org>
+Date: Sat, 24 Sep 2016 10:12:58 -0500
+Subject: [PATCH 6/6] configure: improve 'tryflag' to reject ignored opt
+ arguments too.
+
+---
+ configure | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/configure b/configure
+index 707eb12..d785168 100755
+--- a/configure
++++ b/configure
+@@ -249,8 +249,10 @@ fi
+ #
+ tryflag   CFLAGS_TRY  -Werror=unknown-warning-option
+ tryflag   CFLAGS_TRY  -Werror=unused-command-line-argument
++tryflag   CFLAGS_TRY  -Werror=ignored-optimization-argument
+ tryldflag LDFLAGS_TRY -Werror=unknown-warning-option
+ tryldflag LDFLAGS_TRY -Werror=unused-command-line-argument
++tryldflag LDFLAGS_TRY -Werror=ignored-optimization-argument
+ 
+ #
+ # Need to know if the compiler is gcc or clang to decide which toolchain
+-- 
+2.7.4
+

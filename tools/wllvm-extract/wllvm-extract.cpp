@@ -12,6 +12,7 @@
 #include "WLLVMFile.h"
 
 #include <llvm/Bitcode/ReaderWriter.h>
+#include <llvm/IR/DebugInfo.h>
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Module.h>
 #include <llvm/Object/ArchiveWriter.h>
@@ -50,6 +51,10 @@ cl::opt<bool> InternalizeHidden(
     cl::desc("Don't internalize hidden variables. Only for single bc/allexe."),
     cl::init(true));
 
+cl::opt<bool> StripDebug("strip-debug",
+                         cl::desc("Strip debugging information from bitcode"),
+                         cl::init(false));
+
 cl::opt<bool> ForceOutput("f", cl::desc("Replace output allexe if it exists"),
                           cl::init(false));
 
@@ -80,6 +85,9 @@ static Error writeAsSingleBC(const WLLVMFile &File, StringRef Filename) {
   if (!Composite)
     return Composite.takeError();
 
+  if (StripDebug)
+    StripDebugInfo(**Composite);
+
   WriteBitcodeToFile((*Composite).get(), Out->os());
 
   // We made it this far without error, keep the result.
@@ -88,6 +96,10 @@ static Error writeAsSingleBC(const WLLVMFile &File, StringRef Filename) {
 }
 
 static Error writeAsBitcodeArchive(const WLLVMFile &File, StringRef Filename) {
+  if (StripDebug)
+    return make_error<StringError>(
+        "stripping debug information not supported when emitting archives",
+        errc::invalid_argument);
   std::vector<NewArchiveMember> Members;
   std::vector<std::unique_ptr<MemoryBuffer>> Buffers;
   size_t unique_id = 0;
@@ -124,6 +136,9 @@ static Error writeAsAllexe(const WLLVMFile &File, StringRef Filename) {
   if (!Composite)
     return Composite.takeError();
 
+  if (StripDebug)
+    StripDebugInfo(**Composite);
+
   if (!(*Output)->addModule(std::move(*Composite),
                             "main.bc" /* FIXME: magic string */))
     // "invalid argument"? :(
@@ -159,7 +174,8 @@ int main(int argc, const char **argv) {
   auto WLLVMFile = WLLVMFile::open(InputFilename);
   if (!WLLVMFile) {
     errs() << "Error reading file: " << InputFilename << "\n";
-    logAllUnhandledErrors(WLLVMFile.takeError(), errs(), argv[0]);
+    logAllUnhandledErrors(WLLVMFile.takeError(), errs(),
+                          StringRef(argv[0]) + ": ");
     return 1;
   }
 

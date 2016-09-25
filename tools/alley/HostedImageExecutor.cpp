@@ -3,15 +3,21 @@
 #include <llvm/ExecutionEngine/ExecutionEngine.h>
 #include <llvm/IR/Module.h>
 #include <llvm/Object/Archive.h>
+#include <llvm/Support/CommandLine.h>
 #include <llvm/Support/raw_os_ostream.h>
 
 #include <elf.h>
 #include <sys/types.h>
 #include <unistd.h>
 
+using namespace llvm;
+
 static const size_t INIT_STACK_MAX = 1024;
 
-using namespace llvm;
+static cl::opt<bool> NoExec("noexec",
+                            cl::desc("Don't actually execute the program"),
+                            cl::init(false), cl::Hidden);
+
 namespace allvm {
 int ImageExecutor::runHostedBinary(const std::vector<std::string> &argv,
                                    const char **envp, StringRef LibNone) {
@@ -120,6 +126,11 @@ int ImageExecutor::runHostedBinary(const std::vector<std::string> &argv,
 
   // TODO: Run static constructors, but AFTER initializing libc components...
   EE->runStaticConstructorsDestructors(false);
+
+  if (NoExec) {
+    errs() << "'noexec' option set, skipping execution...\n";
+    return 0;
+  }
 
   // Note: __libc_start_main() calls exit() so we don't really return
   startty start = reinterpret_cast<startty>(StartAddr);

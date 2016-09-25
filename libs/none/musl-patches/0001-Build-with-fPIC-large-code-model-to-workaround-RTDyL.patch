@@ -1,14 +1,15 @@
-From fba12c0cd57a917c5ef81e8d574ca8e5f1992400 Mon Sep 17 00:00:00 2001
+From 8579d9e2871b1ae783f5672a94f077c270bbc8f1 Mon Sep 17 00:00:00 2001
 From: Will Dietz <w@wdtz.org>
 Date: Fri, 29 Jul 2016 07:45:00 -0500
-Subject: [PATCH 1/4] Build with -fPIC/large code model to workaround RTDyLd relocation limitations.
+Subject: [PATCH 1/6] Build with -fPIC/large code model to workaround RTDyLd
+ relocation limitations.
 
 ---
- Makefile |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+ Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/Makefile b/Makefile
-index 8246b78..be0d4b9 100644
+index 8246b78..7d54b25 100644
 --- a/Makefile
 +++ b/Makefile
 @@ -45,7 +45,7 @@ CFLAGS =
@@ -21,5 +22,5 @@ index 8246b78..be0d4b9 100644
  CFLAGS_ALL += $(CPPFLAGS) $(CFLAGS_AUTO) $(CFLAGS)
  
 -- 
-1.7.1
+2.7.4
 
