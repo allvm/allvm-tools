@@ -12,23 +12,23 @@
 #include <llvm/IRReader/IRReader.h>
 #include <llvm/Support/CommandLine.h>
 #include <llvm/Support/Compiler.h>
+#include <llvm/Support/Debug.h>
 #include <llvm/Support/MemoryBuffer.h>
 #include <llvm/Support/Path.h>
 #include <llvm/Support/SourceMgr.h>
 #include <llvm/Support/TargetRegistry.h>
 #include <llvm/Support/TargetSelect.h>
 #include <llvm/Support/raw_os_ostream.h>
-#include <llvm/Support/Debug.h>
 
 #define DEBUG_TYPE "alley"
 
 #include <unistd.h>
 //#include <types.h>
+#include <fcntl.h>
+#include <iostream>
 #include <string.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
-#include <fcntl.h>
-#include <iostream>
 
 using namespace allvm;
 using namespace llvm;
@@ -90,18 +90,15 @@ int main(int argc, const char **argv, const char **envp) {
   }
 }
 
-
 // Helper function for execWith{JIT,Static}Compilation:
 // Add name of file as argv[0]
-void AddProgName()
-{
+void AddProgName() {
   std::string theName(InputFilename.getValue()); // make a copy to edit
-  StringRef ProgName = theName;	// wrap in a StringRef for easier operations
+  StringRef ProgName = theName; // wrap in a StringRef for easier operations
   if (sys::path::has_extension(InputFilename))
     ProgName = ProgName.drop_back(sys::path::extension(ProgName).size());
   InputArgv.insert(InputArgv.begin(), ProgName);
 }
-
 
 /****************************************************************
  * Name:        execWithJITCompilation
@@ -151,7 +148,6 @@ int execWithJITCompilation(allvm::Allexe &allexe, const char **envp) {
   return executor->runHostedBinary(InputArgv, envp, LibNone);
 }
 
-
 /****************************************************************
  * Name:        execWithStaticCompilation
  *
@@ -160,9 +156,9 @@ int execWithJITCompilation(allvm::Allexe &allexe, const char **envp) {
  * Output:      Uses the StaticBinaryCache to look up and execute the native
  *              object code for the given .allexe program.  If the code is
  *              not available in the cache, this should return an error, but
- *              (for convenience and for experiments) will compile the 
+ *              (for convenience and for experiments) will compile the
  *              module embedded in allexe to create an object file, and then
- *              notifies the cache to save it before executing it. 
+ *              notifies the cache to save it before executing it.
  *
  * Assumptions: The allexe embeds a single module and is obtained
  *              by tool like alltogether. The key for getting a single
@@ -170,8 +166,7 @@ int execWithJITCompilation(allvm::Allexe &allexe, const char **envp) {
  *              which is what alltogether does.
  ****************************************************************/
 
-int execWithStaticCompilation(allvm::Allexe &allexe,
-                              const char **envp) {
+int execWithStaticCompilation(allvm::Allexe &allexe, const char **envp) {
 
   assert(allexe.getNumModules() == 1 &&
          "The input must be an allexe with a single module");
@@ -208,26 +203,26 @@ int execWithStaticCompilation(allvm::Allexe &allexe,
   int execFD = Cache->getObjectFileDesc(Mod);
   bool isCached = (execFD >= 0);
 
-  DEBUG(dbgs() << (isCached? "Found in cache\n" : "Not in cache!\n"));
+  DEBUG(dbgs() << (isCached ? "Found in cache\n" : "Not in cache!\n"));
 
-  if (! isCached && DoStaticCodeGen) {
+  if (!isCached && DoStaticCodeGen) {
     // Generate native code for the specified .allexe into a temp file.
     // C++ doesn't have a portable way to create a temp file: using a C idiom.
     // FIXME: tmpnam() should not be used because there is a small chance
-    // the temp file is created by another process or thread before being 
+    // the temp file is created by another process or thread before being
     // opened by us, but that cannot be fixed here: the real problem
     // is that StaticCodeGen() wants a file name and then writes to it,
     // creating an opening for the race condition.  Instead, it should have
     // an option to leave the file name unspecified and create it internally.
-    // 
+    //
     char tempFileName[L_tmpnam];
-    (void) tmpnam(tempFileName);
+    (void)tmpnam(tempFileName);
     ErrorOr<std::unique_ptr<object::Binary>> binary =
-      compileAndLinkAllexeWithLlcDefaults(allexe, LibNone, "clang",
-					  tempFileName, context);
-    if (! binary) {
-      errs() << "Compile/link failed for allexe " 
-	     << allexe.getModuleName(0) << "\n";
+        compileAndLinkAllexeWithLlcDefaults(allexe, LibNone, "clang",
+                                            tempFileName, context);
+    if (!binary) {
+      errs() << "Compile/link failed for allexe " << allexe.getModuleName(0)
+             << "\n";
       return -1;
     }
     DEBUG(dbgs() << "Compiled successfully into " << tempFileName << "\n");
@@ -241,20 +236,20 @@ int execWithStaticCompilation(allvm::Allexe &allexe,
 
   // Add the name of the allexe file (without the extension) as InputArgv[0].
   // Do NOT use the native code name: that is not a meaningful name.
-  // 
+  //
   AddProgName();
-  
+
   // Convert InputArgv[] from cl::list<std::string> to char*[].
   // This is all so low-level ... need an equivalent of execve in llvm::sys.
-  char** argvArray = (char**) malloc((InputArgv.size() + 1) * sizeof(char*));
-  for (int i=0, e = InputArgv.size(); i < e; i++)
-    argvArray[i] = (char*) InputArgv[i].c_str();
-  argvArray[InputArgv.size()] = (char*) 0; // null-terminate argvArray[]
+  char **argvArray = (char **)malloc((InputArgv.size() + 1) * sizeof(char *));
+  for (int i = 0, e = InputArgv.size(); i < e; i++)
+    argvArray[i] = (char *)InputArgv[i].c_str();
+  argvArray[InputArgv.size()] = (char *)0; // null-terminate argvArray[]
 
   // Almost ready to launch this sucker
   DEBUG(dbgs() << "fexecve: " << execFD << ": " << argvArray[0] << "\n");
-  fexecve(execFD, argvArray, const_cast<char**>(envp));
+  fexecve(execFD, argvArray, const_cast<char **>(envp));
 
-  perror("fexecve failed!");	// fexecve never returns if successful!
+  perror("fexecve failed!"); // fexecve never returns if successful!
   return -1;
 }
