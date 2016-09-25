@@ -1,6 +1,10 @@
 set(LLVM_LINK_COMPONENTS
+  BitReader
   Core
   LTO
+  MC
+  Support
+  Target
   ${LLVM_TARGETS_TO_BUILD}
 )
 

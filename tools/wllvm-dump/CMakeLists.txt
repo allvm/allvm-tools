@@ -4,6 +4,7 @@ set(LLVM_LINK_COMPONENTS
   IRReader
   Linker
   Object
+  Support
 )
 
 add_llvm_tool(wllvm-dump
