@@ -19,9 +19,15 @@
 using namespace allvm;
 using namespace llvm;
 
+#if 0
 static cl::opt<bool> DoStaticCodeGen(
     "doCodeGen", cl::init(true),
     cl::desc("Do static native code generation if necessary (default: ON)"));
+#else
+const bool DoStaticCodeGen = true;
+// Don't expose this is a parameter until the code path for handling
+// it's non-default value exists.
+#endif
 
 /****************************************************************
  * Name:        execWithStaticCompilation
