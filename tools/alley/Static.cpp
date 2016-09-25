@@ -2,6 +2,7 @@
 
 #include "StaticBinaryCache.h" // For naming, TODO: better design
 
+#include <llvm/ADT/SmallVector.h>
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Module.h>
 #include <llvm/Support/CommandLine.h>
@@ -40,7 +41,6 @@ static cl::opt<bool> DoStaticCodeGen(
  *              which is what alltogether does.
  ****************************************************************/
 
-// TODO: Return an Error instead of tr
 int allvm::execWithStaticCompilation(allvm::Allexe &allexe,
                                      StringRef InputFilename,
                                      ArrayRef<std::string> Args,
@@ -112,16 +112,15 @@ int allvm::execWithStaticCompilation(allvm::Allexe &allexe,
     assert(execFD != -1 && "Failed to retrieve native code from cache!");
   }
 
-  // Convert Args from ArrayRef<std::string> to char*[].
-  // This is all so low-level ... need an equivalent of execve in llvm::sys.
-  char **argvArray = (char **)malloc((Args.size() + 1) * sizeof(char *));
-  for (int i = 0, e = Args.size(); i < e; i++)
-    argvArray[i] = (char *)Args[i].c_str();
-  argvArray[Args.size()] = (char *)0; // null-terminate argvArray[]
+  // Convert Args from ArrayRef<std::string> to char*[]
+  SmallVector<const char *, 16> argv;
+  for (auto &arg : Args)
+    argv.push_back(arg.data());
+  argv.push_back(nullptr); // null-terminate argv
 
   // Almost ready to launch this sucker
-  DEBUG(dbgs() << "fexecve: " << execFD << ": " << argvArray[0] << "\n");
-  fexecve(execFD, argvArray, const_cast<char **>(envp));
+  DEBUG(dbgs() << "fexecve: " << execFD << ": " << argv[0] << "\n");
+  fexecve(execFD, const_cast<char **>(argv.data()), const_cast<char **>(envp));
 
   perror("fexecve failed!"); // fexecve never returns if successful!
   return -1;
