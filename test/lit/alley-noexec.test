@@ -1,0 +1,10 @@
+// Test that we can execute a simple allexe
+// RUN: not alley %p/Inputs/which |& FileCheck %s
+
+// Test that the -noexec flag disables execution
+// RUN: alley -noexec %p/Inputs/which |& FileCheck %s -check-prefix=NOEXEC
+
+// CHECK: Usage:
+// CHECK: Report bugs to
+
+// NOEXEC-NOT: Usage
