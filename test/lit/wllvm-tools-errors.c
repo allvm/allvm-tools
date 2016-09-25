@@ -1,3 +1,4 @@
+// Construct a file not build by WLLVM:
 // RUN: cc %s -o %t
 
 // RUN: not wllvm-dump %t |& FileCheck %s -check-prefix CHECK-DUMP
