@@ -16,7 +16,7 @@ static const size_t INIT_STACK_MAX = 1024;
 
 static cl::opt<bool> NoExec("noexec",
                             cl::desc("Don't actually execute the program"),
-                            cl::init(false));
+                            cl::init(false), cl::Hidden);
 
 namespace allvm {
 int ImageExecutor::runHostedBinary(const std::vector<std::string> &argv,
