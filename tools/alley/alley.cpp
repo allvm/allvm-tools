@@ -66,9 +66,7 @@ int main(int argc, const char **argv, const char **envp) {
   InputArgv.insert(InputArgv.begin(), ProgName);
 
   // Choose the code generation mode Dynamic (using JIT) or Static
-  if (DisableJIT) {
-    return execWithStaticCompilation(allexe, InputFilename, InputArgv, envp);
-  } else {
-    return execWithJITCompilation(allexe, InputFilename, InputArgv, envp);
-  }
+  auto executor =
+      DisableJIT ? execWithStaticCompilation : execWithJITCompilation;
+  return executor(allexe, InputFilename, InputArgv, envp);
 }
