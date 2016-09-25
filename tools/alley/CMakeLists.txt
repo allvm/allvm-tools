@@ -15,6 +15,7 @@ set(LLVM_LINK_COMPONENTS
 add_llvm_tool(alley
   alley.cpp
   HostedImageExecutor.cpp
+  JIT.cpp
   ImageCache.cpp
   ImageExecutor.cpp
   StaticBinaryCache.cpp
