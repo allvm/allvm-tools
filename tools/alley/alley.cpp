@@ -34,9 +34,12 @@ static cl::opt<std::string> InputFilename(cl::Positional, cl::Required,
 static cl::list<std::string> InputArgv(cl::ConsumeAfter,
                                        cl::desc("<program arguments>..."));
 
-static cl::opt<bool> DisableJIT(
-    "disableJIT", cl::init(false),
-    cl::desc("Choose between JIT or static compilation (default: JIT)"));
+// TODO: Enable forcing use of the JIT even when we have a static version cached
+// static cl::opt<bool> ForceJIT("force-jit", cl::init(false),
+//                              cl::desc("Force using the JIT"));
+
+static cl::opt<bool> ForceStatic("force-static", cl::init(false),
+                                 cl::desc("Force using static code path"));
 
 StringRef allvm::getLibNone() { return LibNone; }
 
@@ -60,14 +63,34 @@ int main(int argc, const char **argv, const char **envp) {
     return 1;
   }
 
+  auto mainFile = allexe.getModuleName(0);
+
+  if (mainFile != ALLEXE_MAIN) {
+    errs() << "Could not open " << InputFilename << ": ";
+    errs() << "First entry was '" << mainFile << "',";
+    errs() << " expected '" << ALLEXE_MAIN << "'\n";
+    return 1;
+  }
+
+  if (ForceStatic && allexe.getNumModules() != 1) {
+    errs() << "Allexe contains too many modules for static code path!\n";
+    errs() << "Hint: Use 'alltogether' first!\n";
+    return 1;
+  }
+
   // Fixup argv[0] to the allexe name without the allexe suffix.
   StringRef ProgName = InputFilename;
   if (sys::path::has_extension(InputFilename))
     ProgName = ProgName.drop_back(sys::path::extension(ProgName).size());
   InputArgv.insert(InputArgv.begin(), ProgName);
 
-  // Choose the code generation mode Dynamic (using JIT) or Static
-  auto executor =
-      DisableJIT ? execWithStaticCompilation : execWithJITCompilation;
-  return executor(allexe, InputFilename, InputArgv, envp);
+  auto E = tryStaticExec(allexe, InputArgv, envp, ForceStatic);
+  if (E) {
+    errs() << "Error during static execution of ......";
+    assert(0 && "NYI!");
+    return 1;
+  }
+
+  // If we made it to here, we're JIT'ing the code
+  return execWithJITCompilation(allexe, InputFilename, InputArgv, envp);
 }

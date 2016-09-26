@@ -7,6 +7,7 @@
 #include <llvm/IR/Module.h>
 #include <llvm/Support/CommandLine.h>
 #include <llvm/Support/Debug.h>
+#include <llvm/Support/Errc.h>
 
 #include <unistd.h>
 //#include <types.h>
@@ -16,18 +17,10 @@
 #include <sys/mman.h>
 #include <sys/stat.h>
 
+#define DEBUG_TYPE "alley"
+
 using namespace allvm;
 using namespace llvm;
-
-#if 0
-static cl::opt<bool> DoStaticCodeGen(
-    "doCodeGen", cl::init(true),
-    cl::desc("Do static native code generation if necessary (default: ON)"));
-#else
-const bool DoStaticCodeGen = true;
-// Don't expose this is a parameter until the code path for handling
-// it's non-default value exists.
-#endif
 
 /****************************************************************
  * Name:        execWithStaticCompilation
@@ -47,49 +40,35 @@ const bool DoStaticCodeGen = true;
  *              which is what alltogether does.
  ****************************************************************/
 
-int allvm::execWithStaticCompilation(allvm::Allexe &allexe,
-                                     StringRef InputFilename,
-                                     ArrayRef<std::string> Args,
-                                     const char **envp) {
-
+Error allvm::tryStaticExec(allvm::Allexe &allexe,
+                           llvm::ArrayRef<std::string> Args, const char **envp,
+                           bool DoStaticCodeGenIfNeeded) {
   assert(allexe.getNumModules() == 1 &&
          "The input must be an allexe with a single module");
-  auto mainFile = allexe.getModuleName(0);
-
-  if (mainFile != ALLEXE_MAIN) {
-    errs() << "Could not open " << InputFilename << ": ";
-    errs() << "First entry was '" << mainFile << "',";
-    errs() << " expected '" << ALLEXE_MAIN << "'\n";
-    return 1;
-  }
-
   LLVMContext context;
-  // Setting up hash key as the Module identifier
-  uint32_t crc;
-  auto M = allexe.getModule(0, context, &crc);
-  auto name = allexe.getModuleName(0);
-  if (!M) {
-    errs() << "Could not read " << InputFilename << ": " << name << "\n";
-    // FIXME: Do something with M's error
-    exit(1);
-  }
+
+  const CompilationOptions Options;
 
   // Set a unique name for the module using StaticBinaryCache's naming scheme
-  const CompilationOptions Options;
-  M.get()->setModuleIdentifier(
-      StaticBinaryCache::generateName(name, crc, &Options));
+  auto crc = allexe.getModuleCRC(0);
+  auto name = allexe.getModuleName(0); // == ALLEXE_MAIN
+
+  auto CacheKey = StaticBinaryCache::generateName(name, crc, &Options);
 
   // Setting Up the Cache
   std::unique_ptr<StaticBinaryCache> Cache(new StaticBinaryCache());
 
   // Query the cache for an existing Image, which would avoid native code-gen
-  Module *Mod = M.get().get();
-  int execFD = Cache->getObjectFileDesc(Mod);
+  int execFD = Cache->getObjectFileDesc(CacheKey);
   bool isCached = (execFD >= 0);
 
   DEBUG(dbgs() << (isCached ? "Found in cache\n" : "Not in cache!\n"));
 
-  if (!isCached && DoStaticCodeGen) {
+  if (!isCached) {
+    if (!DoStaticCodeGenIfNeeded) {
+      // No error encountered, but returning means we didn't exec() anything
+      return Error::success();
+    }
     // Generate native code for the specified .allexe into a temp file.
     // C++ doesn't have a portable way to create a temp file: using a C idiom.
     // FIXME: tmpnam() should not be used because there is a small chance
@@ -101,20 +80,17 @@ int allvm::execWithStaticCompilation(allvm::Allexe &allexe,
     //
     char tempFileName[L_tmpnam];
     (void)tmpnam(tempFileName);
-    ErrorOr<std::unique_ptr<object::Binary>> binary =
-        compileAndLinkAllexeWithLlcDefaults(allexe, getLibNone(), "clang",
-                                            tempFileName, context);
-    if (!binary) {
-      errs() << "Compile/link failed for allexe " << allexe.getModuleName(0)
-             << "\n";
-      return -1;
-    }
+    auto binary = compileAndLinkAllexeWithLlcDefaults(
+        allexe, getLibNone(), "clang", tempFileName, context);
+    if (!binary)
+      return make_error<StringError>("error during compilation/linking",
+                                     binary.getError());
     DEBUG(dbgs() << "Compiled successfully into " << tempFileName << "\n");
 
     // Now copy the executable to the cache location and delete the temp file
-    Cache->notifyObjectCompiled(Mod, tempFileName);
+    Cache->notifyObjectCompiled(CacheKey, tempFileName);
     sys::fs::remove(Twine(tempFileName));
-    execFD = Cache->getObjectFileDesc(Mod);
+    execFD = Cache->getObjectFileDesc(CacheKey);
     assert(execFD != -1 && "Failed to retrieve native code from cache!");
   }
 
@@ -129,5 +105,6 @@ int allvm::execWithStaticCompilation(allvm::Allexe &allexe,
   fexecve(execFD, const_cast<char **>(argv.data()), const_cast<char **>(envp));
 
   perror("fexecve failed!"); // fexecve never returns if successful!
-  return -1;
+  // XXX: FIXME
+  return make_error<StringError>("Error fexecve!", errc::invalid_argument);
 }
