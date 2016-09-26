@@ -59,7 +59,18 @@ void StaticBinaryCache::notifyObjectCompiled(StringRef CacheKey,
   }
   DEBUG(dbgs() << "Copying binary for " << CacheKey << " from " << execFilePath
                << " to " << CacheName << "\n");
-  std::error_code EC = sys::fs::rename(execFilePath, CacheName);
+  std::string CacheNameTmp = CacheName + ".tmp";
+  auto EC = sys::fs::copy_file(execFilePath, CacheNameTmp);
+  if (EC) {
+    errs() << "StaticBinaryCache: file copy failed: " << EC.message() << "\n";
+    exit(1);
+  }
+  int ret = chmod(CacheNameTmp.data(), S_IRUSR | S_IXUSR);
+  if (ret) {
+    errs() << "StaticBinaryCache: Error changing permissions of file!\n";
+    exit(1);
+  }
+  EC = sys::fs::rename(CacheNameTmp, CacheName);
   if (EC) {
     errs() << "StaticBinaryCache: file copy failed: " << EC.message() << "\n";
     exit(1);
