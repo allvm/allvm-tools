@@ -78,6 +78,7 @@ Error allvm::tryStaticExec(allvm::Allexe &allexe,
     // creating an opening for the race condition.  Instead, it should have
     // an option to leave the file name unspecified and create it internally.
     //
+    DEBUG(dbgs() << "Starting static compilation...\n");
     char tempFileName[L_tmpnam];
     (void)tmpnam(tempFileName);
     auto binary = compileAndLinkAllexeWithLlcDefaults(
