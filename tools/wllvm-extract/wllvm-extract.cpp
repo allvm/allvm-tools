@@ -139,8 +139,7 @@ static Error writeAsAllexe(const WLLVMFile &File, StringRef Filename) {
   if (StripDebug)
     StripDebugInfo(**Composite);
 
-  if (!(*Output)->addModule(std::move(*Composite),
-                            "main.bc" /* FIXME: magic string */))
+  if (!(*Output)->addModule(std::move(*Composite), ALLEXE_MAIN))
     // "invalid argument"? :(
     return make_error<StringError>("error adding module to allexe",
                                    errc::invalid_argument);

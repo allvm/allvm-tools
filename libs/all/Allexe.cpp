@@ -9,8 +9,6 @@
 using namespace allvm;
 using namespace llvm;
 
-const StringRef ALLEXE_MAIN = "main.bc";
-
 static std::unique_ptr<MemoryBuffer> moduleToBuffer(const Module *M) {
   std::string X;
   raw_string_ostream OS(X);
@@ -38,6 +36,11 @@ Allexe::getModule(size_t idx, LLVMContext &ctx, uint32_t *crc,
   assert(idx < getNumModules() && "invalid module idx");
   auto bitcode = archive->getEntry(idx, crc);
   return getLazyBitcodeModule(std::move(bitcode), ctx, shouldLoadLazyMetaData);
+}
+
+uint32_t Allexe::getModuleCRC(size_t idx) {
+  assert(idx < getNumModules() && "invalid module idx");
+  return archive->getEntryCRC(idx);
 }
 
 StringRef Allexe::getModuleName(size_t idx) const {

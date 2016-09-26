@@ -46,6 +46,9 @@ public:
 
   std::unique_ptr<llvm::MemoryBuffer> getEntry(size_t index,
                                                uint32_t *CrcOut = nullptr);
+
+  uint32_t getEntryCRC(size_t index);
+
   llvm::ArrayRef<std::string> listFiles() const;
 
   // update content of an entry, can optionally rename said entry

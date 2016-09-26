@@ -1,0 +1,8 @@
+// Check static execution path
+// TODO: use a temporary cache location
+//
+// Run 'which' without any argments, check output
+// RUN: not alley -force-static -linker=cc %p/Inputs/which |& FileCheck %s
+
+// CHECK: Usage:
+// CHECK: Report bugs to

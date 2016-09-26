@@ -1,4 +1,4 @@
-#include "ImageCache.h"
+#include "JITCache.h"
 
 #include <llvm/ADT/SmallString.h>
 #include <llvm/ADT/StringExtras.h>
@@ -11,7 +11,7 @@ using namespace llvm;
 
 namespace allvm {
 
-void ImageCache::notifyObjectCompiled(const Module *M, MemoryBufferRef Obj) {
+void JITCache::notifyObjectCompiled(const Module *M, MemoryBufferRef Obj) {
   const std::string &ModuleID = M->getModuleIdentifier();
   std::string CacheName;
   if (!getCacheFilename(ModuleID, CacheName))
@@ -26,11 +26,11 @@ void ImageCache::notifyObjectCompiled(const Module *M, MemoryBufferRef Obj) {
   outfile.close();
 }
 
-std::unique_ptr<MemoryBuffer> ImageCache::getObject(const Module *M) {
+std::unique_ptr<MemoryBuffer> JITCache::getObject(const Module *M) {
   return getObject(M->getModuleIdentifier());
 }
 
-bool ImageCache::hasObjectFor(const Module *M) {
+bool JITCache::hasObjectFor(const Module *M) {
   // TODO: Avoid loading file altogether!
   std::string CacheName;
   if (!getCacheFilename(M->getModuleIdentifier(), CacheName))
@@ -42,7 +42,7 @@ bool ImageCache::hasObjectFor(const Module *M) {
   return !!IRObjectBuffer;
 }
 
-std::unique_ptr<MemoryBuffer> ImageCache::getObject(StringRef Name) {
+std::unique_ptr<MemoryBuffer> JITCache::getObject(StringRef Name) {
   std::string CacheName;
   if (!getCacheFilename(Name, CacheName))
     return nullptr;
@@ -59,7 +59,7 @@ std::unique_ptr<MemoryBuffer> ImageCache::getObject(StringRef Name) {
   return MemoryBuffer::getMemBufferCopy(IRObjectBuffer.get()->getBuffer());
 }
 
-bool ImageCache::getCacheFilename(StringRef ModID, std::string &CacheName) {
+bool JITCache::getCacheFilename(StringRef ModID, std::string &CacheName) {
   std::string Prefix("allexe:");
   size_t PrefixLength = Prefix.length();
   if (ModID.substr(0, PrefixLength) != Prefix)
@@ -78,7 +78,7 @@ bool ImageCache::getCacheFilename(StringRef ModID, std::string &CacheName) {
   return true;
 }
 
-std::string ImageCache::generateName(StringRef Name, uint32_t crc) {
+std::string JITCache::generateName(StringRef Name, uint32_t crc) {
   std::string crcHex = utohexstr(crc);
   return ("allexe:" + crcHex + "-" + Name).str();
 }

@@ -48,8 +48,6 @@ static cl::opt<std::string> LibNone("libnone", cl::desc("Path of libnone.a"),
 static cl::opt<bool>
     Overwrite("f", cl::desc("overwrite existing alltogether'd file"),
               cl::init(false));
-
-const StringRef ALLEXE_MAIN = "main.bc";
 } // end namespace REFACTORME
 
 static cl::opt<std::string> InputFilename(cl::Positional, cl::Required,
@@ -197,7 +195,7 @@ int main(int argc, const char **argv) {
     errs() << "Error creating new allexe file for merged module\n";
     return 1;
   }
-  if (!(*alltogether)->addModule(TempBCPath, "main.bc")) {
+  if (!(*alltogether)->addModule(TempBCPath, ALLEXE_MAIN)) {
     errs() << "Error writing merged module\n";
     return 1;
   }
