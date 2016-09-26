@@ -1,6 +1,6 @@
 #include "alley.h"
 
-#include "StaticBinaryCache.h" // For naming, TODO: better design
+#include "StaticBinaryCache.h"
 
 #include <llvm/ADT/SmallVector.h>
 #include <llvm/IR/LLVMContext.h>
@@ -10,7 +10,6 @@
 #include <llvm/Support/Errc.h>
 
 #include <unistd.h>
-//#include <types.h>
 #include <fcntl.h>
 #include <iostream>
 #include <string.h>
