@@ -1,4 +1,4 @@
-#include "alley.h"
+#include "ExecutionYengine.h"
 
 #include <llvm/Bitcode/ReaderWriter.h>
 #include <llvm/CodeGen/CommandFlags.h>
@@ -86,12 +86,12 @@ int main(int argc, const char **argv, const char **envp) {
     ProgName = ProgName.drop_back(sys::path::extension(ProgName).size());
   InputArgv.insert(InputArgv.begin(), ProgName);
 
-  ExecutionInfo EI{allexe, InputArgv, envp, LibNone};
+  ExecutionYengine EY({allexe, InputArgv, envp, LibNone});
 
-  ExitOnErr(tryStaticExec(EI, ForceStatic));
+  ExitOnErr(EY.tryStaticExec(ForceStatic));
 
   // If we made it to here, we're JIT'ing the code
-  ExitOnErr(execWithJITCompilation(EI));
+  ExitOnErr(EY.doJITExec());
 
   return 0;
 }

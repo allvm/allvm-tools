@@ -1,10 +1,11 @@
-#include "alley.h"
+#include "ExecutionYengine.h"
 
 #include "StaticBinaryCache.h"
 
 #include <llvm/ADT/SmallVector.h>
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Module.h>
+#include <llvm/Object/Binary.h>
 #include <llvm/Support/CommandLine.h>
 #include <llvm/Support/Debug.h>
 #include <llvm/Support/Errc.h>
@@ -22,12 +23,11 @@ using namespace allvm;
 using namespace llvm;
 
 /****************************************************************
- * Name:        execWithStaticCompilation
+ * Name:        tryStaticExec
  *
- * Input:       A source file in allexe format & program's
- *              arguments and environment.
- *              On a cache miss, DoStaticCodeGenIfNeeded determines
- *              whether compilation should be performed.
+ * Input:       Allexe execution parameters (ExecutionInfo),
+ *              and DoStaticCodeGenIfNeeded which determines
+ *              whether compilation is performed on a cache miss.
  *
  * Output:      Uses the StaticBinaryCache to look up and execute the native
  *              object code for the given .allexe program.  If the code is
@@ -44,8 +44,8 @@ using namespace llvm;
  *              which is what alltogether does.
  ****************************************************************/
 
-Error allvm::tryStaticExec(ExecutionInfo &EI, bool DoStaticCodeGenIfNeeded) {
-  auto &allexe = EI.allexe;
+Error ExecutionYengine::tryStaticExec(bool DoStaticCodeGenIfNeeded) {
+  auto &allexe = Info.allexe;
   assert(allexe.getNumModules() == 1 &&
          "The input must be an allexe with a single module");
   LLVMContext context;
@@ -85,7 +85,7 @@ Error allvm::tryStaticExec(ExecutionInfo &EI, bool DoStaticCodeGenIfNeeded) {
     char tempFileName[L_tmpnam];
     (void)tmpnam(tempFileName);
     auto binary = compileAndLinkAllexeWithLlcDefaults(
-        allexe, EI.LibNone, "clang", tempFileName, context);
+        allexe, Info.LibNone, "clang", tempFileName, context);
     if (!binary)
       return make_error<StringError>("error during compilation/linking",
                                      binary.getError());
@@ -100,14 +100,14 @@ Error allvm::tryStaticExec(ExecutionInfo &EI, bool DoStaticCodeGenIfNeeded) {
 
   // Convert Args from ArrayRef<std::string> to char*[]
   SmallVector<const char *, 16> argv;
-  for (auto &arg : EI.Args)
+  for (auto &arg : Info.Args)
     argv.push_back(arg.data());
   argv.push_back(nullptr); // null-terminate argv
 
   // Almost ready to launch this sucker
   DEBUG(dbgs() << "fexecve: " << execFD << ": " << argv[0] << "\n");
   fexecve(execFD, const_cast<char **>(argv.data()),
-          const_cast<char **>(EI.envp));
+          const_cast<char **>(Info.envp));
 
   perror("fexecve failed!"); // fexecve never returns if successful!
   // XXX: FIXME

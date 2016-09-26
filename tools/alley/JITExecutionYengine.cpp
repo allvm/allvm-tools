@@ -1,4 +1,4 @@
-#include "alley.h"
+#include "ExecutionYengine.h"
 
 #include "ImageExecutor.h"
 #include "JITCache.h" // For naming, TODO: better design
@@ -11,19 +11,9 @@
 using namespace allvm;
 using namespace llvm;
 
-/****************************************************************
- * Name:        execWithJITCompilation
- *
- * Input:       A source file in allexe format & the program's
- *              arguments and environment.
- *
- * Output:      Create an JIT Execution Engine which takes the mainmodule
- *              and library modules (embedded in the input file) and executes
- *it.
- ****************************************************************/
-Error allvm::execWithJITCompilation(ExecutionInfo &EI) {
+Error ExecutionYengine::doJITExec() {
   LLVMContext context;
-  auto &allexe = EI.allexe;
+  auto &allexe = Info.allexe;
   auto LoadModule = [&](size_t idx) -> Expected<std::unique_ptr<Module>> {
     uint32_t crc;
     auto M = allexe.getModule(idx, context, &crc);
@@ -49,7 +39,7 @@ Error allvm::execWithJITCompilation(ExecutionInfo &EI) {
     executor->addModule(std::move(*M));
   }
 
-  executor->runHostedBinary(EI.Args, EI.envp, EI.LibNone);
+  executor->runHostedBinary(Info.Args, Info.envp, Info.LibNone);
   // TODO: Clarify return value significance of runHostedBinary()
   return Error::success();
 }
