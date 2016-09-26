@@ -24,14 +24,19 @@ using namespace llvm;
 /****************************************************************
  * Name:        execWithStaticCompilation
  *
- * Input:       A source file in allexe format & program’s environment.
+ * Input:       A source file in allexe format & program's
+ *              arguments and environment.
+ *              On a cache miss, DoStaticCodeGenIfNeeded determines
+ *              whether compilation should be performed.
  *
  * Output:      Uses the StaticBinaryCache to look up and execute the native
  *              object code for the given .allexe program.  If the code is
- *              not available in the cache, this should return an error, but
- *              (for convenience and for experiments) will compile the
- *              module embedded in allexe to create an object file, and then
- *              notifies the cache to save it before executing it.
+ *              not available in the cache:
+ *              If DoStaticCodeGenIfNeeded is true, the code is compiled
+ *              and added to the cache.
+ *              If DoStaticCodeGenIfNeeded is false, return success.
+ *              If execution succeeds this function does not return,
+ *              and returns and error if any are encountered.
  *
  * Assumptions: The allexe embeds a single module and is obtained
  *              by tool like alltogether. The key for getting a single

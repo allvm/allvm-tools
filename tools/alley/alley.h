@@ -18,7 +18,7 @@ llvm::Error tryStaticExec(allvm::Allexe &, llvm::ArrayRef<std::string> Args,
                           const char **envp, bool DoStaticCodeGenIfNeeded);
 llvm::Error execWithJITCompilation(allvm::Allexe &,
                                    llvm::ArrayRef<std::string> Args,
-                                   const char ** envp);
+                                   const char **envp);
 
 // TODO: These belong elsewhere!
 const llvm::StringRef ALLEXE_MAIN = "main.bc";

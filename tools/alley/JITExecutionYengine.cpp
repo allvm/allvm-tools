@@ -14,9 +14,10 @@ using namespace llvm;
 /****************************************************************
  * Name:        execWithJITCompilation
  *
- * Input:       A source file in allexe format & program’s environment.
+ * Input:       A source file in allexe format & the program's
+ *              arguments and environment.
  *
- * Output:      Create an JIT Executaion Engine which takes the mainmodule
+ * Output:      Create an JIT Execution Engine which takes the mainmodule
  *              and library modules (embedded in the input file) and executes
  *it.
  ****************************************************************/
