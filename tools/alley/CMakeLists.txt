@@ -15,11 +15,11 @@ set(LLVM_LINK_COMPONENTS
 add_llvm_tool(alley
   alley.cpp
   HostedImageExecutor.cpp
-  JIT.cpp
+  JITExecutionYengine.cpp
   JITCache.cpp
   ImageExecutor.cpp
   StaticBinaryCache.cpp
-  Static.cpp
+  StaticExecutionYengine.cpp
 )
 target_link_libraries(alley liball StaticCodeGen)
 target_link_libraries(alley rt)
