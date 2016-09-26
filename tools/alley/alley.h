@@ -21,7 +21,6 @@ llvm::Error execWithJITCompilation(allvm::Allexe &,
                                    const char **envp);
 
 // TODO: These belong elsewhere!
-const llvm::StringRef ALLEXE_MAIN = "main.bc";
 llvm::StringRef getLibNone();
 }
 

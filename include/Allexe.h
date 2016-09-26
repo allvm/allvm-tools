@@ -3,6 +3,7 @@
 
 #include "ZipArchive.h"
 
+#include <llvm/ADT/StringRef.h>
 #include <llvm/Support/ErrorOr.h>
 
 #include <memory>
@@ -11,7 +12,6 @@
 
 namespace llvm {
 class Module;
-class StringRef;
 class LLVMContext;
 }
 
@@ -52,6 +52,8 @@ public:
   static llvm::ErrorOr<std::unique_ptr<Allexe>> open(llvm::StringRef,
                                                      bool overwrite = false);
 };
+
+const llvm::StringRef ALLEXE_MAIN = "main.bc";
 }
 
 #endif // ALLVM_ALLEXE

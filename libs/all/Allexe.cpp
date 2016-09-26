@@ -9,8 +9,6 @@
 using namespace allvm;
 using namespace llvm;
 
-const StringRef ALLEXE_MAIN = "main.bc";
-
 static std::unique_ptr<MemoryBuffer> moduleToBuffer(const Module *M) {
   std::string X;
   raw_string_ostream OS(X);
