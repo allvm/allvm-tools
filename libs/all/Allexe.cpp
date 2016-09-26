@@ -40,6 +40,11 @@ Allexe::getModule(size_t idx, LLVMContext &ctx, uint32_t *crc,
   return getLazyBitcodeModule(std::move(bitcode), ctx, shouldLoadLazyMetaData);
 }
 
+uint32_t Allexe::getModuleCRC(size_t idx) {
+  assert(idx < getNumModules() && "invalid module idx");
+  return archive->getEntryCRC(idx);
+}
+
 StringRef Allexe::getModuleName(size_t idx) const {
   assert(idx < getNumModules() && "invalid module idx");
   return archive->listFiles()[idx];

@@ -34,6 +34,8 @@ public:
   getModule(size_t i, llvm::LLVMContext &, uint32_t *crc = nullptr,
             bool shouldLoadLazyMetaData = true);
 
+  uint32_t getModuleCRC(size_t idx);
+
   llvm::StringRef getModuleName(size_t idx) const;
 
   /// add a module to this allexe
