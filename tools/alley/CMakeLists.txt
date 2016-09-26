@@ -14,10 +14,9 @@ set(LLVM_LINK_COMPONENTS
 
 add_llvm_tool(alley
   alley.cpp
-  HostedImageExecutor.cpp
-  JITExecutionYengine.cpp
   JITCache.cpp
-  ImageExecutor.cpp
+  JITExecutionYengine.cpp
+  LinuxJIT.cpp # select this based on platform
   StaticBinaryCache.cpp
   StaticExecutionYengine.cpp
 )

@@ -9,17 +9,15 @@
 
 namespace allvm {
 
-
 class ExecutionYengine final {
 
 public:
-
-struct ExecutionInfo {
-  allvm::Allexe &allexe;
-  llvm::ArrayRef<std::string> Args;
-  const char **envp;
-  llvm::StringRef LibNone;
-};
+  struct ExecutionInfo {
+    allvm::Allexe &allexe;
+    llvm::ArrayRef<std::string> Args;
+    const char **envp;
+    llvm::StringRef LibNone;
+  };
 
   ExecutionYengine(ExecutionInfo EI) : Info(EI) {}
 
@@ -30,12 +28,9 @@ struct ExecutionInfo {
   llvm::Error doJITExec();
 
 private:
-ExecutionInfo Info;
-
+  ExecutionInfo Info;
 };
 
 } // end namespace allvm
 
-
 #endif // ALLVM_EXECUTION_YENGINE_H
-

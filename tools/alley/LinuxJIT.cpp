@@ -1,10 +1,11 @@
-#include "ImageExecutor.h"
+#include "PlatformSpecificJIT.h"
 
 #include <llvm/ExecutionEngine/ExecutionEngine.h>
 #include <llvm/IR/Module.h>
 #include <llvm/Object/Archive.h>
 #include <llvm/Support/CommandLine.h>
-#include <llvm/Support/raw_os_ostream.h>
+#include <llvm/Support/Errc.h>
+#include <llvm/Support/raw_ostream.h>
 
 #include <elf.h>
 #include <sys/types.h>
@@ -19,16 +20,14 @@ static cl::opt<bool> NoExec("noexec",
                             cl::init(false), cl::Hidden);
 
 namespace allvm {
-int ImageExecutor::runHostedBinary(const std::vector<std::string> &argv,
-                                   const char **envp, StringRef LibNone) {
+llvm::Error runHosted(ExecutionEngine &EE,
+                      ExecutionYengine::ExecutionInfo &Info, JITCache &Cache) {
 
-  auto BinaryOrErr = object::createBinary(LibNone);
-  if (!BinaryOrErr) {
-    errs() << "Could not open " << LibNone << "\n";
-    return 1;
-  }
+  auto BinaryOrErr = object::createBinary(Info.LibNone);
+  if (!BinaryOrErr)
+    return BinaryOrErr.takeError();
 
-  EE->DisableSymbolSearching();
+  EE.DisableSymbolSearching();
   // EE->setProcessAllSections(true); // XXX: is this needed/useful?
 
   // Get the binary as a OwningBinary<object::Archive>
@@ -37,7 +36,7 @@ int ImageExecutor::runHostedBinary(const std::vector<std::string> &argv,
       cast<object::Archive>(Pair.first.release()));
 
   // Add archive to the execution engine!
-  EE->addArchive({std::move(AsArchive), std::move(Pair.second)});
+  EE.addArchive({std::move(AsArchive), std::move(Pair.second)});
 
   // Use stack-allocated pointer here so that 32bits is enough
   // to represent the distance between the address of
@@ -53,13 +52,13 @@ int ImageExecutor::runHostedBinary(const std::vector<std::string> &argv,
   uint64_t dummy_addr = reinterpret_cast<uint64_t>(&dummy_ptr);
 
   // FIXME: Resolve these properly instead of hardcoding to our dummy pointer
-  EE->addGlobalMapping("__init_array_start", dummy_addr);
-  EE->addGlobalMapping("__init_array_end", dummy_addr);
-  EE->addGlobalMapping("__fini_array_start", dummy_addr);
-  EE->addGlobalMapping("__fini_array_end", dummy_addr);
+  EE.addGlobalMapping("__init_array_start", dummy_addr);
+  EE.addGlobalMapping("__init_array_end", dummy_addr);
+  EE.addGlobalMapping("__fini_array_start", dummy_addr);
+  EE.addGlobalMapping("__fini_array_end", dummy_addr);
 
   // TODO: Look into Orc's LocalCXXRuntimeOverrides for a better solution!
-  EE->addGlobalMapping("__dso_handle", dummy_addr);
+  EE.addGlobalMapping("__dso_handle", dummy_addr);
 
   // Setup our stack for running the libc initialization code
   // This needs to actually be stack-allocated as musl code
@@ -73,11 +72,12 @@ int ImageExecutor::runHostedBinary(const std::vector<std::string> &argv,
   // which won't work if trying to JIT remotely or whatnot.
   // See ExecutionEngine's ArgvArray for how to do this
   // using EE's memory interface if that becomes important.
-  for (auto &arg : argv)
+  for (auto &arg : Info.Args)
     stack_init.push_back(reinterpret_cast<uint64_t>(arg.data()));
   stack_init.push_back(0); // null-terminated list
 
   // Next comes the environment
+  auto *envp = Info.envp;
   while (*envp)
     stack_init.push_back(reinterpret_cast<uint64_t>(*envp++));
   stack_init.push_back(0); // null-terminated list
@@ -111,30 +111,32 @@ int ImageExecutor::runHostedBinary(const std::vector<std::string> &argv,
   stack_init.clear();
 
   char **argv_ptr = reinterpret_cast<char **>(stack);
-  assert(!argv.empty());
-  int argc = static_cast<int>(argv.size());
+  assert(!Info.Args.empty());
+  int argc = static_cast<int>(Info.Args.size());
 
-  auto StartAddr = EE->getFunctionAddress("__libc_start_main");
-  auto MainAddr = EE->getFunctionAddress("main");
+  auto StartAddr = EE.getFunctionAddress("__libc_start_main");
+  auto MainAddr = EE.getFunctionAddress("main");
   assert(StartAddr);
   assert(MainAddr);
 
-  EE->finalizeObject();
+  EE.finalizeObject();
 
   typedef int (*mainty)(int, char **, char **);
   typedef int (*startty)(mainty, int, char **);
 
   // TODO: Run static constructors, but AFTER initializing libc components...
-  EE->runStaticConstructorsDestructors(false);
+  EE.runStaticConstructorsDestructors(false);
 
   if (NoExec) {
     errs() << "'noexec' option set, skipping execution...\n";
-    return 0;
+    return Error::success();
   }
 
   // Note: __libc_start_main() calls exit() so we don't really return
   startty start = reinterpret_cast<startty>(StartAddr);
-  return start(reinterpret_cast<mainty>(MainAddr), argc, argv_ptr);
+  start(reinterpret_cast<mainty>(MainAddr), argc, argv_ptr);
+  return make_error<StringError>("libc returned instead of exiting directly?!",
+                                 errc::invalid_argument);
 }
 
 } // end namespace allvm

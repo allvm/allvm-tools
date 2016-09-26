@@ -1,11 +1,12 @@
 #include "ExecutionYengine.h"
+#include "PlatformSpecificJIT.h"
 
-#include "ImageExecutor.h"
-#include "JITCache.h" // For naming, TODO: better design
+#include "JITCache.h"
 
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Module.h>
 #include <llvm/Support/Errc.h>
+#include <llvm/Support/Path.h>
 #include <llvm/Support/raw_os_ostream.h>
 
 using namespace allvm;
@@ -29,17 +30,35 @@ Error ExecutionYengine::doJITExec() {
   auto MainMod = LoadModule(0);
   if (!MainMod)
     return MainMod.takeError();
-  auto executor = make_unique<ImageExecutor>(std::move(*MainMod));
+
+  // TODO: Move into JITCache!
+  SmallString<20> CacheDir;
+  if (!sys::path::user_cache_directory(CacheDir, "allvm", "objects"))
+    CacheDir = "allvm-cache";
+  auto Cache = make_unique<JITCache>(CacheDir);
+
+  if (!Cache->hasObjectFor((*MainMod).get()))
+    (*MainMod)->materializeAll();
+
+  // Create the EE using this module:
+  EngineBuilder builder(std::move(*MainMod));
+  builder.setEngineKind(EngineKind::JIT);
+  std::string error;
+  builder.setErrorStr(&error);
+  std::unique_ptr<ExecutionEngine> EE(builder.create());
+  if (!EE.get())
+    return make_error<StringError>("Error building execution engine: " + error,
+                                   errc::invalid_argument);
 
   // Add supporting libraries
   for (size_t i = 1, e = allexe.getNumModules(); i != e; ++i) {
     auto M = LoadModule(i);
     if (!M)
       return M.takeError();
-    executor->addModule(std::move(*M));
+    if (!Cache->hasObjectFor((*M).get()))
+      (*M)->materializeAll();
+    EE->addModule(std::move(*M));
   }
 
-  executor->runHostedBinary(Info.Args, Info.envp, Info.LibNone);
-  // TODO: Clarify return value significance of runHostedBinary()
-  return Error::success();
+  return runHosted(*EE, Info, *Cache);
 }
