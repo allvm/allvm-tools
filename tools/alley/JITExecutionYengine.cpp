@@ -21,10 +21,9 @@ using namespace llvm;
  *              and library modules (embedded in the input file) and executes
  *it.
  ****************************************************************/
-Error allvm::execWithJITCompilation(allvm::Allexe &allexe,
-                                    llvm::ArrayRef<std::string> Args,
-                                    const char **envp) {
+Error allvm::execWithJITCompilation(ExecutionInfo &EI) {
   LLVMContext context;
+  auto &allexe = EI.allexe;
   auto LoadModule = [&](size_t idx) -> Expected<std::unique_ptr<Module>> {
     uint32_t crc;
     auto M = allexe.getModule(idx, context, &crc);
@@ -50,7 +49,7 @@ Error allvm::execWithJITCompilation(allvm::Allexe &allexe,
     executor->addModule(std::move(*M));
   }
 
-  executor->runHostedBinary(Args, envp, getLibNone());
+  executor->runHostedBinary(EI.Args, EI.envp, EI.LibNone);
   // TODO: Clarify return value significance of runHostedBinary()
   return Error::success();
 }

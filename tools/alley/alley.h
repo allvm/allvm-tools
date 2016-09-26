@@ -12,16 +12,17 @@
 
 namespace allvm {
 
+struct ExecutionInfo {
+  allvm::Allexe &allexe;
+  llvm::ArrayRef<std::string> Args;
+  const char **envp;
+  llvm::StringRef LibNone;
+};
+
 // Attempt to run the given allexe using statically-compiled code.
 // return if error or statically compiled code is not available in the cache.
-llvm::Error tryStaticExec(allvm::Allexe &, llvm::ArrayRef<std::string> Args,
-                          const char **envp, bool DoStaticCodeGenIfNeeded);
-llvm::Error execWithJITCompilation(allvm::Allexe &,
-                                   llvm::ArrayRef<std::string> Args,
-                                   const char **envp);
-
-// TODO: These belong elsewhere!
-llvm::StringRef getLibNone();
+llvm::Error tryStaticExec(ExecutionInfo &EI, bool DoStaticCodeGenIfNeeded);
+llvm::Error execWithJITCompilation(ExecutionInfo &EI);
 }
 
 #endif // ALLEY_H

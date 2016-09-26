@@ -44,9 +44,8 @@ using namespace llvm;
  *              which is what alltogether does.
  ****************************************************************/
 
-Error allvm::tryStaticExec(allvm::Allexe &allexe,
-                           llvm::ArrayRef<std::string> Args, const char **envp,
-                           bool DoStaticCodeGenIfNeeded) {
+Error allvm::tryStaticExec(ExecutionInfo &EI, bool DoStaticCodeGenIfNeeded) {
+  auto &allexe = EI.allexe;
   assert(allexe.getNumModules() == 1 &&
          "The input must be an allexe with a single module");
   LLVMContext context;
@@ -86,7 +85,7 @@ Error allvm::tryStaticExec(allvm::Allexe &allexe,
     char tempFileName[L_tmpnam];
     (void)tmpnam(tempFileName);
     auto binary = compileAndLinkAllexeWithLlcDefaults(
-        allexe, getLibNone(), "clang", tempFileName, context);
+        allexe, EI.LibNone, "clang", tempFileName, context);
     if (!binary)
       return make_error<StringError>("error during compilation/linking",
                                      binary.getError());
@@ -101,13 +100,14 @@ Error allvm::tryStaticExec(allvm::Allexe &allexe,
 
   // Convert Args from ArrayRef<std::string> to char*[]
   SmallVector<const char *, 16> argv;
-  for (auto &arg : Args)
+  for (auto &arg : EI.Args)
     argv.push_back(arg.data());
   argv.push_back(nullptr); // null-terminate argv
 
   // Almost ready to launch this sucker
   DEBUG(dbgs() << "fexecve: " << execFD << ": " << argv[0] << "\n");
-  fexecve(execFD, const_cast<char **>(argv.data()), const_cast<char **>(envp));
+  fexecve(execFD, const_cast<char **>(argv.data()),
+          const_cast<char **>(EI.envp));
 
   perror("fexecve failed!"); // fexecve never returns if successful!
   // XXX: FIXME

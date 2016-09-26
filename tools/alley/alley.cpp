@@ -43,8 +43,6 @@ static cl::opt<bool> ForceStatic("force-static", cl::init(false),
 
 static ExitOnError ExitOnErr;
 
-StringRef allvm::getLibNone() { return LibNone; }
-
 int main(int argc, const char **argv, const char **envp) {
   // Link in necessary libraries
   InitializeNativeTarget();
@@ -88,10 +86,12 @@ int main(int argc, const char **argv, const char **envp) {
     ProgName = ProgName.drop_back(sys::path::extension(ProgName).size());
   InputArgv.insert(InputArgv.begin(), ProgName);
 
-  ExitOnErr(tryStaticExec(allexe, InputArgv, envp, ForceStatic));
+  ExecutionInfo EI{allexe, InputArgv, envp, LibNone};
+
+  ExitOnErr(tryStaticExec(EI, ForceStatic));
 
   // If we made it to here, we're JIT'ing the code
-  ExitOnErr(execWithJITCompilation(allexe, InputArgv, envp));
+  ExitOnErr(execWithJITCompilation(EI));
 
   return 0;
 }
