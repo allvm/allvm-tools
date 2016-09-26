@@ -28,6 +28,11 @@ static std::string getDefaultLibNone() {
 static cl::opt<std::string> LibNone("libnone", cl::desc("Path of libnone.a"),
                                     cl::init(getDefaultLibNone()));
 
+static cl::opt<std::string>
+    Linker("linker",
+           cl::desc("Path of linker-driver to use for static compilation"),
+           cl::init("clang"));
+
 static cl::opt<std::string> InputFilename(cl::Positional, cl::Required,
                                           cl::desc("<input allvm file>"));
 
@@ -88,7 +93,8 @@ int main(int argc, const char **argv, const char **envp) {
 
   ExecutionYengine EY({allexe, InputArgv, envp, LibNone});
 
-  ExitOnErr(EY.tryStaticExec(ForceStatic));
+  const CompilationOptions Options; // TODO: Let use specify these?
+  ExitOnErr(EY.tryStaticExec(Linker, Options, ForceStatic));
 
   // If we made it to here, we're JIT'ing the code
   ExitOnErr(EY.doJITExec());

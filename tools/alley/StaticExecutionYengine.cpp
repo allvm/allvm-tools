@@ -23,12 +23,6 @@ using namespace allvm;
 using namespace llvm;
 
 /****************************************************************
- * Name:        tryStaticExec
- *
- * Input:       Allexe execution parameters (ExecutionInfo),
- *              and DoStaticCodeGenIfNeeded which determines
- *              whether compilation is performed on a cache miss.
- *
  * Output:      Uses the StaticBinaryCache to look up and execute the native
  *              object code for the given .allexe program.  If the code is
  *              not available in the cache:
@@ -44,13 +38,11 @@ using namespace llvm;
  *              which is what alltogether does.
  ****************************************************************/
 
-Error ExecutionYengine::tryStaticExec(bool DoStaticCodeGenIfNeeded) {
+Error ExecutionYengine::tryStaticExec(StringRef Linker, const CompilationOptions &Options, bool DoStaticCodeGenIfNeeded) {
   auto &allexe = Info.allexe;
   assert(allexe.getNumModules() == 1 &&
          "The input must be an allexe with a single module");
   LLVMContext context;
-
-  const CompilationOptions Options;
 
   // Set a unique name for the module using StaticBinaryCache's naming scheme
   auto crc = allexe.getModuleCRC(0);
@@ -85,7 +77,7 @@ Error ExecutionYengine::tryStaticExec(bool DoStaticCodeGenIfNeeded) {
     char tempFileName[L_tmpnam];
     (void)tmpnam(tempFileName);
     auto binary = compileAndLinkAllexeWithLlcDefaults(
-        allexe, Info.LibNone, "clang", tempFileName, context);
+        allexe, Info.LibNone, Linker, tempFileName, context);
     if (!binary)
       return make_error<StringError>("error during compilation/linking",
                                      binary.getError());
