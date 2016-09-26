@@ -9,12 +9,12 @@
 #include <llvm/Support/Debug.h>
 #include <llvm/Support/Errc.h>
 
-#include <unistd.h>
 #include <fcntl.h>
 #include <iostream>
 #include <string.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
+#include <unistd.h>
 
 #define DEBUG_TYPE "alley"
 
