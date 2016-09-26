@@ -77,7 +77,7 @@ Error allvm::tryStaticExec(allvm::Allexe &allexe,
     // is that StaticCodeGen() wants a file name and then writes to it,
     // creating an opening for the race condition.  Instead, it should have
     // an option to leave the file name unspecified and create it internally.
-    //
+    // XXX: see LLVM's createUniqueFile, maybe?
     DEBUG(dbgs() << "Starting static compilation...\n");
     char tempFileName[L_tmpnam];
     (void)tmpnam(tempFileName);
