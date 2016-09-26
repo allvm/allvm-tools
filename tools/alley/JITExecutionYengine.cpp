@@ -60,5 +60,5 @@ Error ExecutionYengine::doJITExec() {
     EE->addModule(std::move(*M));
   }
 
-  return runHosted(*EE, Info, *Cache);
+  return runHosted(*EE, Info);
 }
