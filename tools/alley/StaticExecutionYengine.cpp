@@ -38,7 +38,9 @@ using namespace llvm;
  *              which is what alltogether does.
  ****************************************************************/
 
-Error ExecutionYengine::tryStaticExec(StringRef Linker, const CompilationOptions &Options, bool DoStaticCodeGenIfNeeded) {
+Error ExecutionYengine::tryStaticExec(StringRef Linker,
+                                      const CompilationOptions &Options,
+                                      bool DoStaticCodeGenIfNeeded) {
   auto &allexe = Info.allexe;
   assert(allexe.getNumModules() == 1 &&
          "The input must be an allexe with a single module");
