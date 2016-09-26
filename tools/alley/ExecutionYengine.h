@@ -18,6 +18,7 @@ public:
     llvm::ArrayRef<std::string> Args;
     const char **envp;
     llvm::StringRef LibNone;
+    bool NoExec; // do everything but actually execute
   };
 
   ExecutionYengine(ExecutionInfo EI) : Info(EI) {}

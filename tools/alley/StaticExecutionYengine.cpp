@@ -96,6 +96,11 @@ Error ExecutionYengine::tryStaticExec(StringRef Linker, const CompilationOptions
     argv.push_back(arg.data());
   argv.push_back(nullptr); // null-terminate argv
 
+  if (Info.NoExec) {
+    errs() << "'noexec' option set, skipping execution...\n";
+    exit(0); // TODO: returning here would be nice
+  }
+
   // Almost ready to launch this sucker
   DEBUG(dbgs() << "fexecve: " << execFD << ": " << argv[0] << "\n");
   fexecve(execFD, const_cast<char **>(argv.data()),

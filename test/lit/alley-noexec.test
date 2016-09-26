@@ -5,7 +5,7 @@
 // RUN: alley -noexec %p/Inputs/which |& FileCheck %s -check-prefix=NOEXEC
 
 // Ensure we have a static binary built:
-// RUN: alley -force-static -linker=cc %p/Inputs/which |& FileCheck %s
+// RUN: not alley -force-static -linker=cc %p/Inputs/which |& FileCheck %s
 
 // And that -noexec still works when static cache is available
 // RUN: alley -noexec %p/Inputs/which |& FileCheck %s -check-prefix=NOEXEC
@@ -14,3 +14,6 @@
 // CHECK: Report bugs to
 
 // NOEXEC-NOT: Usage
+// NOEXEC: 'noexec' option set
+// But make sure we don't do this twice
+// NOEXEC-NOT: 'noexec' option set

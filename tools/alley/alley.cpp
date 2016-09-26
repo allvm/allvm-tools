@@ -46,6 +46,10 @@ static cl::list<std::string> InputArgv(cl::ConsumeAfter,
 static cl::opt<bool> ForceStatic("force-static", cl::init(false),
                                  cl::desc("Force using static code path"));
 
+static cl::opt<bool> NoExec("noexec",
+                            cl::desc("Don't actually execute the program"),
+                            cl::init(false), cl::Hidden);
+
 static ExitOnError ExitOnErr;
 
 int main(int argc, const char **argv, const char **envp) {
@@ -91,7 +95,7 @@ int main(int argc, const char **argv, const char **envp) {
     ProgName = ProgName.drop_back(sys::path::extension(ProgName).size());
   InputArgv.insert(InputArgv.begin(), ProgName);
 
-  ExecutionYengine EY({allexe, InputArgv, envp, LibNone});
+  ExecutionYengine EY({allexe, InputArgv, envp, LibNone, NoExec});
 
   const CompilationOptions Options; // TODO: Let use specify these?
   ExitOnErr(EY.tryStaticExec(Linker, Options, ForceStatic));

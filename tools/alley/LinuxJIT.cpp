@@ -3,7 +3,6 @@
 #include <llvm/ExecutionEngine/ExecutionEngine.h>
 #include <llvm/IR/Module.h>
 #include <llvm/Object/Archive.h>
-#include <llvm/Support/CommandLine.h>
 #include <llvm/Support/Errc.h>
 #include <llvm/Support/raw_ostream.h>
 
@@ -14,10 +13,6 @@
 using namespace llvm;
 
 static const size_t INIT_STACK_MAX = 1024;
-
-static cl::opt<bool> NoExec("noexec",
-                            cl::desc("Don't actually execute the program"),
-                            cl::init(false), cl::Hidden);
 
 namespace allvm {
 llvm::Error runHosted(ExecutionEngine &EE,
@@ -127,7 +122,7 @@ llvm::Error runHosted(ExecutionEngine &EE,
   // TODO: Run static constructors, but AFTER initializing libc components...
   EE.runStaticConstructorsDestructors(false);
 
-  if (NoExec) {
+  if (Info.NoExec) {
     errs() << "'noexec' option set, skipping execution...\n";
     return Error::success();
   }
