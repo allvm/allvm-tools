@@ -4,6 +4,12 @@
 // Test that the -noexec flag disables execution
 // RUN: alley -noexec %p/Inputs/which |& FileCheck %s -check-prefix=NOEXEC
 
+// Ensure we have a static binary built:
+// RUN: alley -force-static -linker=cc %p/Inputs/which |& FileCheck %s
+
+// And that -noexec still works when static cache is available
+// RUN: alley -noexec %p/Inputs/which |& FileCheck %s -check-prefix=NOEXEC
+
 // CHECK: Usage:
 // CHECK: Report bugs to
 
