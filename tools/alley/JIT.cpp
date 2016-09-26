@@ -23,16 +23,6 @@ int allvm::execWithJITCompilation(allvm::Allexe &allexe,
                                   llvm::StringRef Filename,
                                   llvm::ArrayRef<std::string> Args,
                                   const char **envp) {
-
-  auto mainFile = allexe.getModuleName(0);
-
-  if (mainFile != ALLEXE_MAIN) {
-    errs() << "Could not open " << Filename << ": ";
-    errs() << "First entry was '" << mainFile << "',";
-    errs() << " expected '" << ALLEXE_MAIN << "'\n";
-    return 1;
-  }
-
   LLVMContext context;
   auto LoadModule = [&](size_t idx) {
     uint32_t crc;
