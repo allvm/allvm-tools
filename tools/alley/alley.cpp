@@ -41,6 +41,8 @@ static cl::list<std::string> InputArgv(cl::ConsumeAfter,
 static cl::opt<bool> ForceStatic("force-static", cl::init(false),
                                  cl::desc("Force using static code path"));
 
+static ExitOnError ExitOnErr;
+
 StringRef allvm::getLibNone() { return LibNone; }
 
 int main(int argc, const char **argv, const char **envp) {
@@ -49,6 +51,8 @@ int main(int argc, const char **argv, const char **envp) {
   InitializeNativeTargetAsmPrinter();
   InitializeNativeTargetAsmParser();
   cl::ParseCommandLineOptions(argc, argv, "allvm runtime executor");
+
+  ExitOnErr.setBanner(std::string(argv[0]) + ":");
 
   auto allexeOrError = Allexe::open(InputFilename);
   if (!allexeOrError) {
@@ -84,13 +88,10 @@ int main(int argc, const char **argv, const char **envp) {
     ProgName = ProgName.drop_back(sys::path::extension(ProgName).size());
   InputArgv.insert(InputArgv.begin(), ProgName);
 
-  auto E = tryStaticExec(allexe, InputArgv, envp, ForceStatic);
-  if (E) {
-    errs() << "Error during static execution of ......";
-    assert(0 && "NYI!");
-    return 1;
-  }
+  ExitOnErr(tryStaticExec(allexe, InputArgv, envp, ForceStatic));
 
   // If we made it to here, we're JIT'ing the code
-  return execWithJITCompilation(allexe, InputFilename, InputArgv, envp);
+  ExitOnErr(execWithJITCompilation(allexe, InputArgv, envp));
+
+  return 0;
 }

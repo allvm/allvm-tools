@@ -16,8 +16,9 @@ namespace allvm {
 // return if error or statically compiled code is not available in the cache.
 llvm::Error tryStaticExec(allvm::Allexe &, llvm::ArrayRef<std::string> Args,
                           const char **envp, bool DoStaticCodeGenIfNeeded);
-int execWithJITCompilation(allvm::Allexe &, llvm::StringRef Filename,
-                           llvm::ArrayRef<std::string> Args, const char **);
+llvm::Error execWithJITCompilation(allvm::Allexe &,
+                                   llvm::ArrayRef<std::string> Args,
+                                   const char ** envp);
 
 // TODO: These belong elsewhere!
 const llvm::StringRef ALLEXE_MAIN = "main.bc";
