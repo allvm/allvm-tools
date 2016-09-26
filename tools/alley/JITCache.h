@@ -1,5 +1,5 @@
-#ifndef ALLVM_ImageCache_h
-#define ALLVM_ImageCache_h
+#ifndef ALLVM_JITCACHE_H
+#define ALLVM_JITCACHE_H
 
 #include <llvm/ExecutionEngine/ObjectCache.h>
 
@@ -7,11 +7,11 @@
 
 namespace allvm {
 
-class ImageCache : public llvm::ObjectCache {
+class JITCache : public llvm::ObjectCache {
 public:
-  ~ImageCache() override {}
+  ~JITCache() override {}
 
-  ImageCache(llvm::StringRef _CacheDir) : CacheDir(_CacheDir) {
+  JITCache(llvm::StringRef _CacheDir) : CacheDir(_CacheDir) {
     // Add trailing '/' to cache dir if necessary.
     if (!CacheDir.empty() && CacheDir[CacheDir.size() - 1] != '/')
       CacheDir += '/';
@@ -32,4 +32,4 @@ private:
 
 } // end namespace allvm
 
-#endif // ALLVM_ImageCache_h
+#endif // ALLVM_JITCACHE_H

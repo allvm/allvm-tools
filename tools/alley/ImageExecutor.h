@@ -14,12 +14,12 @@ class MemoryBufferRef;
 
 namespace allvm {
 
-class ImageCache;
+class JITCache;
 
 class ImageExecutor final {
   llvm::Module *M;
   std::unique_ptr<llvm::ExecutionEngine> EE;
-  std::unique_ptr<ImageCache> Cache;
+  std::unique_ptr<JITCache> Cache;
 
 public:
   ImageExecutor(std::unique_ptr<llvm::Module> &&mainModule,

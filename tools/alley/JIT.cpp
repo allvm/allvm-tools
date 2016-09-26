@@ -1,7 +1,7 @@
 #include "alley.h"
 
-#include "ImageCache.h" // For naming, TODO: better design
 #include "ImageExecutor.h"
+#include "JITCache.h" // For naming, TODO: better design
 
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Module.h>
@@ -43,7 +43,7 @@ int allvm::execWithJITCompilation(allvm::Allexe &allexe,
       // XXX: Do something with M's error
       exit(1);
     }
-    M.get()->setModuleIdentifier(ImageCache::generateName(name, crc));
+    M.get()->setModuleIdentifier(JITCache::generateName(name, crc));
     return std::move(M.get());
   };
 

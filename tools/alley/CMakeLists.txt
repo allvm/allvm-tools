@@ -16,7 +16,7 @@ add_llvm_tool(alley
   alley.cpp
   HostedImageExecutor.cpp
   JIT.cpp
-  ImageCache.cpp
+  JITCache.cpp
   ImageExecutor.cpp
   StaticBinaryCache.cpp
   Static.cpp

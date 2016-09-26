@@ -1,6 +1,6 @@
 #include "ImageExecutor.h"
 
-#include "ImageCache.h"
+#include "JITCache.h"
 
 #include <llvm/ExecutionEngine/ExecutionEngine.h>
 #include <llvm/IR/Module.h>
@@ -31,7 +31,7 @@ ImageExecutor::ImageExecutor(std::unique_ptr<Module> &&module, bool UseCache)
     CacheDir = "allvm-cache";
 
   if (UseCache) {
-    Cache.reset(new ImageCache(CacheDir));
+    Cache.reset(new JITCache(CacheDir));
     EE->setObjectCache(Cache.get());
   }
   if (!UseCache || !Cache->hasObjectFor(M))
