@@ -28,7 +28,8 @@ StaticBinaryCache::StaticBinaryCache(llvm::StringRef _CacheDir)
   }
 }
 
-StaticBinaryCache::StaticBinaryCache() : StaticBinaryCache(getDefaultCacheDir("static_binaries")) {}
+StaticBinaryCache::StaticBinaryCache()
+    : StaticBinaryCache(getDefaultCacheDir("static_binaries")) {}
 
 // Copy binary code from an executable file to the cache location.
 // execFilePath must be a valid path to a readable file.

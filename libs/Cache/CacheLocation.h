@@ -31,7 +31,6 @@ static inline std::string getDefaultCacheDir(const llvm::Twine &CacheID) {
   return CacheDir.str();
 }
 
-
 } // end namespace allvm
 
 #endif // ALLVM_CACHE_LOCATION_H

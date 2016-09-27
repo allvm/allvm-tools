@@ -40,8 +40,8 @@ Error allvm::AOTCompileIfNeeded(StaticBinaryCache &Cache, Allexe &allexe,
     DEBUG(dbgs() << "Starting static compilation...\n");
     char tempFileName[L_tmpnam];
     (void)tmpnam(tempFileName);
-    auto binary = compileAndLinkAllexeWithLlcDefaults(
-        allexe, LibNone, Linker, tempFileName, context);
+    auto binary = compileAndLinkAllexeWithLlcDefaults(allexe, LibNone, Linker,
+                                                      tempFileName, context);
     if (!binary)
       return make_error<StringError>("error during compilation/linking",
                                      binary.getError());
@@ -56,4 +56,3 @@ Error allvm::AOTCompileIfNeeded(StaticBinaryCache &Cache, Allexe &allexe,
 
   return Error::success();
 }
-

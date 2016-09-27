@@ -12,8 +12,7 @@ using namespace llvm;
 
 namespace allvm {
 
-JITCache::JITCache(llvm::StringRef _CacheDir)
-    : CacheDir(_CacheDir) {
+JITCache::JITCache(llvm::StringRef _CacheDir) : CacheDir(_CacheDir) {
   // Add trailing '/' to cache dir if necessary.
   if (!CacheDir.empty() && CacheDir[CacheDir.size() - 1] != '/') {
     CacheDir += '/';
