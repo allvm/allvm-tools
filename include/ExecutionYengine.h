@@ -2,7 +2,7 @@
 #define ALLVM_EXECUTION_YENGINE_H
 
 #include "Allexe.h"
-#include "StaticBinaryCache.h"
+#include "StaticCodeGen.h" // for 'CompilationOptions'
 
 #include <llvm/ADT/ArrayRef.h>
 #include <llvm/ADT/StringRef.h>
@@ -25,8 +25,7 @@ public:
 
   // Execute statically-compiled binary if available in cache.
   llvm::Error tryStaticExec(llvm::StringRef Linker,
-                            const CompilationOptions &Options,
-                            bool DoStaticCodeGenIfNeeded);
+                            const CompilationOptions &Options);
 
   // Execute using JIT
   llvm::Error doJITExec();

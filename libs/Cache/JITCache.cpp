@@ -1,4 +1,5 @@
 #include "JITCache.h"
+#include "CacheLocation.h"
 
 #include <llvm/ADT/SmallString.h>
 #include <llvm/ADT/StringExtras.h>
@@ -10,6 +11,15 @@
 using namespace llvm;
 
 namespace allvm {
+
+JITCache::JITCache(llvm::StringRef _CacheDir) : CacheDir(_CacheDir) {
+  // Add trailing '/' to cache dir if necessary.
+  if (!CacheDir.empty() && CacheDir[CacheDir.size() - 1] != '/') {
+    CacheDir += '/';
+  }
+}
+
+JITCache::JITCache() : JITCache(getDefaultCacheDir("objects")) {}
 
 void JITCache::notifyObjectCompiled(const Module *M, MemoryBufferRef Obj) {
   const std::string &ModuleID = M->getModuleIdentifier();

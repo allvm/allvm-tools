@@ -1,4 +1,5 @@
 add_subdirectory (all)
+add_subdirectory (AOTCompile)
 add_subdirectory (archive-rw)
 add_subdirectory (Cache)
 add_subdirectory (none)

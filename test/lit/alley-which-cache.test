@@ -1,0 +1,30 @@
+// Test cache behavior when using alley and static/JIT execution paths
+// Also requires/tests the ALLVM_CACHE_DIR env override.
+
+// Ensure our test dir is empty...
+// RUN: rm -rf %t-cache && mkdir %t-cache
+
+// RUN: find %t-cache -type f | wc -l | FileCheck %s -check-prefix=EMPTY
+// EMPTY: 0
+
+// Try running with alley and check cache entries were created
+// (TODO: Cache-inspection utility should be created and that would replace this)
+// RUN: ALLVM_CACHE_DIR=%t-cache alley %p/Inputs/which alley
+// RUN: find %t-cache -type f | wc -l | FileCheck %s
+
+// CHECK: 1
+
+// Run again, ensure no additional entries were created
+// RUN: ALLVM_CACHE_DIR=%t-cache alley %p/Inputs/which alley
+// RUN: find %t-cache -type f | wc -l | FileCheck %s
+
+// Try running static version, which we don't have cached
+// RUN: ALLVM_CACHE_DIR=%t-cache alley -force-static -linker=cc %p/Inputs/which alley
+// RUN: find %t-cache -type f | wc -l | FileCheck %s -check-prefix=STATIC_AND_JIT
+
+// STATIC_AND_JIT: 2
+
+// Finally, check the cache directories used:
+
+// RUN: find %t-cache/objects -type f | wc -l | FileCheck %s
+// RUN: find %t-cache/static_binaries -type f | wc -l | FileCheck %s

@@ -31,11 +31,7 @@ Error ExecutionYengine::doJITExec() {
   if (!MainMod)
     return MainMod.takeError();
 
-  // TODO: Move into JITCache!
-  SmallString<20> CacheDir;
-  if (!sys::path::user_cache_directory(CacheDir, "allvm", "objects"))
-    CacheDir = "allvm-cache";
-  auto Cache = make_unique<JITCache>(CacheDir);
+  auto Cache = make_unique<JITCache>();
 
   if (!Cache->hasObjectFor((*MainMod).get()))
     (*MainMod)->materializeAll();
@@ -49,6 +45,7 @@ Error ExecutionYengine::doJITExec() {
   if (!EE.get())
     return make_error<StringError>("Error building execution engine: " + error,
                                    errc::invalid_argument);
+  EE->setObjectCache(Cache.get());
 
   // Add supporting libraries
   for (size_t i = 1, e = allexe.getNumModules(); i != e; ++i) {

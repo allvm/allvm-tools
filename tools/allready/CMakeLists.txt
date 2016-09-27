@@ -1,3 +1,4 @@
+# TODO: Trim these
 set(LLVM_LINK_COMPONENTS
   ${LLVM_TARGETS_TO_BUILD}
   BitReader
@@ -12,9 +13,9 @@ set(LLVM_LINK_COMPONENTS
   Support
 )
 
-add_llvm_tool(alley
-  alley.cpp
+add_llvm_tool(allready
+  allready.cpp
 )
-target_link_libraries(alley liball AOTCompile Cache ExecutionYengine)
+target_link_libraries(allready liball AOTCompile Cache ExecutionYengine)
 
 add_definitions(${LLVM_DEFINITIONS})
