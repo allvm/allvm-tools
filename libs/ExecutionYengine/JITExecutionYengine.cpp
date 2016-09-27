@@ -45,6 +45,7 @@ Error ExecutionYengine::doJITExec() {
   if (!EE.get())
     return make_error<StringError>("Error building execution engine: " + error,
                                    errc::invalid_argument);
+  EE->setObjectCache(Cache.get());
 
   // Add supporting libraries
   for (size_t i = 1, e = allexe.getNumModules(); i != e; ++i) {
