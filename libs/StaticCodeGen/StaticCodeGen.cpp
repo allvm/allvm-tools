@@ -17,6 +17,7 @@
 #include <llvm/Object/ObjectFile.h>
 #include <llvm/Support/Errc.h>
 #include <llvm/Support/Error.h>
+#include <llvm/Support/FileUtilities.h>
 #include <llvm/Support/Program.h>
 #include <llvm/Support/TargetRegistry.h>
 #include <llvm/Support/ToolOutputFile.h>
@@ -371,6 +372,10 @@ compileAndLinkAllexe(Allexe &Input, StringRef LibNone, StringRef Linker,
   // Compile the allexe.
   std::string ObjectFilename(Filename);
   ObjectFilename.append(".o");
+
+  // Remove the created .o before leaving this function
+  FileRemover RemoveObject(ObjectFilename);
+
   auto ErrorOrObject = compileAllexe(Input, ObjectFilename, Options, Context);
   if (!ErrorOrObject)
     return ErrorOrObject.getError();
