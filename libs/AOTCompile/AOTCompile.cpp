@@ -29,17 +29,13 @@ Error allvm::AOTCompileIfNeeded(StaticBinaryCache &Cache, Allexe &allexe,
 
   if (!isCached) {
     // Generate native code for the specified .allexe into a temp file.
-    // C++ doesn't have a portable way to create a temp file: using a C idiom.
-    // FIXME: tmpnam() should not be used because there is a small chance
-    // the temp file is created by another process or thread before being
-    // opened by us, but that cannot be fixed here: the real problem
-    // is that StaticCodeGen() wants a file name and then writes to it,
-    // creating an opening for the race condition.  Instead, it should have
-    // an option to leave the file name unspecified and create it internally.
-    // XXX: see LLVM's createUniqueFile, maybe?
     DEBUG(dbgs() << "Starting static compilation...\n");
-    char tempFileName[L_tmpnam];
-    (void)tmpnam(tempFileName);
+    SmallString<20> tempFileName;
+    if (auto EC = sys::fs::createTemporaryFile("allvm", "aot", tempFileName))
+      return make_error<StringError>("Unable to create temporary file", EC);
+
+    errs() << "tempFile: " << tempFileName.str() << "\n";
+
     auto binary = compileAndLinkAllexeWithLlcDefaults(allexe, LibNone, Linker,
                                                       tempFileName, context);
     if (!binary)
