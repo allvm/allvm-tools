@@ -1,4 +1,5 @@
 #include "StaticBinaryCache.h"
+#include "CacheLocation.h"
 
 #include <llvm/ADT/SmallString.h>
 #include <llvm/ADT/StringExtras.h>
@@ -27,20 +28,7 @@ StaticBinaryCache::StaticBinaryCache(llvm::StringRef _CacheDir)
   }
 }
 
-StaticBinaryCache::StaticBinaryCache() {
-
-  SmallString<20> CDir;
-  if (!sys::path::user_cache_directory(CDir, "allvm", "static_binaries")) {
-    CDir = "allvm-cache";
-  }
-
-  CacheDir = CDir.str();
-
-  // Add trailing '/' to cache dir if necessary.
-  if (!CacheDir.empty() && CacheDir[CacheDir.size() - 1] != '/') {
-    CacheDir += '/';
-  }
-}
+StaticBinaryCache::StaticBinaryCache() : StaticBinaryCache(getDefaultCacheDir("static_binaries")) {}
 
 // Copy binary code from an executable file to the cache location.
 // execFilePath must be a valid path to a readable file.

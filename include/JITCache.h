@@ -11,11 +11,8 @@ class JITCache : public llvm::ObjectCache {
 public:
   ~JITCache() override {}
 
-  JITCache(llvm::StringRef _CacheDir) : CacheDir(_CacheDir) {
-    // Add trailing '/' to cache dir if necessary.
-    if (!CacheDir.empty() && CacheDir[CacheDir.size() - 1] != '/')
-      CacheDir += '/';
-  }
+  JITCache(llvm::StringRef _CacheDir);
+  JITCache();
 
   void notifyObjectCompiled(const llvm::Module *M,
                             llvm::MemoryBufferRef Obj) override;
