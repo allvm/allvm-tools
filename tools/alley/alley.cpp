@@ -1,5 +1,7 @@
 #include "ExecutionYengine.h"
 
+#include "AOTCompile.h"
+
 #include <llvm/Bitcode/ReaderWriter.h>
 #include <llvm/CodeGen/CommandFlags.h>
 #include <llvm/ExecutionEngine/MCJIT.h>
@@ -83,10 +85,15 @@ int main(int argc, const char **argv, const char **envp) {
     return 1;
   }
 
-  if (ForceStatic && allexe.getNumModules() != 1) {
-    errs() << "Allexe contains too many modules for static code path!\n";
-    errs() << "Hint: Use 'alltogether' first!\n";
-    return 1;
+  const CompilationOptions Options; // TODO: Let use specify these?
+  if (ForceStatic) {
+    if (allexe.getNumModules() != 1) {
+      errs() << "Allexe contains too many modules for static code path!\n";
+      errs() << "Hint: Use 'alltogether' first!\n";
+      return 1;
+    }
+    StaticBinaryCache Cache;
+    ExitOnErr(AOTCompileIfNeeded(Cache, allexe, LibNone, Linker, Options));
   }
 
   // Fixup argv[0] to the allexe name without the allexe suffix.
@@ -97,8 +104,7 @@ int main(int argc, const char **argv, const char **envp) {
 
   ExecutionYengine EY({allexe, InputArgv, envp, LibNone, NoExec});
 
-  const CompilationOptions Options; // TODO: Let use specify these?
-  ExitOnErr(EY.tryStaticExec(Linker, Options, ForceStatic));
+  ExitOnErr(EY.tryStaticExec(Linker, Options));
 
   // If we made it to here, we're JIT'ing the code
   ExitOnErr(EY.doJITExec());

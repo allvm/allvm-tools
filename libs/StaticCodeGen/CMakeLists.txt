@@ -16,5 +16,6 @@ set(LLVM_LINK_COMPONENTS
 
 add_llvm_library(StaticCodeGen
   StaticCodeGen.cpp
+  AOTCompile.cpp # XXX: This kinda really doesn't go here, dep cycle
   LINK_LIBS liball
 )

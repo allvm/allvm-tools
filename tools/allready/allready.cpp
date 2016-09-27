@@ -10,6 +10,8 @@
 //===----------------------------------------------------------------------===//
 #include "ExecutionYengine.h"
 
+#include "AOTCompile.h"
+
 #include <llvm/Bitcode/ReaderWriter.h>
 #include <llvm/CodeGen/CommandFlags.h>
 #include <llvm/ExecutionEngine/MCJIT.h>
@@ -80,11 +82,9 @@ int main(int argc, const char **argv) {
     return 1;
   }
 
-  std::vector<std::string> DummyArgs;
-  ExecutionYengine EY({allexe, DummyArgs, NULL, LibNone, true /* NoExec */});
-
   const CompilationOptions Options; // TODO: Let use specify these?
-  ExitOnErr(EY.tryStaticExec(Linker, Options, true /* ForceStatic */));
+  StaticBinaryCache Cache;
+  ExitOnErr(AOTCompileIfNeeded(Cache, allexe, LibNone, Linker, Options));
 
   outs() << "Successfully cached static binary for '" << InputFilename << ".\n";
 
