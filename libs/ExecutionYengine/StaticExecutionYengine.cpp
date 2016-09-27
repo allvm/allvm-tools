@@ -30,7 +30,7 @@ using namespace llvm;
  *              and added to the cache.
  *              If DoStaticCodeGenIfNeeded is false, return success.
  *              If execution succeeds this function does not return,
- *              and returns and error if any are encountered.
+ *              and returns an error if any are encountered.
  *
  * Assumptions: The allexe embeds a single module and is obtained
  *              by tool like alltogether. The key for getting a single

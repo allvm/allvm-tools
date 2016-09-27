@@ -14,13 +14,7 @@ set(LLVM_LINK_COMPONENTS
 
 add_llvm_tool(alley
   alley.cpp
-  JITCache.cpp
-  JITExecutionYengine.cpp
-  LinuxJIT.cpp # select this based on platform
-  StaticBinaryCache.cpp
-  StaticExecutionYengine.cpp
 )
-target_link_libraries(alley liball StaticCodeGen)
-target_link_libraries(alley rt)
+target_link_libraries(alley liball Cache ExecutionYengine)
 
 add_definitions(${LLVM_DEFINITIONS})
