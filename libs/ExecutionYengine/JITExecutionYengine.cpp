@@ -31,11 +31,7 @@ Error ExecutionYengine::doJITExec() {
   if (!MainMod)
     return MainMod.takeError();
 
-  // TODO: Move into JITCache!
-  SmallString<20> CacheDir;
-  if (!sys::path::user_cache_directory(CacheDir, "allvm", "objects"))
-    CacheDir = "allvm-cache";
-  auto Cache = make_unique<JITCache>(CacheDir);
+  auto Cache = make_unique<JITCache>();
 
   if (!Cache->hasObjectFor((*MainMod).get()))
     (*MainMod)->materializeAll();
