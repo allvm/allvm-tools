@@ -6,12 +6,13 @@ configure_lit_site_cfg(
 
 # Surely there's a better way?
 list(APPEND ALLVM_TEST_DEPENDS
-  wllvm-extract
-  wllvm-dump
   alley
+  allready
   alltogether
   bc2allvm
   none
+  wllvm-dump
+  wllvm-extract
 )
 set(ALLVM_TEST_PARAMS
   allvm_site_config=${CMAKE_CURRENT_BINARY_DIR}/lit.site.cfg
