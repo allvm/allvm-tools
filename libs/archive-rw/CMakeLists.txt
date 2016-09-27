@@ -1,5 +1,3 @@
-find_package( ZLIB REQUIRED )
-
 set(LLVM_LINK_COMPONENTS Core)
 
 add_llvm_library(archive-rw
