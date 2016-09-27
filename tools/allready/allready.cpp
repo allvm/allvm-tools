@@ -86,5 +86,7 @@ int main(int argc, const char **argv) {
   const CompilationOptions Options; // TODO: Let use specify these?
   ExitOnErr(EY.tryStaticExec(Linker, Options, true /* ForceStatic */));
 
+  outs() << "Successfully cached static binary for '" << InputFilename << ".\n";
+
   return 0;
 }

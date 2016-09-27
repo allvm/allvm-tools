@@ -1,0 +1,18 @@
+// Test 'allready' tool output when used successfully
+
+// Ensure our test dir is empty...
+// RUN: rm -rf %t-cache && mkdir %t-cache
+// RUN: find %t-cache -type f | wc -l | FileCheck %s -check-prefix=EMPTY
+// EMPTY: 0
+
+// TODO: Maybe only print message if -debug or -verbose?
+// RUN: ALLVM_CACHE_DIR=%t-cache allready -linker=cc %p/Inputs/which |& FileCheck %s
+// RUN: find %t-cache/ -type f | wc -l | FileCheck %s -check-prefix=ONE
+// RUN: find %t-cache/static_binaries -type f | wc -l | FileCheck %s -check-prefix=ONE
+// ONE: 1
+
+// CHECK-NOT: Err
+// CHECK-NOT: noexec
+// CHECK: Successfully
+// CHECK-NOT: Err
+// CHECK-NOT: noexec
