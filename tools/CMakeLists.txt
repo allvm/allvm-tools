@@ -1,4 +1,5 @@
 add_subdirectory(alley)
+add_subdirectory(allready)
 add_subdirectory(alltogether)
 add_subdirectory(bc2allvm)
 add_subdirectory(wllvm-dump)
