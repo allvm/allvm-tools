@@ -1,0 +1,36 @@
+// Test 'allready' tool functionality
+
+// Ensure our test dir is empty...
+// RUN: rm -rf %t-cache && mkdir %t-cache
+// RUN: find %t-cache -type f | wc -l | FileCheck %s -check-prefix=EMPTY
+// EMPTY: 0
+
+// Try running with alley and check that only JIT cache entries were created
+// RUN: ALLVM_CACHE_DIR=%t-cache alley %p/Inputs/which alley
+// RUN: find %t-cache/ -type f | wc -l | FileCheck %s
+// RUN: find %t-cache/objects -type f | wc -l | FileCheck %s
+// CHECK: 1
+
+// Okay, great.  Run 'allready'!
+// RUN: ALLVM_CACHE_DIR=%t-cache allready -linker=cc %p/Inputs/which
+// Check that a new cache entry was created, and not a JIT one
+// RUN: find %t-cache/static_binaries -type f | wc -l | FileCheck %s
+// RUN: find %t-cache/objects -type f | wc -l | FileCheck %s
+
+// Run using alley's JIT and static paths, ensure no new cache entries are created
+// RUN: ALLVM_CACHE_DIR=%t-cache alley %p/Inputs/which alley
+// RUN: ALLVM_CACHE_DIR=%t-cache alley -force-static %p/Inputs/which alley
+// RUN: find %t-cache/static_binaries -type f | wc -l | FileCheck %s
+// RUN: find %t-cache/objects -type f | wc -l | FileCheck %s
+
+// Finally, remove the JIT cache entry and ensure alley uses the static one
+// RUN: rm -rf %t-cache/objects
+
+// RUN: find %t-cache/ -type f | wc -l | FileCheck %s
+// RUN: find %t-cache/static_binaries -type f | wc -l | FileCheck %s
+
+// RUN: ALLVM_CACHE_DIR=%t-cache alley %p/Inputs/which alley
+// RUN: ALLVM_CACHE_DIR=%t-cache alley -force-static %p/Inputs/which alley
+
+// RUN: find %t-cache/ -type f | wc -l | FileCheck %s
+// RUN: find %t-cache/static_binaries -type f | wc -l | FileCheck %s
