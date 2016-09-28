@@ -26,3 +26,5 @@ add_llvm_library(ExecutionYengine
   StaticCodeGen
   rt
 )
+
+add_definitions(${LLVM_DEFINITIONS})

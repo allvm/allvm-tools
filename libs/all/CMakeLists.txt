@@ -9,3 +9,5 @@ set(LLVM_LINK_COMPONENTS
 add_llvm_library(liball Allexe.cpp
   OUTPUT_NAME all
   LINK_LIBS PUBLIC archive-rw)
+
+add_definitions(${LLVM_DEFINITIONS})
