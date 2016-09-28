@@ -36,8 +36,12 @@ using namespace llvm;
  *              which is what alltogether does.
  ****************************************************************/
 
-Error ExecutionYengine::tryStaticExec(StringRef Linker,
+Error ExecutionYengine::tryStaticExec(StringRef Linker LLVM_ATTRIBUTE_UNUSED,
                                       const CompilationOptions &Options) {
+  // TODO: Include 'Linker' and 'LibNone' and anything else relevant in the
+  // cache lookup--changing these changes the resulting binary!
+  // (And remove the LLVM_ATTRIBUTE_UNUSED bit from the argument above)
+
   auto &allexe = Info.allexe;
   if (allexe.getNumModules() != 1)
     return make_error<StringError>(

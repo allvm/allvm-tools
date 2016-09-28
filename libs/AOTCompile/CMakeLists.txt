@@ -18,3 +18,5 @@ add_llvm_library(AOTCompile
   AOTCompile.cpp
   LINK_LIBS Cache StaticCodeGen
 )
+
+add_definitions(${LLVM_DEFINITIONS})

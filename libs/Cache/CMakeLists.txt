@@ -24,3 +24,5 @@ add_llvm_library(Cache
 
 include_directories (${ZLIB_INCLUDE_DIRS})
 target_link_libraries (Cache PUBLIC ${ZLIB_LIBRARIES})
+
+add_definitions(${LLVM_DEFINITIONS})
