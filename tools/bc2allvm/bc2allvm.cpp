@@ -26,7 +26,9 @@ using namespace allvm;
 using namespace llvm;
 
 namespace {
-cl::list<std::string> InputFiles(cl::Positional, cl::OneOrMore,
+cl::opt<std::string> MainFile(cl::Positional, cl::Required,
+			      cl::desc("<main LLVM bitcode file>"));
+cl::list<std::string> InputFiles(cl::Positional, cl::ZeroOrMore,
 				 cl::desc("<input LLVM bitcode file>..."));
 
 cl::opt<std::string> OutputFilename("o", cl::desc("Override output filename"),
@@ -45,7 +47,7 @@ int main(int argc, const char **argv) {
   if (OutputFilename.empty()) {
     StringRef Input = InputFilename;
     if (Input != "-") {
-      SmallString<64> Output{StringRef(InputFilename)};
+      SmallString<64> Output{StringRef(MainFile)};
       sys::path::replace_extension(Output, "allexe");
       OutputFilename = Output.str();
     }
@@ -61,6 +63,13 @@ int main(int argc, const char **argv) {
     if (!Output) {
       errs() << "Could not open output file " << OutputFilename << ": ";
       errs() << Output.getError().message() << "\n";
+      return 1;
+    }
+
+
+    if (!Output.get()->addModule(MainFile, ALLEXE_MAIN)) {
+      // XXX: This needs much better error reporting!
+      errs() << "Error adding file to allexe, unknown reason\n";
       return 1;
     }
 
