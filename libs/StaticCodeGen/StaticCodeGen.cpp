@@ -94,9 +94,9 @@ static inline void setFunctionAttributes(StringRef CPU, StringRef Features,
       for (auto &B : F)
         for (auto &I : B)
           if (auto *Call = dyn_cast<CallInst>(&I))
-            if (const auto *F = Call->getCalledFunction())
-              if (F->getIntrinsicID() == Intrinsic::debugtrap ||
-                  F->getIntrinsicID() == Intrinsic::trap)
+            if (const auto *Callee = Call->getCalledFunction())
+              if (Callee->getIntrinsicID() == Intrinsic::debugtrap ||
+                  Callee->getIntrinsicID() == Intrinsic::trap)
                 Call->addAttribute(llvm::AttributeSet::FunctionIndex,
                                    Attribute::get(Ctx, "trap-func-name",
                                                   TrapFuncName.getValue()));
