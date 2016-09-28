@@ -39,8 +39,10 @@ using namespace llvm;
 Error ExecutionYengine::tryStaticExec(StringRef Linker,
                                       const CompilationOptions &Options) {
   auto &allexe = Info.allexe;
-  assert(allexe.getNumModules() == 1 &&
-         "The input must be an allexe with a single module");
+  if (allexe.getNumModules() != 1)
+    return make_error<StringError>(
+        "cannot execute allexe with more than one module",
+        errc::invalid_argument);
 
   // Setting Up the Cache
   std::unique_ptr<StaticBinaryCache> Cache(new StaticBinaryCache());

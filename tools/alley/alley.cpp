@@ -104,7 +104,9 @@ int main(int argc, const char **argv, const char **envp) {
 
   ExecutionYengine EY({allexe, InputArgv, envp, LibNone, NoExec});
 
-  ExitOnErr(EY.tryStaticExec(Linker, Options));
+  // TODO: Don't encode ["modules == 1" <--> static] logic everywhere
+  if (allexe.getNumModules() == 1)
+    ExitOnErr(EY.tryStaticExec(Linker, Options));
 
   // If we made it to here, we're JIT'ing the code
   ExitOnErr(EY.doJITExec());
