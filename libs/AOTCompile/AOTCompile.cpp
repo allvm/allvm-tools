@@ -2,6 +2,7 @@
 
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/Object/Binary.h>
+#include <llvm/Support/Errc.h>
 
 #define DEBUG_TYPE "alley"
 
@@ -11,8 +12,10 @@ using namespace llvm;
 Error allvm::AOTCompileIfNeeded(StaticBinaryCache &Cache, Allexe &allexe,
                                 StringRef LibNone, StringRef Linker,
                                 const CompilationOptions &Options) {
-  assert(allexe.getNumModules() == 1 &&
-         "The input must be an allexe with a single module");
+  if (allexe.getNumModules() != 1)
+    return make_error<StringError>(
+        "cannot execute allexe with more than one module",
+        errc::invalid_argument);
   LLVMContext context;
 
   // Set a unique name for the module using StaticBinaryCache's naming scheme
