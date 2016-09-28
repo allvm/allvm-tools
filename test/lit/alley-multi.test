@@ -1,0 +1,2 @@
+// Ensure we can run simple multiple-bc files:
+// RUN: alley %p/Inputs/simple-multi
