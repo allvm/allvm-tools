@@ -45,7 +45,7 @@ int main(int argc, const char **argv) {
 
   // Figure out where we're writing the output
   if (OutputFilename.empty()) {
-    StringRef Input = InputFilename;
+    StringRef Input = MainFile;
     if (Input != "-") {
       SmallString<64> Output{StringRef(MainFile)};
       sys::path::replace_extension(Output, "allexe");
