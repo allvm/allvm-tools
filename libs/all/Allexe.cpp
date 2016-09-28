@@ -21,13 +21,17 @@ Allexe::Allexe(std::unique_ptr<ZipArchive> zipArchive)
 
 size_t Allexe::getNumModules() const { return archive->listFiles().size(); }
 
+// TODO: Move this to using llvm::Error, and Expected
 ErrorOr<std::unique_ptr<Allexe>> Allexe::open(StringRef filename,
                                               bool overwrite) {
   auto archive = ZipArchive::open(filename, overwrite);
   if (!archive) {
-    return std::error_code{};
+    return std::make_error_code(std::errc::invalid_argument);
   }
-  return std::unique_ptr<Allexe>(new Allexe(std::move(*archive)));
+  auto A = std::unique_ptr<Allexe>(new Allexe(std::move(*archive)));
+  if (A->getNumModules() > 0 && A->getModuleName(0) != ALLEXE_MAIN)
+    return std::make_error_code(std::errc::invalid_argument);
+  return std::move(A);
 }
 
 ErrorOr<std::unique_ptr<Module>>
