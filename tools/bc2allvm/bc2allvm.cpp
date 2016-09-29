@@ -47,7 +47,7 @@ int main(int argc, const char **argv) {
   if (OutputFilename.empty()) {
     StringRef Input = MainFile;
     if (Input != "-") {
-      SmallString<64> Output{StringRef(MainFile)};
+      SmallString<64> Output{Input};
       sys::path::replace_extension(Output, "allexe");
       OutputFilename = Output.str();
     }
@@ -73,7 +73,7 @@ int main(int argc, const char **argv) {
     }
 
     for (const auto &it : InputFiles) {
-      if (!Output.get()->addModule(it, "")) {
+      if (!Output.get()->addModule(it)) {
         // XXX: This needs much better error reporting!
         errs() << "Error adding file to allexe, unknown reason\n";
         return 1;
