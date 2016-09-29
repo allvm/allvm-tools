@@ -4,10 +4,17 @@
 #include <llvm/Bitcode/ReaderWriter.h>
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Module.h>
+#include <llvm/Support/Errc.h>
 #include <llvm/Support/raw_ostream.h>
 
 using namespace allvm;
 using namespace llvm;
+
+static llvm::Error makeOpenError(const StringRef Filename, const Twine &Msg,
+                                 std::error_code EC) {
+  return make_error<StringError>(
+      "Could not open allexe '" + Filename + "': " + Msg, EC);
+}
 
 static std::unique_ptr<MemoryBuffer> moduleToBuffer(const Module *M) {
   std::string X;
@@ -21,21 +28,39 @@ Allexe::Allexe(std::unique_ptr<ZipArchive> zipArchive)
 
 size_t Allexe::getNumModules() const { return archive->listFiles().size(); }
 
-ErrorOr<std::unique_ptr<Allexe>> Allexe::open(StringRef filename,
-                                              bool overwrite) {
-  auto archive = ZipArchive::open(filename, overwrite);
-  if (!archive) {
-    return std::error_code{};
-  }
-  return std::unique_ptr<Allexe>(new Allexe(std::move(*archive)));
+Expected<std::unique_ptr<Allexe>> Allexe::openForReading(StringRef filename) {
+  auto Allexe = Allexe::open(filename, false);
+  if (!Allexe)
+    return Allexe.takeError();
+  if ((*Allexe)->getNumModules() == 0)
+    return makeOpenError(filename, "empty or invalid allexe",
+                         errc::invalid_argument);
+  return std::move(*Allexe);
 }
 
-ErrorOr<std::unique_ptr<Module>>
+Expected<std::unique_ptr<Allexe>> Allexe::open(StringRef filename,
+                                               bool overwrite) {
+  auto archive = ZipArchive::open(filename, overwrite);
+  if (!archive)
+    // TODO: Improve error handling reported by ZipArchive
+    // so we can return a useful error here!
+    return makeOpenError(filename, "unknown reason", errc::invalid_argument);
+  auto A = std::unique_ptr<Allexe>(new Allexe(std::move(*archive)));
+  if (A->getNumModules() > 0 && A->getModuleName(0) != ALLEXE_MAIN)
+    return makeOpenError(filename, "invalid allexe: First entry was: '" +
+                                       A->getModuleName(0) + "', expected: '" +
+                                       ALLEXE_MAIN + "'",
+                         errc::invalid_argument);
+  return std::move(A);
+}
+
+Expected<std::unique_ptr<Module>>
 Allexe::getModule(size_t idx, LLVMContext &ctx, uint32_t *crc,
                   bool shouldLoadLazyMetaData) {
   assert(idx < getNumModules() && "invalid module idx");
   auto bitcode = archive->getEntry(idx, crc);
-  return getLazyBitcodeModule(std::move(bitcode), ctx, shouldLoadLazyMetaData);
+  return errorOrToExpected(
+      getLazyBitcodeModule(std::move(bitcode), ctx, shouldLoadLazyMetaData));
 }
 
 uint32_t Allexe::getModuleCRC(size_t idx) {

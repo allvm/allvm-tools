@@ -11,9 +11,12 @@
 // It'd be nice if we said something better than this,
 // but at least we catch these errors.
 // CHECK: Error adding file
-// CHECK: unknown reason
+// CHECK-SAME: unknown reason
 //
 // Test trying to write to a directory (output error)
 // RUN: not bc2allvm %t.bc -o %T |& FileCheck -check-prefix=OUTPUT %s
 //
-// OUTPUT: Could not open output file
+// OUTPUT: Could not open
+// This is bad, but when we improve it we should have a test for it
+// which will be forced when this fails:
+// OUTPUT-SAME: unknown reason

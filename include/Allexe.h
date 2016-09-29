@@ -4,7 +4,7 @@
 #include "ZipArchive.h"
 
 #include <llvm/ADT/StringRef.h>
-#include <llvm/Support/ErrorOr.h>
+#include <llvm/Support/Error.h>
 
 #include <memory>
 #include <string>
@@ -30,7 +30,7 @@ public:
     return archive->getEntry(idx, crc);
   }
 
-  llvm::ErrorOr<std::unique_ptr<llvm::Module>>
+  llvm::Expected<std::unique_ptr<llvm::Module>>
   getModule(size_t i, llvm::LLVMContext &, uint32_t *crc = nullptr,
             bool shouldLoadLazyMetaData = true);
 
@@ -38,6 +38,7 @@ public:
 
   llvm::StringRef getModuleName(size_t idx) const;
 
+  // TODO: bool -> llvm::Error
   /// add a module to this allexe
   bool addModule(std::unique_ptr<llvm::Module>,
                  llvm::StringRef moduleName = "");
@@ -48,9 +49,13 @@ public:
   /// update a module, return true if succeeds
   bool updateModule(size_t idx, std::unique_ptr<llvm::Module>);
 
+  /// open a allexe for reading only
+  static llvm::Expected<std::unique_ptr<Allexe>>
+      openForReading(llvm::StringRef);
+
   /// open a allexe for reading and writing
-  static llvm::ErrorOr<std::unique_ptr<Allexe>> open(llvm::StringRef,
-                                                     bool overwrite = false);
+  static llvm::Expected<std::unique_ptr<Allexe>> open(llvm::StringRef,
+                                                      bool overwrite = false);
 };
 
 const llvm::StringRef ALLEXE_MAIN = "main.bc";

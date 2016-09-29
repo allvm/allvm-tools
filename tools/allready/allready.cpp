@@ -58,33 +58,13 @@ int main(int argc, const char **argv) {
   InitializeNativeTargetAsmParser();
   cl::ParseCommandLineOptions(argc, argv, "allready static codegen -> cache");
 
-  ExitOnErr.setBanner(std::string(argv[0]) + ":");
+  ExitOnErr.setBanner(std::string(argv[0]) + ": ");
 
-  auto allexeOrError = Allexe::open(InputFilename);
-  if (!allexeOrError) {
-    errs() << "Could not open " << InputFilename << ": ";
-    errs() << allexeOrError.getError().message() << '\n';
-    return 1;
-  }
-
-  auto &allexe = *allexeOrError.get();
-  if (allexe.getNumModules() == 0) {
-    errs() << "allexe contained no files!\n";
-    return 1;
-  }
-
-  auto mainFile = allexe.getModuleName(0);
-
-  if (mainFile != ALLEXE_MAIN) {
-    errs() << "Could not open " << InputFilename << ": ";
-    errs() << "First entry was '" << mainFile << "',";
-    errs() << " expected '" << ALLEXE_MAIN << "'\n";
-    return 1;
-  }
+  auto allexe = ExitOnErr(Allexe::openForReading(InputFilename));
 
   const CompilationOptions Options; // TODO: Let use specify these?
   StaticBinaryCache Cache;
-  ExitOnErr(AOTCompileIfNeeded(Cache, allexe, LibNone, Linker, Options));
+  ExitOnErr(AOTCompileIfNeeded(Cache, *allexe, LibNone, Linker, Options));
 
   outs() << "Successfully cached static binary for '" << InputFilename << ".\n";
 
