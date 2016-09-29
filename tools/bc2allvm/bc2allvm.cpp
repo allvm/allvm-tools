@@ -35,6 +35,9 @@ cl::opt<std::string> OutputFilename("o", cl::desc("Override output filename"),
                                     cl::value_desc("filename"));
 cl::opt<bool> ForceOutput("f", cl::desc("Replace output allexe if it exists"),
                           cl::init(false));
+
+ExitOnError ExitOnErr;
+
 } // end anonymous namespace
 
 int main(int argc, const char **argv) {
@@ -42,6 +45,7 @@ int main(int argc, const char **argv) {
   PrettyStackTraceProgram X(argc, argv);
   llvm_shutdown_obj Y; // Call llvm_shutdown() on exit.
   cl::ParseCommandLineOptions(argc, argv);
+  ExitOnErr.setBanner(std::string(argv[0]) + ": ");
 
   // Figure out where we're writing the output
   if (OutputFilename.empty()) {
@@ -59,21 +63,16 @@ int main(int argc, const char **argv) {
 
   {
     // Try to open the output file first
-    auto Output = Allexe::open(OutputFilename, ForceOutput);
-    if (!Output) {
-      errs() << "Could not open output file " << OutputFilename << ": ";
-      errs() << Output.getError().message() << "\n";
-      return 1;
-    }
+    auto Output = ExitOnErr(Allexe::open(OutputFilename, ForceOutput));
 
-    if (!Output.get()->addModule(MainFile, ALLEXE_MAIN)) {
+    if (!Output->addModule(MainFile, ALLEXE_MAIN)) {
       // XXX: This needs much better error reporting!
       errs() << "Error adding file to allexe, unknown reason\n";
       return 1;
     }
 
     for (const auto &it : InputFiles) {
-      if (!Output.get()->addModule(it)) {
+      if (!Output->addModule(it)) {
         // XXX: This needs much better error reporting!
         errs() << "Error adding file to allexe, unknown reason\n";
         return 1;

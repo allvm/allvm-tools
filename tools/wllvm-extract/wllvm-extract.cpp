@@ -128,7 +128,7 @@ static Error writeAsBitcodeArchive(const WLLVMFile &File, StringRef Filename) {
 static Error writeAsAllexe(const WLLVMFile &File, StringRef Filename) {
   LLVMContext C;
 
-  auto Output = errorOrToExpected(Allexe::open(Filename, ForceOutput));
+  auto Output = Allexe::open(Filename, ForceOutput);
   if (!Output)
     return Output.takeError();
 

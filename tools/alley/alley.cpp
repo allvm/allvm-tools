@@ -60,27 +60,19 @@ int main(int argc, const char **argv, const char **envp) {
   InitializeNativeTargetAsmPrinter();
   InitializeNativeTargetAsmParser();
   cl::ParseCommandLineOptions(argc, argv, "allvm runtime executor");
+  ExitOnErr.setBanner(std::string(argv[0]) + ": ");
 
-  ExitOnErr.setBanner(std::string(argv[0]) + ":");
-
-  auto allexeOrError = Allexe::openForReading(InputFilename);
-  if (!allexeOrError) {
-    errs() << "Could not open " << InputFilename << ": ";
-    errs() << allexeOrError.getError().message() << '\n';
-    return 1;
-  }
-
-  auto &allexe = *allexeOrError.get();
+  auto allexe = ExitOnErr(Allexe::openForReading(InputFilename));
 
   const CompilationOptions Options; // TODO: Let use specify these?
   if (ForceStatic) {
-    if (allexe.getNumModules() != 1) {
+    if (allexe->getNumModules() != 1) {
       errs() << "Allexe contains too many modules for static code path!\n";
       errs() << "Hint: Use 'alltogether' first!\n";
       return 1;
     }
     StaticBinaryCache Cache;
-    ExitOnErr(AOTCompileIfNeeded(Cache, allexe, LibNone, Linker, Options));
+    ExitOnErr(AOTCompileIfNeeded(Cache, *allexe, LibNone, Linker, Options));
   }
 
   // Fixup argv[0] to the allexe name without the allexe suffix.
@@ -89,10 +81,10 @@ int main(int argc, const char **argv, const char **envp) {
     ProgName = ProgName.drop_back(sys::path::extension(ProgName).size());
   InputArgv.insert(InputArgv.begin(), ProgName);
 
-  ExecutionYengine EY({allexe, InputArgv, envp, LibNone, NoExec});
+  ExecutionYengine EY({*allexe, InputArgv, envp, LibNone, NoExec});
 
   // TODO: Don't encode ["modules == 1" <--> static] logic everywhere
-  if (allexe.getNumModules() == 1)
+  if (allexe->getNumModules() == 1)
     ExitOnErr(EY.tryStaticExec(Linker, Options));
 
   // If we made it to here, we're JIT'ing the code

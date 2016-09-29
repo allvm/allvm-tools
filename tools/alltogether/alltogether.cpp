@@ -72,11 +72,14 @@ static inline void info(const Twine &Message) {
   }
 }
 
+static ExitOnError ExitOnErr;
+
 int main(int argc, const char **argv) {
   sys::PrintStackTraceOnErrorSignal(argv[0]);
   PrettyStackTraceProgram X(argc, argv);
   llvm_shutdown_obj Y; // Call llvm_shutdown() on exit.
   cl::ParseCommandLineOptions(argc, argv);
+  ExitOnErr.setBanner(std::string(argv[0]) + ": ");
 
   // Initialize the configured targets
   InitializeAllTargets();
@@ -102,14 +105,7 @@ int main(int argc, const char **argv) {
 
   LLVMContext Context;
 
-  auto errOrExe = Allexe::openForReading(InputFilename);
-  if (!errOrExe) {
-    errs() << "Could not open " << InputFilename << ": ";
-    errs() << errOrExe.getError().message() << '\n';
-    return 1;
-  }
-
-  auto &exe = *errOrExe.get();
+  auto exe = ExitOnErr(Allexe::openForReading(InputFilename));
 
   SMDiagnostic Err;
   LTOCodeGenerator CodeGen(Context);
@@ -124,11 +120,11 @@ int main(int argc, const char **argv) {
 
   // Extract modules and add to LTOCodeGen
   info("Extracting and merging modules...\n");
-  for (size_t i = 0, e = exe.getNumModules(); i != e; ++i) {
-    auto bcEntry = exe.getModuleName(i);
+  for (size_t i = 0, e = exe->getNumModules(); i != e; ++i) {
+    auto bcEntry = exe->getModuleName(i);
     info("  " + bcEntry + ":\n");
     info("    Loading...");
-    auto bitcode = exe.getModuleBuffer(i);
+    auto bitcode = exe->getModuleBuffer(i);
     if (!bitcode) {
       errs() << "Could not open " << InputFilename << ": ";
       errs() << "error extracting '" << bcEntry << "'\n";
@@ -178,12 +174,8 @@ int main(int argc, const char **argv) {
     return 1;
   }
 
-  auto alltogether = Allexe::open(OutputFilename, Overwrite);
-  if (!alltogether) {
-    errs() << "Error creating new allexe file for merged module\n";
-    return 1;
-  }
-  if (!(*alltogether)->addModule(TempBCPath, ALLEXE_MAIN)) {
+  auto alltogether = ExitOnErr(Allexe::open(OutputFilename, Overwrite));
+  if (!alltogether->addModule(TempBCPath, ALLEXE_MAIN)) {
     errs() << "Error writing merged module\n";
     return 1;
   }

@@ -10,6 +10,12 @@
 using namespace allvm;
 using namespace llvm;
 
+static llvm::Error makeOpenError(const StringRef Filename, const Twine &Msg,
+                                 std::error_code EC) {
+  return make_error<StringError>(
+      "Could not open allexe '" + Filename + "': " + Msg, EC);
+}
+
 static std::unique_ptr<MemoryBuffer> moduleToBuffer(const Module *M) {
   std::string X;
   raw_string_ostream OS(X);
@@ -27,7 +33,7 @@ Expected<std::unique_ptr<Allexe>> Allexe::openForReading(StringRef filename) {
   if (!Allexe)
     return Allexe.takeError();
   if ((*Allexe)->getNumModules() == 0)
-    return make_error<StringError>("empty or invalid allexe",
+    return makeOpenError(filename, "empty or invalid allexe",
                                    errc::invalid_argument);
   return std::move(*Allexe);
 }
@@ -35,18 +41,16 @@ Expected<std::unique_ptr<Allexe>> Allexe::openForReading(StringRef filename) {
 Expected<std::unique_ptr<Allexe>> Allexe::open(StringRef filename,
                                               bool overwrite) {
   auto archive = ZipArchive::open(filename, overwrite);
-  if (!archive) {
+  if (!archive)
     // TODO: Improve error handling reported by ZipArchive
     // so we can return a useful error here!
-    return make_error<StringError>("missing or invalid allexe",
-                                   errc::invalid_argument);
-  }
+    return makeOpenError(filename, "unknown reason", errc::invalid_argument);
   auto A = std::unique_ptr<Allexe>(new Allexe(std::move(*archive)));
   if (A->getNumModules() > 0 && A->getModuleName(0) != ALLEXE_MAIN)
-    return make_error<StringError>("invalid allexe: First entry was: '" +
+    return makeOpenError(filename, "invalid allexe: First entry was: '" +
                                        A->getModuleName(0) + "', expected: '" +
                                        ALLEXE_MAIN + "'",
-                                   errc::invalid_argument);
+                         errc::invalid_argument);
   return std::move(A);
 }
 
