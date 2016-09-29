@@ -63,7 +63,7 @@ int main(int argc, const char **argv, const char **envp) {
 
   ExitOnErr.setBanner(std::string(argv[0]) + ":");
 
-  auto allexeOrError = Allexe::open(InputFilename);
+  auto allexeOrError = Allexe::openForReading(InputFilename);
   if (!allexeOrError) {
     errs() << "Could not open " << InputFilename << ": ";
     errs() << allexeOrError.getError().message() << '\n';
@@ -71,19 +71,6 @@ int main(int argc, const char **argv, const char **envp) {
   }
 
   auto &allexe = *allexeOrError.get();
-  if (allexe.getNumModules() == 0) {
-    errs() << "allexe contained no files!\n";
-    return 1;
-  }
-
-  auto mainFile = allexe.getModuleName(0);
-
-  if (mainFile != ALLEXE_MAIN) {
-    errs() << "Could not open " << InputFilename << ": ";
-    errs() << "First entry was '" << mainFile << "',";
-    errs() << " expected '" << ALLEXE_MAIN << "'\n";
-    return 1;
-  }
 
   const CompilationOptions Options; // TODO: Let use specify these?
   if (ForceStatic) {

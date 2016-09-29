@@ -3,16 +3,21 @@
 // RUN: not alley %t-empty |& FileCheck %s -check-prefix=EMPTY
 // RUN: not alltogether %t-empty |& FileCheck %s -check-prefix=EMPTY
 // RUN: not allready %t-empty |& FileCheck %s -check-prefix=EMPTY
-// EMPTY: contained no
+// EMPTY: Could not open
+// EMPTY-NEXT: contained no
 
 // No 'main.bc' file present
 // RUN: not alley %p/Inputs/invalid/which__does-not-contain-mainbc |& FileCheck %s -check-prefix=NOMAIN
 // RUN: not alltogether %p/Inputs/invalid/which__does-not-contain-mainbc |& FileCheck %s -check-prefix=NOMAIN
 // RUN: not allready %p/Inputs/invalid/which__does-not-contain-mainbc |& FileCheck %s -check-prefix=NOMAIN
 // NOMAIN: Could not open
+// NOMAIN-NEXT: First entry was
+// NOMAIN-NEXT: expected
 
 // 'main.bc' present but not first entry
 // RUN: not alley %p/Inputs/invalid/simple-multi__mainbc-is-second |& FileCheck %s -check-prefix=MAINSECOND
 // RUN: not alltogether %p/Inputs/invalid/simple-multi__mainbc-is-second |& FileCheck %s -check-prefix=MAINSECOND
 // RUN: not allready %p/Inputs/invalid/simple-multi__mainbc-is-second |& FileCheck %s -check-prefix=MAINSECOND
 // MAINSECOND: Could not open
+// MAINSECOND-NEXT: First entry was
+// MAINSECOND-NEXT: expected

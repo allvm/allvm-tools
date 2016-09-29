@@ -102,7 +102,7 @@ int main(int argc, const char **argv) {
 
   LLVMContext Context;
 
-  auto errOrExe = Allexe::open(InputFilename);
+  auto errOrExe = Allexe::openForReading(InputFilename);
   if (!errOrExe) {
     errs() << "Could not open " << InputFilename << ": ";
     errs() << errOrExe.getError().message() << '\n';
@@ -110,18 +110,6 @@ int main(int argc, const char **argv) {
   }
 
   auto &exe = *errOrExe.get();
-
-  if (exe.getNumModules() == 0) {
-    errs() << "allexe contained no modules!\n";
-    return 1;
-  }
-
-  if (exe.getModuleName(0) != ALLEXE_MAIN) {
-    errs() << "Could not open " << InputFilename << ": ";
-    errs() << "First entry was '" << exe.getModuleName(0) << "',";
-    errs() << " expected '" << ALLEXE_MAIN << "'\n";
-    return 1;
-  }
 
   SMDiagnostic Err;
   LTOCodeGenerator CodeGen(Context);
