@@ -89,6 +89,10 @@ bool JITCache::getCacheFilename(StringRef ModID, std::string &CacheName) {
 }
 
 std::string JITCache::generateName(StringRef Name, uint32_t crc) {
+  // We only even add the 'Name' part for human readability,
+  // so if it's a full path only use the filename portion
+  if (sys::path::has_filename(Name))
+    Name = sys::path::filename(Name);
   std::string crcHex = utohexstr(crc);
   return ("allexe:" + crcHex + "-" + Name).str();
 }
