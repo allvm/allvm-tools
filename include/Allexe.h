@@ -48,6 +48,9 @@ public:
   /// update a module, return true if succeeds
   bool updateModule(size_t idx, std::unique_ptr<llvm::Module>);
 
+  /// open a allexe for reading only
+  static llvm::ErrorOr<std::unique_ptr<Allexe>> openForReading(llvm::StringRef);
+
   /// open a allexe for reading and writing
   static llvm::ErrorOr<std::unique_ptr<Allexe>> open(llvm::StringRef,
                                                      bool overwrite = false);
