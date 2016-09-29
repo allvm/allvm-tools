@@ -34,12 +34,12 @@ Expected<std::unique_ptr<Allexe>> Allexe::openForReading(StringRef filename) {
     return Allexe.takeError();
   if ((*Allexe)->getNumModules() == 0)
     return makeOpenError(filename, "empty or invalid allexe",
-                                   errc::invalid_argument);
+                         errc::invalid_argument);
   return std::move(*Allexe);
 }
 
 Expected<std::unique_ptr<Allexe>> Allexe::open(StringRef filename,
-                                              bool overwrite) {
+                                               bool overwrite) {
   auto archive = ZipArchive::open(filename, overwrite);
   if (!archive)
     // TODO: Improve error handling reported by ZipArchive
@@ -59,7 +59,7 @@ Allexe::getModule(size_t idx, LLVMContext &ctx, uint32_t *crc,
                   bool shouldLoadLazyMetaData) {
   assert(idx < getNumModules() && "invalid module idx");
   auto bitcode = archive->getEntry(idx, crc);
-  //return errorOrToExpected<std::unique_ptr<Module>>(
+  // return errorOrToExpected<std::unique_ptr<Module>>(
   return errorOrToExpected(
       getLazyBitcodeModule(std::move(bitcode), ctx, shouldLoadLazyMetaData));
 }
