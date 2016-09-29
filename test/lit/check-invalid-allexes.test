@@ -1,0 +1,6 @@
+// Empty:
+// RUN: touch %t-empty
+// RUN: not alley %t-empty |& FileCheck %s -check-prefix=EMPTY
+// RUN: not alltogether %t-empty |& FileCheck %s -check-prefix=EMPTY
+// RUN: not allready %t-empty |& FileCheck %s -check-prefix=EMPTY
+// EMPTY: contained no
