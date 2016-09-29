@@ -27,9 +27,9 @@ using namespace llvm;
 
 namespace {
 cl::opt<std::string> MainFile(cl::Positional, cl::Required,
-			      cl::desc("<main LLVM bitcode file>"));
+                              cl::desc("<main LLVM bitcode file>"));
 cl::list<std::string> InputFiles(cl::Positional, cl::ZeroOrMore,
-				 cl::desc("<input LLVM bitcode file>..."));
+                                 cl::desc("<input LLVM bitcode file>..."));
 
 cl::opt<std::string> OutputFilename("o", cl::desc("Override output filename"),
                                     cl::value_desc("filename"));
@@ -72,10 +72,10 @@ int main(int argc, const char **argv) {
       return 1;
     }
 
-    for (const auto& it : InputFiles) {
+    for (const auto &it : InputFiles) {
       if (!Output.get()->addModule(it, "")) {
         // XXX: This needs much better error reporting!
-	errs() << "Error adding file to allexe, unknown reason\n";
+        errs() << "Error adding file to allexe, unknown reason\n";
         return 1;
       }
     }
