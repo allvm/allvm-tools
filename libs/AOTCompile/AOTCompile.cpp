@@ -37,8 +37,6 @@ Error allvm::AOTCompileIfNeeded(StaticBinaryCache &Cache, Allexe &allexe,
     if (auto EC = sys::fs::createTemporaryFile("allvm", "aot", tempFileName))
       return make_error<StringError>("Unable to create temporary file", EC);
 
-    errs() << "tempFile: " << tempFileName.str() << "\n";
-
     auto binary = compileAndLinkAllexeWithLlcDefaults(allexe, LibNone, Linker,
                                                       tempFileName, context);
     if (!binary)
