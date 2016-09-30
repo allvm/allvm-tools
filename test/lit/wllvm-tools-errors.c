@@ -1,5 +1,6 @@
 // Construct a file not build by WLLVM:
-// RUN: cc %s -o %t
+// (We set WLLVM_CONFIGURE_ONLY JIC the available compiler /is/ WLLVM)
+// RUN: WLLVM_CONFIGURE_ONLY=1 cc %s -o %t
 
 // RUN: not wllvm-dump %t |& FileCheck %s -check-prefix CHECK-DUMP
 // RUN: not wllvm-extract %t |& FileCheck %s -check-prefix CHECK-EXTRACT
