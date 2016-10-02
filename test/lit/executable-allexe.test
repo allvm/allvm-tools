@@ -10,4 +10,7 @@
 // RUN: %t
 
 // And that it has our shebang:
-// RUN: head -n1 %t | grep alley
+// RUN: head -n1 %t | FileCheck %s
+
+// CHECK-NOT: bin/env
+// CHECK: alley
