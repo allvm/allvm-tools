@@ -320,6 +320,7 @@ ZIP_EXTERN void zip_file_error_get(zip_file_t *, int *, int *); /* use zip_file_
 
 ZIP_EXTERN int zip_archive_set_tempdir(zip_t *, const char *);
 ZIP_EXTERN int zip_close(zip_t *);
+ZIP_EXTERN int zip_close_shebang(zip_t *, const char *);
 ZIP_EXTERN int zip_delete(zip_t *, zip_uint64_t);
 ZIP_EXTERN zip_int64_t zip_dir_add(zip_t *, const char *, zip_flags_t);
 ZIP_EXTERN void zip_discard(zip_t *);

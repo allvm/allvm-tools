@@ -6,10 +6,14 @@ using namespace llvm;
 
 namespace allvm {
 
+// TODO: Don't do this, instead point to our specific alley!
+static const char *SHEBANG = "#!/usr/bin/env alley\n";
+
 ZipArchive::~ZipArchive() {
   if (archive) {
     // this writes changes that a user makes to a file
-    zip_close(archive);
+    // zip_close(archive);
+    zip_close_shebang(archive, SHEBANG);
   }
 }
 
