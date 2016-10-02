@@ -59,13 +59,9 @@ static int copy_data(zip_t *, zip_uint64_t);
 static int copy_source(zip_t *, zip_source_t *);
 static int write_cdir(zip_t *, const zip_filelist_t *, zip_uint64_t);
 
-ZIP_EXTERN int
-zip_close(zip_t *za) {
-  return zip_close_shebang(za, "");
-}
 
 ZIP_EXTERN int
-zip_close_shebang(zip_t *za, const char* SHEBANG)
+zip_close(zip_t *za)
 {
     zip_uint64_t i, j, survivors;
     zip_int64_t off;
@@ -130,14 +126,13 @@ zip_close_shebang(zip_t *za, const char* SHEBANG)
     }
   
     // XXX: ALLVM: write the requested prefix data first
-    // XXX: This could probably be better implemented
-    //      with a custom 'source', but oh well.
-    if (_zip_write(za, SHEBANG, strlen(SHEBANG)) < 0) {
-      free(filelist);
-      return -1;
+    if (za->prefixdata) {
+      if (_zip_write(za, za->prefixdata, strlen(za->prefixdata)) < 0) {
+        free(filelist);
+        return -1;
+      }
     }
 
-    
     error = 0;
     for (j=0; j<survivors; j++) {
 	int new_data;

@@ -195,6 +195,7 @@ struct zip {
     zip_hash_t *names;			/* hash table for name lookup */
     
     char *tempdir;                      /* custom temp dir (needed e.g. for OS X sandboxing) */
+    char *prefixdata;                   /* data to write before zip (for SFX) */
 };
 
 /* file in zip archive, part of API */

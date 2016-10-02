@@ -58,6 +58,8 @@ public:
   // append an entry in the archive
   bool addEntry(std::unique_ptr<llvm::MemoryBuffer> entry,
                 llvm::StringRef entryName);
+
+  bool setPrefixStr(const llvm::Twine &Prefix);
 };
 }
 

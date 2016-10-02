@@ -6,16 +6,11 @@ using namespace llvm;
 
 namespace allvm {
 
-// TODO: Don't do this, instead point to our specific alley!
-static const char *SHEBANG = "#!/usr/bin/env alley\n";
-
 ZipArchive::~ZipArchive() {
   if (archive) {
     // If the archive was changed, this writes those changes now.
     // (If the archive was not changed, this will do nothing)
-    // We specifiy the 'shebang' as prefix data to write to the zip
-    // so that it can be executed easily.
-    zip_close_shebang(archive, SHEBANG);
+    zip_close(archive);
   }
 }
 
@@ -115,5 +110,12 @@ bool ZipArchive::writeBufferToEntry(size_t idx,
 }
 
 ArrayRef<std::string> ZipArchive::listFiles() const { return files; }
+
+bool ZipArchive::setPrefixStr(const Twine &Prefix) {
+  if (zip_archive_set_prefixdata(archive, Prefix.str().data()) < 0) {
+    return false;
+  }
+  return true;
+}
 
 } // namespace allvm

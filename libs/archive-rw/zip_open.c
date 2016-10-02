@@ -177,6 +177,26 @@ zip_archive_set_tempdir(zip_t *za, const char *tempdir)
     return 0;
 }
 
+ZIP_EXTERN int
+zip_archive_set_prefixdata(zip_t *za, const char *prefixdata)
+{
+    char *new_prefixdata;
+
+    if (prefixdata) {
+        if ((new_prefixdata = strdup(prefixdata)) == NULL) {
+            zip_error_set(&za->error, ZIP_ER_MEMORY, errno);
+            return -1;
+        }
+    }
+    else
+        new_prefixdata = NULL;
+
+    free(za->prefixdata);
+    za->prefixdata = new_prefixdata;
+
+    return 0;
+}
+
 zip_t *
 _zip_open(zip_source_t *src, unsigned int flags, zip_error_t *error)
 {
