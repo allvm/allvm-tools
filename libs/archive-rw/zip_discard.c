@@ -71,6 +71,7 @@ zip_discard(zip_t *za)
     }
     free(za->open_source);
 
+    free(za->tempdir);
     free(za->prefixdata);
 
     zip_error_fini(&za->error);
