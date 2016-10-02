@@ -252,7 +252,7 @@ read_file(void *state, void *data, zip_uint64_t len, zip_source_cmd_t cmd)
 	    mask = umask(022);
 	    umask(mask);
 	    /* not much we can do if chmod fails except make the whole commit fail */
-	    // XXX: DTZ: make output executable!
+	    // XXX: ALLVM: make output executable!
 	    (void)chmod(ctx->fname, (0777&~mask));
 	    free(ctx->tmpname);
 	    ctx->tmpname = NULL;

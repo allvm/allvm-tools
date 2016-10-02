@@ -129,7 +129,7 @@ zip_close_shebang(zip_t *za, const char* SHEBANG)
 	return -1;
     }
   
-    // XXX: DTZ: write the requested prefix data first
+    // XXX: ALLVM: write the requested prefix data first
     // XXX: This could probably be better implemented
     //      with a custom 'source', but oh well.
     if (_zip_write(za, SHEBANG, strlen(SHEBANG)) < 0) {
