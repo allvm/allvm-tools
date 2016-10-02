@@ -11,8 +11,10 @@ static const char *SHEBANG = "#!/usr/bin/env alley\n";
 
 ZipArchive::~ZipArchive() {
   if (archive) {
-    // this writes changes that a user makes to a file
-    // zip_close(archive);
+    // If the archive was changed, this writes those changes now.
+    // (If the archive was not changed, this will do nothing)
+    // We specifiy the 'shebang' as prefix data to write to the zip
+    // so that it can be executed easily.
     zip_close_shebang(archive, SHEBANG);
   }
 }
