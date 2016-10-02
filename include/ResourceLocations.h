@@ -25,6 +25,8 @@ static std::string PrefixDir = findPrefixDir();
 static inline std::string getPath(llvm::StringRef Dir, llvm::StringRef File) {
   llvm::SmallString<32> Path{PrefixDir};
   llvm::sys::path::append(Path, Dir, File);
+  auto EC = llvm::sys::fs::make_absolute(Path);
+  assert(!EC && "Failed to create absolute path for resource file");
   assert(llvm::sys::fs::exists(Path));
   return Path.str();
 }
