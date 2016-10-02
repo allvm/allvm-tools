@@ -71,6 +71,7 @@ zip_discard(zip_t *za)
     }
     free(za->open_source);
 
+    // XXX: ALLVM: Free our added field, and tempdir because it needs love too.
     free(za->tempdir);
     free(za->prefixdata);
 

@@ -124,7 +124,7 @@ zip_close(zip_t *za)
 	free(filelist);
 	return -1;
     }
-  
+    
     // XXX: ALLVM: write the requested prefix data first
     if (za->prefixdata) {
       if (_zip_write(za, za->prefixdata, strlen(za->prefixdata)) < 0) {

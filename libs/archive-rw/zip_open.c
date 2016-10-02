@@ -177,6 +177,7 @@ zip_archive_set_tempdir(zip_t *za, const char *tempdir)
     return 0;
 }
 
+// XXX: ALLVM: Set the prefixdata string to use when writing this archive.
 ZIP_EXTERN int
 zip_archive_set_prefixdata(zip_t *za, const char *prefixdata)
 {
