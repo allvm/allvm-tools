@@ -75,6 +75,13 @@ uint32_t ZipArchive::getEntryCRC(size_t index) {
   return statinfo.crc;
 }
 
+uint64_t ZipArchive::getEntryUncompressedSize(size_t index) {
+  zip_stat_t statinfo;
+  zip_stat_index(archive, index, 0, &statinfo);
+
+  return statinfo.size;
+}
+
 bool ZipArchive::updateEntry(size_t idx, std::unique_ptr<MemoryBuffer> entry,
                              StringRef newEntryName) {
   return writeBufferToEntry(idx, std::move(entry), newEntryName);
