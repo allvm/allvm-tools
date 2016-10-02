@@ -1,4 +1,5 @@
 #include "Allexe.h"
+#include "ResourceLocations.h"
 
 #include <llvm/ADT/Twine.h>
 #include <llvm/Bitcode/ReaderWriter.h>
@@ -45,7 +46,7 @@ Expected<std::unique_ptr<Allexe>> Allexe::open(StringRef filename,
     // TODO: Improve error handling reported by ZipArchive
     // so we can return a useful error here!
     return makeOpenError(filename, "unknown reason", errc::invalid_argument);
-  if (!(*archive)->setPrefixStr("#!/usr/bin/env alley\n"))
+  if (!(*archive)->setPrefixStr("#!" + resources::AlleyPath + "\n"))
     return makeOpenError(filename, "unable to set prefix string",
                          errc::invalid_argument);
 

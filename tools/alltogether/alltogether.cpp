@@ -9,6 +9,7 @@
 //===----------------------------------------------------------------------===//
 
 #include "Allexe.h"
+#include "ResourceLocations.h"
 
 #include <llvm/ADT/SmallString.h>
 #include <llvm/Bitcode/ReaderWriter.h>
@@ -34,45 +35,33 @@ using namespace allvm;
 using namespace llvm;
 
 namespace {
-// TODO: Refactor everything in this ns to a common location!
-std::string getDefaultLibNone() {
-  static int StaticSymbol;
-  auto Executable = sys::fs::getMainExecutable("allvm_tool", &StaticSymbol);
-  auto BinDir = sys::path::parent_path(Executable);
-  return (BinDir + "/../lib/libnone.a").str();
-}
+cl::opt<std::string> LibNone("libnone", cl::desc("Path of libnone.a"),
+                             cl::init(resources::LibNonePath));
 
-static cl::opt<std::string> LibNone("libnone", cl::desc("Path of libnone.a"),
-                                    cl::init(getDefaultLibNone()));
+cl::opt<bool> Overwrite("f", cl::desc("overwrite existing alltogether'd file"),
+                        cl::init(false));
+cl::opt<std::string> InputFilename(cl::Positional, cl::Required,
+                                   cl::desc("<input allvm file>"));
 
-static cl::opt<bool>
-    Overwrite("f", cl::desc("overwrite existing alltogether'd file"),
-              cl::init(false));
-} // end namespace REFACTORME
+cl::opt<std::string> OutputFilename("o", cl::desc("Override output filename"),
+                                    cl::value_desc("filename"));
 
-static cl::opt<std::string> InputFilename(cl::Positional, cl::Required,
-                                          cl::desc("<input allvm file>"));
+cl::opt<bool> DisableOpt("disable-opt",
+                         cl::desc("Disable optimizations, only link"),
+                         cl::init(false));
 
-static cl::opt<std::string> OutputFilename("o",
-                                           cl::desc("Override output filename"),
-                                           cl::value_desc("filename"));
+cl::opt<bool> Quiet("quiet", cl::desc("Don't print informational messages"));
+cl::alias QuietA("q", cl::desc("Alias for -quiet"), cl::aliasopt(Quiet));
 
-static cl::opt<bool> DisableOpt("disable-opt",
-                                cl::desc("Disable optimizations, only link"),
-                                cl::init(false));
-
-static cl::opt<bool> Quiet("quiet",
-                           cl::desc("Don't print informational messages"));
-static cl::alias QuietA("q", cl::desc("Alias for -quiet"), cl::aliasopt(Quiet));
-
-static inline void info(const Twine &Message) {
+inline void info(const Twine &Message) {
   if (!Quiet) {
     outs() << Message;
     outs().flush();
   }
 }
 
-static ExitOnError ExitOnErr;
+ExitOnError ExitOnErr;
+} // end anonymous namespace
 
 int main(int argc, const char **argv) {
   sys::PrintStackTraceOnErrorSignal(argv[0]);

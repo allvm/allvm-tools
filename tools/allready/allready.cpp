@@ -11,6 +11,7 @@
 #include "ExecutionYengine.h"
 
 #include "AOTCompile.h"
+#include "ResourceLocations.h"
 
 #include <llvm/Bitcode/ReaderWriter.h>
 #include <llvm/CodeGen/CommandFlags.h>
@@ -21,7 +22,6 @@
 #include <llvm/Support/CommandLine.h>
 #include <llvm/Support/Compiler.h>
 #include <llvm/Support/MemoryBuffer.h>
-#include <llvm/Support/Path.h>
 #include <llvm/Support/SourceMgr.h>
 #include <llvm/Support/TargetRegistry.h>
 #include <llvm/Support/TargetSelect.h>
@@ -30,15 +30,8 @@
 using namespace allvm;
 using namespace llvm;
 
-static std::string getDefaultLibNone() {
-  static int StaticSymbol;
-  auto Executable = sys::fs::getMainExecutable("allvm_tool", &StaticSymbol);
-  auto BinDir = sys::path::parent_path(Executable);
-  return (BinDir + "/../lib/libnone.a").str();
-}
-
 static cl::opt<std::string> LibNone("libnone", cl::desc("Path of libnone.a"),
-                                    cl::init(getDefaultLibNone()));
+                                    cl::init(resources::LibNonePath));
 
 static cl::opt<std::string>
     Linker("linker",
