@@ -8,7 +8,8 @@ namespace allvm {
 
 ZipArchive::~ZipArchive() {
   if (archive) {
-    // this writes changes that a user makes to a file
+    // If the archive was changed, this writes those changes now.
+    // (If the archive was not changed, this will do nothing)
     zip_close(archive);
   }
 }
@@ -109,5 +110,12 @@ bool ZipArchive::writeBufferToEntry(size_t idx,
 }
 
 ArrayRef<std::string> ZipArchive::listFiles() const { return files; }
+
+bool ZipArchive::setPrefixStr(const Twine &Prefix) {
+  if (zip_archive_set_prefixdata(archive, Prefix.str().data()) < 0) {
+    return false;
+  }
+  return true;
+}
 
 } // namespace allvm

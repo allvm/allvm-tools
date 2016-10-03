@@ -58,6 +58,15 @@ public:
   // append an entry in the archive
   bool addEntry(std::unique_ptr<llvm::MemoryBuffer> entry,
                 llvm::StringRef entryName);
+
+  // Set the "prefix" data to write before the zip file contents,
+  // used when writing this zip to the disk.
+  // (Will not be used if no changes are made to an existing archive)
+  // The terminating null will not be written.
+  // The resulting file will still be a valid zip.  Hopefully.
+  //
+  // Returns true on success.
+  bool setPrefixStr(const llvm::Twine &Prefix);
 };
 }
 

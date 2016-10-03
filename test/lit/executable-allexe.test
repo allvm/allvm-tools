@@ -10,8 +10,7 @@
 // RUN: %t
 
 // And that it has our shebang:
-// RUN: head -n1 %t | grep alley
+// RUN: head -n1 %t | FileCheck %s
 
-// This doesn't actually work yet! :)
-// (See https://gitlab-beta.engr.illinois.edu/llvm/allvm/issues/14)
-// XFAIL: *
+// CHECK-NOT: bin/env
+// CHECK: alley
