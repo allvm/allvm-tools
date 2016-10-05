@@ -118,13 +118,13 @@ llvm::Error runHosted(ExecutionEngine &EE,
   typedef int (*mainty)(int, char **, char **);
   typedef int (*startty)(mainty, int, char **);
 
-  // TODO: Run static constructors, but AFTER initializing libc components...
-  EE.runStaticConstructorsDestructors(false);
-
   if (Info.NoExec) {
     errs() << "'noexec' option set, skipping execution...\n";
     return Error::success();
   }
+
+  // TODO: Run static constructors, but AFTER initializing libc components...
+  EE.runStaticConstructorsDestructors(false);
 
   // Note: __libc_start_main() calls exit() so we don't really return
   startty start = reinterpret_cast<startty>(StartAddr);
