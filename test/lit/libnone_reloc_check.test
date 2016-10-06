@@ -1,0 +1,6 @@
+// RUN: llvm-objdump -r %libnone | FileCheck %s
+
+// CHECK-NOT: GOT
+// CHECK-NOT: PLT
+// Make sure we're actually getting some relocations printed
+// CHECK: R_

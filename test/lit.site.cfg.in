@@ -18,6 +18,11 @@ if curpath:
     newpath += ":" + curpath
 config.environment['PATH'] = newpath
 
+# TODO: Get this more reliably/directly: " = @LIBNONE_PATH@" or something
+libnone = "@LLVM_LIBRARY_OUTPUT_INTDIR@/libnone.a"
+
+config.substitutions.append( ('%libnone', libnone) )
+
 #libpath = os.environ.get('LD_LIBRARY_PATH', '')
 #if libpath:
 #    libpath = ":" + libpath
