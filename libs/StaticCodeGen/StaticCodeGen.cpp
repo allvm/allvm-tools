@@ -286,7 +286,7 @@ std::string CompilationOptions::serializeCompilationOptions() const {
   buffer += std::to_string(TOptions.ThreadModel);
   buffer += std::to_string(static_cast<int>(TOptions.EABIVersion));
   buffer += std::to_string(static_cast<int>(TOptions.DebuggerTuning));
-  buffer += std::to_string(TOptions.FPDenormalType);
+  buffer += std::to_string(TOptions.FPDenormalMode);
   buffer += std::to_string(static_cast<int>(TOptions.ExceptionModel));
   buffer += std::to_string(TOptions.MCOptions.SanitizeAddress);
   buffer += std::to_string(TOptions.MCOptions.MCRelaxAll);
