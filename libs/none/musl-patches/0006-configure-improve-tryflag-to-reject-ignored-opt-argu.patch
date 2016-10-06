@@ -1,7 +1,7 @@
-From 1104375bc81c6ecd03b96ca8a2d0370c6bf28e74 Mon Sep 17 00:00:00 2001
+From 835e0c0781d3cb3c4af916767ec8a264c36e3583 Mon Sep 17 00:00:00 2001
 From: Will Dietz <w@wdtz.org>
 Date: Sat, 24 Sep 2016 10:12:58 -0500
-Subject: [PATCH 6/6] configure: improve 'tryflag' to reject ignored opt
+Subject: [PATCH 6/7] configure: improve 'tryflag' to reject ignored opt
  arguments too.
 
 ---

@@ -1,0 +1,21 @@
+// RUN: llvm-objdump -r %libnone | FileCheck %s
+// RUN: llvm-objdump -r %libnone | FileCheck %s -check-prefix=VALID
+
+// Ensure we're seeing some relocations
+// VALID: R_X86_64_
+
+// CHECK-NOT: GOT32
+// CHECK-NOT: GOT64
+// CHECK-NOT: GOTPC32
+// CHECK-NOT: GOTPC64
+// CHECK-NOT: GOTPCREL64
+// CHECK-NOT: GOTTPOFF
+// CHECK-NOT: GOTOFF64
+
+// CHECK-NOT: PLTOFF
+
+// CHECK-NOT: _JUMP
+// CHECK-NOT: _RELATIVE
+// CHECK-NOT: _IRELATIVE
+// CHECK-NOT: _TLS
+
