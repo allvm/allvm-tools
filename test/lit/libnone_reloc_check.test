@@ -2,5 +2,9 @@
 
 // CHECK-NOT: GOT
 // CHECK-NOT: PLT
+
 // Make sure we're actually getting some relocations printed
 // CHECK: R_
+
+// CHECK-NOT: GOT
+// CHECK-NOT: PLT
