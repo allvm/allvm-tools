@@ -10,8 +10,8 @@
 //===----------------------------------------------------------------------===//
 #include "ExecutionYengine.h"
 
+#include "ALLVMContext.h"
 #include "AOTCompile.h"
-#include "ResourceLocations.h"
 
 #include <llvm/Bitcode/ReaderWriter.h>
 #include <llvm/CodeGen/CommandFlags.h>
@@ -30,18 +30,25 @@
 using namespace allvm;
 using namespace llvm;
 
-static cl::opt<std::string> LibNone("libnone", cl::desc("Path of libnone.a"),
-                                    cl::init(resources::LibNonePath));
+namespace {
+cl::opt<std::string> LibNone("libnone", cl::desc("Path of libnone.a"));
 
-static cl::opt<std::string>
+cl::opt<std::string>
     Linker("linker",
            cl::desc("Path of linker-driver to use for static compilation"),
            cl::init("clang"));
 
-static cl::opt<std::string> InputFilename(cl::Positional, cl::Required,
-                                          cl::desc("<input allvm file>"));
+cl::opt<std::string> InputFilename(cl::Positional, cl::Required,
+                                   cl::desc("<input allvm file>"));
 
-static ExitOnError ExitOnErr;
+ExitOnError ExitOnErr;
+} // end anonymous namespace
+
+ALLVMContext getContext(const char *Argv0);
+ALLVMContext getContext(const char *Argv0) {
+  return ALLVMContext::get(
+      Argv0, reinterpret_cast<void *>(reinterpret_cast<uintptr_t>(getContext)));
+}
 
 int main(int argc, const char **argv) {
   // w
@@ -49,11 +56,15 @@ int main(int argc, const char **argv) {
   InitializeNativeTarget();
   InitializeNativeTargetAsmPrinter();
   InitializeNativeTargetAsmParser();
+
+  ALLVMContext AC = getContext(argv[0]);
+  LibNone.setInitialValue(AC.LibNonePath);
+
   cl::ParseCommandLineOptions(argc, argv, "allready static codegen -> cache");
 
   ExitOnErr.setBanner(std::string(argv[0]) + ": ");
 
-  auto allexe = ExitOnErr(Allexe::openForReading(InputFilename));
+  auto allexe = ExitOnErr(Allexe::openForReading(InputFilename, AC));
 
   const CompilationOptions Options; // TODO: Let use specify these?
   StaticBinaryCache Cache;

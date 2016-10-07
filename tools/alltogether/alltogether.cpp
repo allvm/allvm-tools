@@ -9,7 +9,6 @@
 //===----------------------------------------------------------------------===//
 
 #include "Allexe.h"
-#include "ResourceLocations.h"
 
 #include <llvm/ADT/SmallString.h>
 #include <llvm/Bitcode/ReaderWriter.h>
@@ -35,9 +34,6 @@ using namespace allvm;
 using namespace llvm;
 
 namespace {
-cl::opt<std::string> LibNone("libnone", cl::desc("Path of libnone.a"),
-                             cl::init(resources::LibNonePath));
-
 cl::opt<bool> Overwrite("f", cl::desc("overwrite existing alltogether'd file"),
                         cl::init(false));
 cl::opt<std::string> InputFilename(cl::Positional, cl::Required,
@@ -61,7 +57,14 @@ inline void info(const Twine &Message) {
 }
 
 ExitOnError ExitOnErr;
+
 } // end anonymous namespace
+
+ALLVMContext getContext(const char *Argv0);
+ALLVMContext getContext(const char *Argv0) {
+  return ALLVMContext::get(
+      Argv0, reinterpret_cast<void *>(reinterpret_cast<uintptr_t>(getContext)));
+}
 
 int main(int argc, const char **argv) {
   sys::PrintStackTraceOnErrorSignal(argv[0]);
@@ -76,6 +79,7 @@ int main(int argc, const char **argv) {
   InitializeAllAsmPrinters();
   InitializeAllAsmParsers();
 
+  ALLVMContext AC = getContext(argv[0]);
   if (OutputFilename.empty()) {
     if (StringRef(InputFilename) != "-") {
       SmallString<64> Output{StringRef(InputFilename)};
@@ -94,7 +98,7 @@ int main(int argc, const char **argv) {
 
   LLVMContext Context;
 
-  auto exe = ExitOnErr(Allexe::openForReading(InputFilename));
+  auto exe = ExitOnErr(Allexe::openForReading(InputFilename, AC));
 
   SMDiagnostic Err;
   LTOCodeGenerator CodeGen(Context);
@@ -163,7 +167,7 @@ int main(int argc, const char **argv) {
     return 1;
   }
 
-  auto alltogether = ExitOnErr(Allexe::open(OutputFilename, Overwrite));
+  auto alltogether = ExitOnErr(Allexe::open(OutputFilename, AC, Overwrite));
   if (!alltogether->addModule(TempBCPath, ALLEXE_MAIN)) {
     errs() << "Error writing merged module\n";
     return 1;

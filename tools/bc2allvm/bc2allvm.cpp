@@ -40,10 +40,19 @@ ExitOnError ExitOnErr;
 
 } // end anonymous namespace
 
+ALLVMContext getContext(const char *Argv0);
+ALLVMContext getContext(const char *Argv0) {
+  return ALLVMContext::get(
+      Argv0, reinterpret_cast<void *>(reinterpret_cast<uintptr_t>(getContext)));
+}
+
 int main(int argc, const char **argv) {
   sys::PrintStackTraceOnErrorSignal(argv[0]);
   PrettyStackTraceProgram X(argc, argv);
   llvm_shutdown_obj Y; // Call llvm_shutdown() on exit.
+
+  ALLVMContext AC = getContext(argv[0]);
+
   cl::ParseCommandLineOptions(argc, argv);
   ExitOnErr.setBanner(std::string(argv[0]) + ": ");
 
@@ -63,7 +72,7 @@ int main(int argc, const char **argv) {
 
   {
     // Try to open the output file first
-    auto Output = ExitOnErr(Allexe::open(OutputFilename, ForceOutput));
+    auto Output = ExitOnErr(Allexe::open(OutputFilename, AC, ForceOutput));
 
     if (!Output->addModule(MainFile, ALLEXE_MAIN)) {
       // XXX: This needs much better error reporting!

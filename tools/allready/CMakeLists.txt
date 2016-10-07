@@ -16,6 +16,6 @@ set(LLVM_LINK_COMPONENTS
 add_llvm_tool(allready
   allready.cpp
 )
-target_link_libraries(allready liball AOTCompile Cache ExecutionYengine)
+target_link_libraries(allready liball AOTCompile Cache Context ExecutionYengine)
 
 add_definitions(${LLVM_DEFINITIONS})

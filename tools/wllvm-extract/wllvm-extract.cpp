@@ -8,6 +8,7 @@
 //
 //===----------------------------------------------------------------------===//
 
+#include "ALLVMContext.h"
 #include "Allexe.h"
 #include "WLLVMFile.h"
 
@@ -59,6 +60,12 @@ cl::opt<bool> ForceOutput("f", cl::desc("Replace output allexe if it exists"),
                           cl::init(false));
 
 } // end anon namespace
+
+ALLVMContext getContext(const char *Argv0);
+ALLVMContext getContext(const char *Argv0) {
+  return ALLVMContext::get(
+      Argv0, reinterpret_cast<void *>(reinterpret_cast<uintptr_t>(getContext)));
+}
 
 static std::string getDefaultSuffix(OutputKind K) {
   switch (K) {
@@ -127,8 +134,9 @@ static Error writeAsBitcodeArchive(const WLLVMFile &File, StringRef Filename) {
 
 static Error writeAsAllexe(const WLLVMFile &File, StringRef Filename) {
   LLVMContext C;
+  ALLVMContext AC;
 
-  auto Output = Allexe::open(Filename, ForceOutput);
+  auto Output = Allexe::open(Filename, AC, ForceOutput);
   if (!Output)
     return Output.takeError();
 
