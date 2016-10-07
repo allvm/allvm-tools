@@ -1,6 +1,6 @@
 #include "ExecutionYengine.h"
 
-#include "ALLVMContext.h"
+#include "ALLVMContextAnchor.h"
 #include "AOTCompile.h"
 
 #include <llvm/Bitcode/ReaderWriter.h>
@@ -49,19 +49,13 @@ ExitOnError ExitOnErr;
 
 } // end anonymous namespace
 
-ALLVMContext getContext(const char *Argv0);
-ALLVMContext getContext(const char *Argv0) {
-  return ALLVMContext::get(
-      Argv0, reinterpret_cast<void *>(reinterpret_cast<uintptr_t>(getContext)));
-}
-
 int main(int argc, const char **argv, const char **envp) {
   // Link in necessary libraries
   InitializeNativeTarget();
   InitializeNativeTargetAsmPrinter();
   InitializeNativeTargetAsmParser();
 
-  ALLVMContext AC = getContext(argv[0]);
+  ALLVMContext AC = ALLVMContext::getAnchored(argv[0]);
   LibNone.setInitialValue(AC.LibNonePath);
 
   cl::ParseCommandLineOptions(argc, argv, "allvm runtime executor");

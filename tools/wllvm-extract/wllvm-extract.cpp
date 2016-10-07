@@ -8,7 +8,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "ALLVMContext.h"
+#include "ALLVMContextAnchor.h"
 #include "Allexe.h"
 #include "WLLVMFile.h"
 
@@ -60,12 +60,6 @@ cl::opt<bool> ForceOutput("f", cl::desc("Replace output allexe if it exists"),
                           cl::init(false));
 
 } // end anon namespace
-
-ALLVMContext getContext(const char *Argv0);
-ALLVMContext getContext(const char *Argv0) {
-  return ALLVMContext::get(
-      Argv0, reinterpret_cast<void *>(reinterpret_cast<uintptr_t>(getContext)));
-}
 
 static std::string getDefaultSuffix(OutputKind K) {
   switch (K) {
@@ -132,9 +126,9 @@ static Error writeAsBitcodeArchive(const WLLVMFile &File, StringRef Filename) {
   return Error::success();
 }
 
-static Error writeAsAllexe(const WLLVMFile &File, StringRef Filename) {
+static Error writeAsAllexe(const WLLVMFile &File, StringRef Filename,
+                           const ALLVMContext &AC) {
   LLVMContext C;
-  ALLVMContext AC;
 
   auto Output = Allexe::open(Filename, AC, ForceOutput);
   if (!Output)
@@ -158,14 +152,14 @@ static Error writeAsAllexe(const WLLVMFile &File, StringRef Filename) {
 }
 
 static Error writeAs(const WLLVMFile &File, StringRef Filename,
-                     OutputKind Kind) {
+                     OutputKind Kind, const ALLVMContext &AC) {
   switch (Kind) {
   case OutputKind::SingleBitcode:
     return writeAsSingleBC(File, Filename);
   case OutputKind::BitcodeArchive:
     return writeAsBitcodeArchive(File, Filename);
   case OutputKind::Allexe:
-    return writeAsAllexe(File, Filename);
+    return writeAsAllexe(File, Filename, AC);
   }
 
   llvm_unreachable("unhandled outputkind");
@@ -192,7 +186,8 @@ int main(int argc, const char **argv) {
       OutputFilename = InputFilename + getDefaultSuffix(EmitOutputKind);
   }
 
-  Error E = writeAs(*WLLVMFile.get(), OutputFilename, EmitOutputKind);
+  ALLVMContext AC = ALLVMContext::getAnchored(argv[0]);
+  Error E = writeAs(*WLLVMFile.get(), OutputFilename, EmitOutputKind, AC);
   if (E) {
     logAllUnhandledErrors(std::move(E), errs(), StringRef(argv[0]) + ": ");
     return 1;

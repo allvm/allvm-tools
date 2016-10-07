@@ -9,6 +9,7 @@
 //===----------------------------------------------------------------------===//
 
 #include "Allexe.h"
+#include "ALLVMContextAnchor.h"
 
 #include <llvm/ADT/SmallString.h>
 #include <llvm/Bitcode/ReaderWriter.h>
@@ -60,12 +61,6 @@ ExitOnError ExitOnErr;
 
 } // end anonymous namespace
 
-ALLVMContext getContext(const char *Argv0);
-ALLVMContext getContext(const char *Argv0) {
-  return ALLVMContext::get(
-      Argv0, reinterpret_cast<void *>(reinterpret_cast<uintptr_t>(getContext)));
-}
-
 int main(int argc, const char **argv) {
   sys::PrintStackTraceOnErrorSignal(argv[0]);
   PrettyStackTraceProgram X(argc, argv);
@@ -79,7 +74,7 @@ int main(int argc, const char **argv) {
   InitializeAllAsmPrinters();
   InitializeAllAsmParsers();
 
-  ALLVMContext AC = getContext(argv[0]);
+  ALLVMContext AC = ALLVMContext::getAnchored(argv[0]);
   if (OutputFilename.empty()) {
     if (StringRef(InputFilename) != "-") {
       SmallString<64> Output{StringRef(InputFilename)};

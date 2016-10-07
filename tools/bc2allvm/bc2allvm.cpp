@@ -9,6 +9,7 @@
 //===----------------------------------------------------------------------===//
 
 #include "Allexe.h"
+#include "ALLVMContextAnchor.h"
 
 #include <llvm/ADT/SmallString.h>
 #include <llvm/IR/LLVMContext.h>
@@ -40,18 +41,12 @@ ExitOnError ExitOnErr;
 
 } // end anonymous namespace
 
-ALLVMContext getContext(const char *Argv0);
-ALLVMContext getContext(const char *Argv0) {
-  return ALLVMContext::get(
-      Argv0, reinterpret_cast<void *>(reinterpret_cast<uintptr_t>(getContext)));
-}
-
 int main(int argc, const char **argv) {
   sys::PrintStackTraceOnErrorSignal(argv[0]);
   PrettyStackTraceProgram X(argc, argv);
   llvm_shutdown_obj Y; // Call llvm_shutdown() on exit.
 
-  ALLVMContext AC = getContext(argv[0]);
+  ALLVMContext AC = ALLVMContext::getAnchored(argv[0]);
 
   cl::ParseCommandLineOptions(argc, argv);
   ExitOnErr.setBanner(std::string(argv[0]) + ": ");
