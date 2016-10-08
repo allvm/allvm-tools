@@ -147,27 +147,28 @@ int main(int argc, const char **argv) {
 
   info("Creating merged module...\n");
 
-  SmallString<32> TempBCPath;
-  if (auto ec =
-          sys::fs::createTemporaryFile("allvm-merged", "bc", TempBCPath)) {
-    errs() << "Error creating temporary file\n";
-    return 1;
-  }
-  FileRemover Remover(TempBCPath);
+  {
+    SmallString<32> TempBCPath;
+    if (auto ec =
+            sys::fs::createTemporaryFile("allvm-merged", "bc", TempBCPath)) {
+      errs() << "Error creating temporary file\n";
+      return 1;
+    }
+    FileRemover Remover(TempBCPath);
 
-  // Save merged bitcode file to temporary path
-  // (Ideally we would just generate this in memory instead!)
-  if (!CodeGen.writeMergedModules(TempBCPath.c_str())) {
-    errs() << "Error writing merged module\n";
-    return 1;
-  }
+    // Save merged bitcode file to temporary path
+    // (Ideally we would just generate this in memory instead!)
+    if (!CodeGen.writeMergedModules(TempBCPath.c_str())) {
+      errs() << "Error writing merged module\n";
+      return 1;
+    }
 
-  auto alltogether = ExitOnErr(Allexe::open(OutputFilename, AC, Overwrite));
-  if (!alltogether->addModule(TempBCPath, ALLEXE_MAIN)) {
-    errs() << "Error writing merged module\n";
-    return 1;
+    auto alltogether = ExitOnErr(Allexe::open(OutputFilename, AC, Overwrite));
+    if (!alltogether->addModule(TempBCPath, ALLEXE_MAIN)) {
+      errs() << "Error writing merged module\n";
+      return 1;
+    }
   }
-
   info("Successfully wrote to '" + OutputFilename + "'!\n");
 
   return 0;
