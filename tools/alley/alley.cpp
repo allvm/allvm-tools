@@ -1,7 +1,7 @@
 #include "ExecutionYengine.h"
 
+#include "ALLVMContextAnchor.h"
 #include "AOTCompile.h"
-#include "ResourceLocations.h"
 
 #include <llvm/Bitcode/ReaderWriter.h>
 #include <llvm/CodeGen/CommandFlags.h>
@@ -21,42 +21,47 @@
 using namespace allvm;
 using namespace llvm;
 
-static cl::opt<std::string> LibNone("libnone", cl::desc("Path of libnone.a"),
-                                    cl::init(resources::LibNonePath));
+namespace {
+cl::opt<std::string> LibNone("libnone", cl::desc("Path of libnone.a"));
 
-static cl::opt<std::string>
+cl::opt<std::string>
     Linker("linker",
            cl::desc("Path of linker-driver to use for static compilation"),
            cl::init("clang"));
 
-static cl::opt<std::string> InputFilename(cl::Positional, cl::Required,
-                                          cl::desc("<input allvm file>"));
+cl::opt<std::string> InputFilename(cl::Positional, cl::Required,
+                                   cl::desc("<input allvm file>"));
 
-static cl::list<std::string> InputArgv(cl::ConsumeAfter,
-                                       cl::desc("<program arguments>..."));
+cl::list<std::string> InputArgv(cl::ConsumeAfter,
+                                cl::desc("<program arguments>..."));
 
 // TODO: Enable forcing use of the JIT even when we have a static version cached
-// static cl::opt<bool> ForceJIT("force-jit", cl::init(false),
+// cl::opt<bool> ForceJIT("force-jit", cl::init(false),
 //                              cl::desc("Force using the JIT"));
 
-static cl::opt<bool> ForceStatic("force-static", cl::init(false),
-                                 cl::desc("Force using static code path"));
+cl::opt<bool> ForceStatic("force-static", cl::init(false),
+                          cl::desc("Force using static code path"));
 
-static cl::opt<bool> NoExec("noexec",
-                            cl::desc("Don't actually execute the program"),
-                            cl::init(false), cl::Hidden);
+cl::opt<bool> NoExec("noexec", cl::desc("Don't actually execute the program"),
+                     cl::init(false), cl::Hidden);
 
-static ExitOnError ExitOnErr;
+ExitOnError ExitOnErr;
+
+} // end anonymous namespace
 
 int main(int argc, const char **argv, const char **envp) {
   // Link in necessary libraries
   InitializeNativeTarget();
   InitializeNativeTargetAsmPrinter();
   InitializeNativeTargetAsmParser();
+
+  ALLVMContext AC = ALLVMContext::getAnchored(argv[0]);
+  LibNone.setInitialValue(AC.LibNonePath);
+
   cl::ParseCommandLineOptions(argc, argv, "allvm runtime executor");
   ExitOnErr.setBanner(std::string(argv[0]) + ": ");
 
-  auto allexe = ExitOnErr(Allexe::openForReading(InputFilename));
+  auto allexe = ExitOnErr(Allexe::openForReading(InputFilename, AC));
 
   const CompilationOptions Options; // TODO: Let use specify these?
   if (ForceStatic) {
