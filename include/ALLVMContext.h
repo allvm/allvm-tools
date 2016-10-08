@@ -15,6 +15,7 @@ struct ALLVMContext {
   // Otherwise, use these and help us find where we're installed:
   static ALLVMContext get(const char *Argv0, void *Main);
   static ALLVMContext get(llvm::StringRef Prefix);
+
 private:
   static char Anchor;
 };

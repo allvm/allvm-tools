@@ -8,8 +8,8 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "Allexe.h"
 #include "ALLVMContextAnchor.h"
+#include "Allexe.h"
 
 #include <llvm/ADT/SmallString.h>
 #include <llvm/Bitcode/ReaderWriter.h>

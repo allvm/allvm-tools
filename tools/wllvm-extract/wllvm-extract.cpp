@@ -151,8 +151,8 @@ static Error writeAsAllexe(const WLLVMFile &File, StringRef Filename,
   return Error::success();
 }
 
-static Error writeAs(const WLLVMFile &File, StringRef Filename,
-                     OutputKind Kind, const ALLVMContext &AC) {
+static Error writeAs(const WLLVMFile &File, StringRef Filename, OutputKind Kind,
+                     const ALLVMContext &AC) {
   switch (Kind) {
   case OutputKind::SingleBitcode:
     return writeAsSingleBC(File, Filename);
