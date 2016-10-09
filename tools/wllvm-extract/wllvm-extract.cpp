@@ -38,8 +38,7 @@ cl::opt<OutputKind> EmitOutputKind(
                           "Single bitcode file"),
                clEnumValN(OutputKind::BitcodeArchive, "archive",
                           "Archive of multiple bitcode files"),
-               clEnumValN(OutputKind::Allexe, "allexe", "ALLEXE format"),
-               clEnumValEnd));
+               clEnumValN(OutputKind::Allexe, "allexe", "ALLEXE format")));
 
 cl::opt<std::string> InputFilename(cl::Positional, cl::Required,
                                    cl::desc("<input file built with wllvm>"));
