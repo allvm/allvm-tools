@@ -107,7 +107,7 @@ function(git_describe _var)
 	execute_process(COMMAND
 		"${GIT_EXECUTABLE}"
 		describe
-		${hash}
+		#${hash} # (don't specify hash so that --dirty works, see: https://github.com/Illumina/manta/blob/master/redist/cmake-modules-c99fd3/GetGitRevisionDescription.cmake#L109)
 		${ARGN}
 		WORKING_DIRECTORY
 		"${CMAKE_CURRENT_SOURCE_DIR}"

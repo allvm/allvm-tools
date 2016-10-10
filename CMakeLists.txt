@@ -43,8 +43,10 @@ include_directories(${LLVM_INCLUDE_DIR})
 
 include_directories ("${PROJECT_SOURCE_DIR}/include")
 
+include(CheckFormat)
+include(Version)
+
 add_subdirectory (libs)
 add_subdirectory (tools)
 add_subdirectory (test)
 
-include(CheckFormat)

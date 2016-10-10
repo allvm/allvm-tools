@@ -1,0 +1,10 @@
+RUN: alley --version|& FileCheck %s
+RUN: allready --version|& FileCheck %s
+RUN: alltogether --version|& FileCheck %s
+RUN: bc2allvm --version|& FileCheck %s
+RUN: wllvm-dump --version|& FileCheck %s
+RUN: wllvm-extract --version|& FileCheck %s
+
+CHECK: ALLVM Tools
+CHECK: git
+

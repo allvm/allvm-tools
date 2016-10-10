@@ -9,6 +9,7 @@
 //===----------------------------------------------------------------------===//
 
 #include "ALLVMContextAnchor.h"
+#include "ALLVMVersion.h"
 #include "Allexe.h"
 #include "WLLVMFile.h"
 
