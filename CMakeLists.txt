@@ -13,6 +13,7 @@ message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
 message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
 
 list(APPEND CMAKE_MODULE_PATH "${LLVM_CMAKE_DIR}")
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 include(AddLLVM)
 include(HandleLLVMOptions)
 
@@ -42,8 +43,10 @@ include_directories(${LLVM_INCLUDE_DIR})
 
 include_directories ("${PROJECT_SOURCE_DIR}/include")
 
+include(CheckFormat)
+include(Version)
+
 add_subdirectory (libs)
 add_subdirectory (tools)
 add_subdirectory (test)
 
-include(CheckFormat.cmake)

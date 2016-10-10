@@ -8,6 +8,7 @@
 //
 //===----------------------------------------------------------------------===//
 
+#include "ALLVMVersion.h"
 #include "WLLVMFile.h"
 
 #include <llvm/Support/CommandLine.h>

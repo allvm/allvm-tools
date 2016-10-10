@@ -1,0 +1,18 @@
+#ifndef ALLVM_VERSION_H
+#define ALLVM_VERSION_H
+
+#include <llvm/ADT/StringRef.h>
+#include <llvm/Support/CommandLine.h>
+#include <llvm/Support/raw_ostream.h>
+
+namespace allvm {
+
+__attribute__((constructor)) void setVersionPrinter(void);
+void setVersionPrinter() {
+  llvm::cl::AddExtraVersionPrinter(
+      []() { llvm::errs() << "ALLVM Tools: git-@GITVERSION@\n"; });
+}
+
+} // end namespace allvm
+
+#endif // ALLVM_VERSION_H

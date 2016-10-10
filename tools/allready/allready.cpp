@@ -11,6 +11,7 @@
 #include "ExecutionYengine.h"
 
 #include "ALLVMContextAnchor.h"
+#include "ALLVMVersion.h"
 #include "AOTCompile.h"
 
 #include <llvm/Bitcode/ReaderWriter.h>
