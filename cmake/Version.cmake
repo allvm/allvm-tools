@@ -1,8 +1,10 @@
 # Get a description of the git rev we're building from,
 # and embed that information in ALLVMVersion.h
-include(GetGitRevisionDescription)
 
-git_describe(GITVERSION --tags --always --dirty)
+if(NOT GITVERSION)
+  include(GetGitRevisionDescription)
+  git_describe(GITVERSION --tags --always --dirty)
+endif()
 
 if (NOT GITVERSION)
   message(FATAL_ERROR "Unable to find 'git'! Is it installed?")
