@@ -7,4 +7,4 @@ RUN: wllvm-extract --version|& FileCheck %s
 
 CHECK: ALLVM Tools
 CHECK: git
-
+CHECK-NOT: NOTFOUND
