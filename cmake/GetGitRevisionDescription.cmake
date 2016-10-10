@@ -82,7 +82,7 @@ endfunction()
 
 function(git_describe _var)
 	if(NOT GIT_FOUND)
-		find_package(Git QUIET)
+		find_package(Git QUIET REQUIRED)
 	endif()
 	get_git_head_revision(refspec hash)
 	if(NOT GIT_FOUND)
