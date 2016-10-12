@@ -11,7 +11,7 @@ set(MUSL_PATCHES
   musl-patches/0007-Partially-revert-remove-potentially-PIC-incompatible.patch
 )
 
-set(CFLAGS_QUNUSED "")
+set(MUSL_CFLAGS_EXTRA "")
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
   list(APPEND MUSL_PATCHES
     musl-patches/0001-Build-with-fPIC-large-code-model-to-workaround-RTDyL.patch
@@ -19,10 +19,15 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
   # Don't complain about 'unused' arguments
   # This happens when building assembly files using same CFLAGS used for C files,
   # lots of them don't make any sense for assembly code so they go unused.
-  set(CFLAGS_QUNUSED "-Qunused-arguments")
+  set(MUSL_CFLAGS_EXTRA "-Qunused-arguments")
+  # Disable other warnings that are stylistic than actual problems
+  set(MUSL_CFLAGS_EXTRA "${MUSL_CFLAGS_EXTRA} -Wno-parentheses -Wno-tautological-compare")
+  set(MUSL_CFLAGS_EXTRA "${MUSL_CFLAGS_EXTRA} -Wno-string-plus-int")
+  # Further disable warnings about unsupported attrs/pragmas, in theory musl supports clang.
+  set(MUSL_CFLAGS_EXTRA "${MUSL_CFLAGS_EXTRA} -Wno-ignored-attributes -Wno-unknown-pragmas")
 endif()
 
-set(MUSL_CFLAGS "-O2 -pipe -fPIC ${CFLAGS_QUNUSED}" CACHE string "CFLAGS for building musl")
+set(MUSL_CFLAGS "-O2 -pipe -fPIC ${MUSL_CFLAGS_EXTRA}" CACHE string "CFLAGS for building musl")
 
 
 add_custom_command(OUTPUT ${MUSL}/config.mak
