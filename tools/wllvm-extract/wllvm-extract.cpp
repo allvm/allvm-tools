@@ -141,14 +141,7 @@ static Error writeAsAllexe(const WLLVMFile &File, StringRef Filename,
   if (StripDebug)
     StripDebugInfo(**Composite);
 
-  if (!(*Output)->addModule(std::move(*Composite), ALLEXE_MAIN))
-    // "invalid argument"? :(
-    return make_error<StringError>("error adding module to allexe",
-                                   errc::invalid_argument);
-
-  // (Writes output in destructor of class Allexe)
-
-  return Error::success();
+  return (*Output)->addModule(std::move(*Composite), ALLEXE_MAIN);
 }
 
 static Error writeAs(const WLLVMFile &File, StringRef Filename, OutputKind Kind,
