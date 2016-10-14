@@ -70,24 +70,15 @@ int main(int argc, const char **argv) {
     // Try to open the output file first
     auto Output = ExitOnErr(Allexe::open(OutputFilename, AC, ForceOutput));
 
-    if (!Output->addModule(MainFile, ALLEXE_MAIN)) {
-      // XXX: This needs much better error reporting!
-      errs() << "Error adding file to allexe, unknown reason\n";
-      return 1;
-    }
+    ExitOnErr(Output->addModule(MainFile, ALLEXE_MAIN));
 
     for (const auto &it : InputFiles) {
-      if (!Output->addModule(it)) {
-        // XXX: This needs much better error reporting!
-        errs() << "Error adding file to allexe, unknown reason\n";
-        return 1;
-      }
+      ExitOnErr(Output->addModule(it));
     }
 
     // TODO: Add (on by default?) feature for checking that
     // the resulting allexe is sane/reasonable/not-obviously-invalid.
     // Allexe::sanityCheck() ?
-
     // (Allexe destructor writes the file)
   }
 

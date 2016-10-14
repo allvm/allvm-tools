@@ -79,18 +79,29 @@ StringRef Allexe::getModuleName(size_t idx) const {
   return archive->listFiles()[idx];
 }
 
-bool Allexe::updateModule(size_t idx, std::unique_ptr<llvm::Module> m) {
+Error Allexe::updateModule(size_t idx, std::unique_ptr<llvm::Module> m) {
   assert(idx < getNumModules() && "invalid module idx");
-  return archive->updateEntry(idx, moduleToBuffer(m.get()));
+  if (!archive->updateEntry(idx, moduleToBuffer(m.get())))
+    make_error<StringError>("Error updating module in allexe",
+                            errc::invalid_argument);
+  return Error::success();
 }
 
-bool Allexe::addModule(std::unique_ptr<llvm::Module> m, StringRef moduleName) {
+Error Allexe::addModule(std::unique_ptr<llvm::Module> m, StringRef moduleName) {
   StringRef entryName = !moduleName.empty() ? moduleName : m->getName();
-  return archive->addEntry(moduleToBuffer(m.get()), entryName);
+  if (!archive->addEntry(moduleToBuffer(m.get()), entryName))
+    return make_error<StringError>("Error adding module to allexe",
+                                   errc::invalid_argument);
+  return Error::success();
 }
 
-bool Allexe::addModule(StringRef filename, StringRef moduleName) {
+Error Allexe::addModule(StringRef filename, StringRef moduleName) {
   auto buf = MemoryBuffer::getFile(filename);
+  if (!buf)
+    return makeOpenError(filename, "invalid allexe file", buf.getError());
   StringRef entryName = !moduleName.empty() ? moduleName : filename;
-  return buf && archive->addEntry(std::move(buf.get()), entryName);
+  if (!archive->addEntry(std::move(buf.get()), entryName))
+    return make_error<StringError>("Error adding module to allexe",
+                                   errc::invalid_argument);
+  return Error::success();
 }

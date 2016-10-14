@@ -41,14 +41,15 @@ public:
 
   // TODO: bool -> llvm::Error
   /// add a module to this allexe
-  bool addModule(std::unique_ptr<llvm::Module>,
-                 llvm::StringRef moduleName = "");
+  llvm::Error addModule(std::unique_ptr<llvm::Module>,
+                        llvm::StringRef moduleName = "");
 
   /// load a module from disk and add it to this allexe
-  bool addModule(llvm::StringRef filename, llvm::StringRef moduleName = "");
+  llvm::Error addModule(llvm::StringRef filename,
+                        llvm::StringRef moduleName = "");
 
   /// update a module, return true if succeeds
-  bool updateModule(size_t idx, std::unique_ptr<llvm::Module>);
+  llvm::Error updateModule(size_t idx, std::unique_ptr<llvm::Module>);
 
   /// open a allexe for reading only
   static llvm::Expected<std::unique_ptr<Allexe>>
