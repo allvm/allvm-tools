@@ -13,6 +13,7 @@ list(APPEND ALLVM_TEST_DEPENDS
   none
   wllvm-dump
   wllvm-extract
+  all-info
 )
 set(ALLVM_TEST_PARAMS
   allvm_site_config=${CMAKE_CURRENT_BINARY_DIR}/lit.site.cfg
