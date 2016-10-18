@@ -10,12 +10,11 @@
 using namespace llvm;
 using namespace allvm;
 
-static cl::opt<std::string> InputFilename(cl::Positional,
-                                          cl::desc("<input Allexe file>"));
-
-namespace llvm {
+namespace {
+cl::opt<std::string> InputFilename(cl::Positional,
+                                   cl::desc("<input Allexe file>"));
 ExitOnError ExitOnErr;
-};
+}
 
 int main(int argc, const char **argv) {
   sys::PrintStackTraceOnErrorSignal(argv[0]);
@@ -31,4 +30,6 @@ int main(int argc, const char **argv) {
   for (size_t i = 0; i < Input->getNumModules(); i++) {
     outs() << "\t" << Input->getModuleName(i) << "\n";
   }
+
+  return 0;
 }
