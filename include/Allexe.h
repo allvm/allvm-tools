@@ -39,7 +39,6 @@ public:
 
   llvm::StringRef getModuleName(size_t idx) const;
 
-  // TODO: bool -> llvm::Error
   /// add a module to this allexe
   llvm::Error addModule(std::unique_ptr<llvm::Module>,
                         llvm::StringRef moduleName = "");
