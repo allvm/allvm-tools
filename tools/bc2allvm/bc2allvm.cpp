@@ -17,6 +17,7 @@
 #include <llvm/IR/Module.h>
 #include <llvm/IRReader/IRReader.h>
 #include <llvm/Support/CommandLine.h>
+#include <llvm/Support/FileSystem.h>
 #include <llvm/Support/Path.h>
 #include <llvm/Support/PrettyStackTrace.h>
 #include <llvm/Support/Signals.h>
@@ -63,6 +64,10 @@ int main(int argc, const char **argv) {
   }
   if (OutputFilename.empty()) {
     errs() << "No output filename given!\n";
+    return 1;
+  }
+  if (!ForceOutput && llvm::sys::fs::exists(OutputFilename)) {
+    errs() << "Output file exists. Use -f flag to force overwrite.\n";
     return 1;
   }
 

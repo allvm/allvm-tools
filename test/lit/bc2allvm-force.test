@@ -1,0 +1,7 @@
+// RUN: llvm-as %p/Inputs/simplest.ll -o %t.bc
+//
+// Test trying to write to a file that already exists
+// XXX: Ideally this would fail while with error about opening outputfile for write
+// RUN: bc2allvm %t.bc -f -o %t
+// RUN: not bc2allvm %t.bc -o %t |& FileCheck %s
+// CHECK: Output file exists. Use -f flag to force overwrite
