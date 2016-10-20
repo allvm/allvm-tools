@@ -66,9 +66,17 @@ int main(int argc, const char **argv) {
     errs() << "No output filename given!\n";
     return 1;
   }
-  if (!ForceOutput && llvm::sys::fs::exists(OutputFilename)) {
-    errs() << "Output file exists. Use -f flag to force overwrite.\n";
-    return 1;
+  if (llvm::sys::fs::exists(OutputFilename)) {
+    // Reject directory path
+    if (llvm::sys::fs::is_directory(OutputFilename)) {
+      errs() << "Output path is a directory!\n";
+      return 1;
+    }
+    // Reject file path if `-f` is not specified
+    if (!ForceOutput) {
+      errs() << "Output file exists. Use -f flag to force overwrite.\n";
+      return 1;
+    }
   }
 
   {

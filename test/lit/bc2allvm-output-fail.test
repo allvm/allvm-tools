@@ -1,0 +1,12 @@
+// RUN: llvm-as %p/Inputs/simplest.ll -o %t.bc
+//
+// Test trying to write to a directory (output error)
+// RUN: not bc2allvm %t.bc -o %T |& FileCheck -check-prefix=CHECK-DIR %s
+// RUN: not bc2allvm %t.bc -f -o %T |& FileCheck -check-prefix=CHECK-DIR %s
+// CHECK-DIR: Output path is a directory
+
+//
+// Test trying to write to a file that already exists
+// RUN: bc2allvm %t.bc -f -o %t
+// RUN: not bc2allvm %t.bc -o %t |& FileCheck -check-prefix=CHECK-EXISTS %s
+// CHECK-EXISTS: Output file exists. Use -f flag to force overwrite
