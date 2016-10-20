@@ -5,7 +5,8 @@ file(GLOB_RECURSE files include/*.h tools/*.h tools/*.c tools/*.cpp libs/*.h lib
 # But skip files that we didn't write ourselves
 file(GLOB_RECURSE archive_files libs/archive-rw/*.c libs/archive-rw/*.h)
 file(GLOB_RECURSE musl_files libs/none/musl-*/*)
-list(REMOVE_ITEM files ${archive_files} ${build_tree} ${musl_files})
+file(GLOB_RECURSE unwind_files libs/none/Unwind*.S libs/none/assembly.h)
+list(REMOVE_ITEM files ${archive_files} ${build_tree} ${musl_files} ${unwind_files})
 
 # Command use to format a file
 set(CLANGFORMAT_COMMAND clang-format -sort-includes -style=llvm)
