@@ -19,7 +19,7 @@
 // RUN: find %t-cache -type f | wc -l | FileCheck %s
 
 // Try running static version, which we don't have cached
-// RUN: ALLVM_CACHE_DIR=%t-cache alley -force-static -linker=cc %p/Inputs/which alley
+// RUN: ALLVM_CACHE_DIR=%t-cache alley -force-static %p/Inputs/which alley
 // RUN: find %t-cache -type f | wc -l | FileCheck %s -check-prefix=STATIC_AND_JIT
 
 // STATIC_AND_JIT: 2
