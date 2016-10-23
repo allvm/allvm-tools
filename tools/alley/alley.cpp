@@ -5,7 +5,6 @@
 #include "AOTCompile.h"
 
 #include <llvm/Bitcode/ReaderWriter.h>
-#include <llvm/CodeGen/CommandFlags.h>
 #include <llvm/ExecutionEngine/MCJIT.h>
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Module.h>
@@ -27,8 +26,7 @@ cl::opt<std::string> LibNone("libnone", cl::desc("Path of libnone.a"));
 
 cl::opt<std::string>
     Linker("linker",
-           cl::desc("Path of linker-driver to use for static compilation"),
-           cl::init("clang"));
+           cl::desc("Path of linker-driver to use for static compilation"));
 
 cl::opt<std::string> InputFilename(cl::Positional, cl::Required,
                                    cl::desc("<input allvm file>"));

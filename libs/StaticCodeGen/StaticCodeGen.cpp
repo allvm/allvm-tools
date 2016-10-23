@@ -1,5 +1,6 @@
 #include "StaticCodeGen.h"
 #include "Allexe.h"
+#include "ALLVMLinker.h"
 
 #include <llvm/ADT/StringExtras.h>
 #include <llvm/ADT/Triple.h>
@@ -18,7 +19,6 @@
 #include <llvm/Support/Errc.h>
 #include <llvm/Support/Error.h>
 #include <llvm/Support/FileUtilities.h>
-#include <llvm/Support/Program.h>
 #include <llvm/Support/TargetRegistry.h>
 #include <llvm/Support/ToolOutputFile.h>
 #include <llvm/Target/TargetMachine.h>
@@ -107,17 +107,24 @@ static inline void setFunctionAttributes(StringRef CPU, StringRef Features,
   }
 }
 
-// Compiles the given module and return 0 on success.
-static int compileModule(std::unique_ptr<Module> &M, raw_pwrite_stream &OS,
-                         const CompilationOptions &Options,
-                         LLVMContext &Context) {
+static Error makeStaticCodeGenError(const Twine &Msg, std::error_code EC) {
+  return make_error<StringError>(
+           "ALLVM static code generator error: " + Msg, EC);
+}
+
+static Error makeStaticCodeGenError(const Twine &Msg) {
+  return makeStaticCodeGenError(Msg, errc::invalid_argument);
+}
+
+static Error compileModule(std::unique_ptr<Module> &M, raw_pwrite_stream &OS,
+                           const CompilationOptions &Options,
+                           LLVMContext &Context) {
   assert(M && "no module provided for static code generation");
 
   // Verify module immediately to catch problems before doInitialization() is
   // called on any passes.
   if (!Options.NoVerify && verifyModule(*M, &errs())) {
-    errs() << "allvm static code generator: input module is broken!\n";
-    return 1;
+    return makeStaticCodeGenError("input module is broken!");
   }
 
   // Get the target triple.
@@ -133,8 +140,7 @@ static int compileModule(std::unique_ptr<Module> &M, raw_pwrite_stream &OS,
   const Target *TheTarget =
       TargetRegistry::lookupTarget(Options.MArch, TheTriple, Error);
   if (!TheTarget) {
-    errs() << "allvm static code generator: " << Error;
-    return 1;
+    return makeStaticCodeGenError(Error);
   }
 
   std::string CPUStr = getCPUStr(Options.MCPU);
@@ -169,19 +175,19 @@ static int compileModule(std::unique_ptr<Module> &M, raw_pwrite_stream &OS,
   // Ask the target to add backend passes as necessary.
   if (Target->addPassesToEmitFile(PM, OS, TargetMachine::CGFT_ObjectFile,
                                   Options.NoVerify)) {
-    errs() << "allvm static code generator: target does not support"
-           << "generation of object files!\n";
-    return 1;
+    return makeStaticCodeGenError("target does not support generation of "
+                                  "object files!");
   }
 
   // Run passes to do compilation.
   PM.run(*M);
 
   auto HasError = *static_cast<bool *>(Context.getDiagnosticContext());
-  if (HasError)
-    return 1;
+  if (HasError) {
+    return makeStaticCodeGenError("static code generation failed!");
+  }
 
-  return 0;
+  return Error::success();
 }
 
 static void DiagnosticHandler(const DiagnosticInfo &DI, void *Context) {
@@ -197,8 +203,8 @@ static void DiagnosticHandler(const DiagnosticInfo &DI, void *Context) {
 
 namespace allvm {
 
-int compileAllexe(Allexe &Input, raw_pwrite_stream &OS,
-                  const CompilationOptions &Options, LLVMContext &Context) {
+Error compileAllexe(Allexe &Input, raw_pwrite_stream &OS,
+                    const CompilationOptions &Options, LLVMContext &Context) {
   assert(Input.getNumModules() == 1 &&
          "attempted static code gen for allexe with more than one modules");
 
@@ -208,8 +214,9 @@ int compileAllexe(Allexe &Input, raw_pwrite_stream &OS,
 
   // Get module to be compiled.
   auto ErrorOrM = Input.getModule(0, Context);
-  if (!ErrorOrM)
-    return 1;
+  if (!ErrorOrM) {
+    return makeStaticCodeGenError("input module could not be loaded!");
+  }
   auto &M = ErrorOrM.get();
   M->materializeAll();
 
@@ -324,13 +331,13 @@ std::string CompilationOptions::serializeCompilationOptions() const {
   return buffer;
 }
 
-int compileAllexeWithLlcDefaults(Allexe &Input, raw_pwrite_stream &OS,
-                                 LLVMContext &Context) {
+Error compileAllexeWithLlcDefaults(Allexe &Input, raw_pwrite_stream &OS,
+                                   LLVMContext &Context) {
   CompilationOptions Options;
   return compileAllexe(Input, OS, Options, Context);
 }
 
-llvm::ErrorOr<std::unique_ptr<ObjectFile>>
+Expected<std::unique_ptr<ObjectFile>>
 compileAllexe(Allexe &Input, StringRef Filename,
               const CompilationOptions &Options, LLVMContext &Context) {
 
@@ -339,89 +346,72 @@ compileAllexe(Allexe &Input, StringRef Filename,
     std::error_code EC;
     sys::fs::OpenFlags OpenFlags = sys::fs::F_None;
     auto FDOut = llvm::make_unique<tool_output_file>(Filename, EC, OpenFlags);
-    if (EC)
-      return EC;
+    if (EC) {
+      return makeStaticCodeGenError("Could not open output file!", EC);
+    }
     assert(FDOut->os().supportsSeeking());
 
     // Do static code generation.
-    if (compileAllexe(Input, FDOut->os(), Options, Context)) {
-      return make_error_code(errc::invalid_argument);
-    }
+    if (auto E = compileAllexe(Input, FDOut->os(), Options, Context))
+      return Expected<std::unique_ptr<ObjectFile>>(std::move(E));
+
     FDOut->keep();
   }
 
   // Get a MemoryBuffer of the output file and use it to create the object file.
   auto ErrorOrBuffer = MemoryBuffer::getFile(Filename);
-  if (!ErrorOrBuffer)
-    return ErrorOrBuffer.getError();
+  if (!ErrorOrBuffer) {
+    return makeStaticCodeGenError("Could not open file " + Filename,
+                                  ErrorOrBuffer.getError());
+  }
   MemoryBufferRef Buffer(**ErrorOrBuffer);
-  return expectedToErrorOr(ObjectFile::createObjectFile(Buffer));
+  return ObjectFile::createObjectFile(Buffer);
 }
 
-llvm::ErrorOr<std::unique_ptr<ObjectFile>>
+Expected<std::unique_ptr<ObjectFile>>
 compileAllexeWithLlcDefaults(Allexe &Input, StringRef Filename,
                              LLVMContext &Context) {
   CompilationOptions Options;
   return compileAllexe(Input, Filename, Options, Context);
 }
 
-ErrorOr<std::unique_ptr<Binary>>
-compileAndLinkAllexe(Allexe &Input, StringRef LibNone, StringRef Linker,
+Expected<std::unique_ptr<Binary>>
+compileAndLinkAllexe(Allexe &Input, StringRef LibNone, const ALLVMLinker &Linker,
                      StringRef Filename, const CompilationOptions &Options,
                      LLVMContext &Context) {
-  // Compile the allexe.
+
   std::string ObjectFilename(Filename);
   ObjectFilename.append(".o");
 
-  // Remove the created .o before leaving this function
+  // Remove the created .o before leaving this function.
   FileRemover RemoveObject(ObjectFilename);
 
+  // Compile the allexe.
   auto ErrorOrObject = compileAllexe(Input, ObjectFilename, Options, Context);
   if (!ErrorOrObject)
-    return ErrorOrObject.getError();
+    return ErrorOrObject;
 
   // Link the allexe.
-  // TODO: For now we use gcc for linking, maybe we should add more
-  // sophisticated linking in the future.
-  auto ErrorOrLinkerProgram = llvm::sys::findProgramByName(Linker);
-  if (!ErrorOrLinkerProgram)
-    return ErrorOrLinkerProgram.getError();
-  std::string &LinkerProgram = ErrorOrLinkerProgram.get();
-
-  SmallVector<const char *, 5> LinkerArgv;
-  LinkerArgv.push_back(LinkerProgram.c_str());
-  LinkerArgv.push_back(ObjectFilename.c_str());
-  std::string LibNoneStr = LibNone.str();
-  LinkerArgv.push_back(LibNoneStr.c_str());
-  LinkerArgv.push_back("-o");
-  std::string FilenameStr = Filename.str();
-  LinkerArgv.push_back(FilenameStr.c_str());
-  LinkerArgv.push_back(nullptr);
-
-  std::string Error;
-  bool ExecutionFailed;
-  int Res = llvm::sys::ExecuteAndWait(LinkerProgram, LinkerArgv.data(),
-                                      /*env*/ nullptr, /*Redirects*/ nullptr,
-                                      /*secondsToWait*/ 0, /*memoryLimit*/ 0,
-                                      &Error, &ExecutionFailed);
-  if (!Error.empty()) {
-    assert(Res && "Error string set with 0 result code!");
-    errs() << "allvm static code generator: Linking failed: " << Error << "\n";
-    return make_error_code(errc::invalid_argument);
-  }
+  SmallVector<StringRef, 2> Objects;
+  Objects.push_back(ObjectFilename);
+  Objects.push_back(LibNone);
+  if (auto E = Linker.link(Objects, Filename))
+    return Expected<std::unique_ptr<ObjectFile>>(std::move(E));
 
   // Get a MemoryBuffer of the output file and use it to create the binary file.
   auto ErrorOrBuffer = MemoryBuffer::getFile(Filename);
-  if (!ErrorOrBuffer)
-    return ErrorOrBuffer.getError();
+  if (!ErrorOrBuffer) {
+    return makeStaticCodeGenError("Could not open file " + Filename,
+                                  ErrorOrBuffer.getError());
+  }
   MemoryBufferRef Buffer(**ErrorOrBuffer);
-  return expectedToErrorOr(createBinary(Buffer));
+  return createBinary(Buffer);
 }
 
-ErrorOr<std::unique_ptr<Binary>>
+Expected<std::unique_ptr<Binary>>
 compileAndLinkAllexeWithLlcDefaults(Allexe &Input, StringRef LibNone,
-                                    StringRef Linker, StringRef Filename,
-                                    LLVMContext &Context) {
+                                    const ALLVMLinker &Linker,
+                                    StringRef Filename, LLVMContext &Context) {
   CompilationOptions Options;
   return compileAndLinkAllexe(Input, LibNone, Linker, Filename, Options,
                               Context);

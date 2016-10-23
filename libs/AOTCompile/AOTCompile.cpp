@@ -1,4 +1,5 @@
 #include "AOTCompile.h"
+#include "ALLVMLinker.h"
 
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/Object/Binary.h>
@@ -37,11 +38,16 @@ Error allvm::AOTCompileIfNeeded(StaticBinaryCache &Cache, Allexe &allexe,
     if (auto EC = sys::fs::createTemporaryFile("allvm", "aot", tempFileName))
       return make_error<StringError>("Unable to create temporary file", EC);
 
-    auto binary = compileAndLinkAllexeWithLlcDefaults(allexe, LibNone, Linker,
-                                                      tempFileName, context);
+    std::unique_ptr<ALLVMLinker> LinkerDriver;
+    if (Linker.empty())
+       LinkerDriver = make_unique<LldLinker>();
+    else
+       LinkerDriver = make_unique<PathLinker>(Linker);
+    auto binary =
+      compileAndLinkAllexeWithLlcDefaults(allexe, LibNone, *LinkerDriver,
+                                          tempFileName, context);
     if (!binary)
-      return make_error<StringError>("error during compilation/linking",
-                                     binary.getError());
+      return binary.takeError();
     DEBUG(dbgs() << "Compiled successfully into " << tempFileName << "\n");
 
     // Now copy the executable to the cache location and delete the temp file

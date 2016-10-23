@@ -10,7 +10,8 @@
 #include <string>
 
 namespace llvm {
-template <class T> class ErrorOr;
+template <class T> class Expected;
+class Error;
 class LLVMContext;
 class raw_pwrite_stream;
 class StringRef;
@@ -23,6 +24,7 @@ class Binary;
 
 namespace allvm {
 class Allexe;
+class ALLVMLinker;
 }
 
 namespace allvm {
@@ -79,21 +81,17 @@ struct CompilationOptions {
 /// and writes the corresponding object file to the provided stream. This
 /// function assumes that the allexe has been merged and contains exactly one
 /// bitcode module.
-///
-/// \returns 0 on success.
-int compileAllexe(Allexe &Input, llvm::raw_pwrite_stream &OS,
-                  const CompilationOptions &Options,
-                  llvm::LLVMContext &Context);
+llvm::Error compileAllexe(Allexe &Input, llvm::raw_pwrite_stream &OS,
+                          const CompilationOptions &Options,
+                          llvm::LLVMContext &Context);
 
 /// Compiles the module contained in the given allexe and writes the
 /// corresponding object file to the provided stream. The various compilation
 /// options are initialized to the default values used by llc. This function
 /// assumes that the allexe has been merged and contains exactly one bitcode
 /// module.
-///
-/// \returns 0 on success.
-int compileAllexeWithLlcDefaults(Allexe &Input, llvm::raw_pwrite_stream &OS,
-                                 llvm::LLVMContext &Context);
+llvm::Error compileAllexeWithLlcDefaults(Allexe &Input, llvm::raw_pwrite_stream &OS,
+                                         llvm::LLVMContext &Context);
 
 /// Compiles the module contained in the given allexe with the given options
 /// and writes the corresponding object file to the provided disk location. This
@@ -101,7 +99,7 @@ int compileAllexeWithLlcDefaults(Allexe &Input, llvm::raw_pwrite_stream &OS,
 /// bitcode module.
 ///
 /// \returns an llvm ObjectFile object on success.
-llvm::ErrorOr<std::unique_ptr<llvm::object::ObjectFile>>
+llvm::Expected<std::unique_ptr<llvm::object::ObjectFile>>
 compileAllexe(Allexe &Input, llvm::StringRef Filename,
               const CompilationOptions &Options, llvm::LLVMContext &Context);
 
@@ -112,7 +110,7 @@ compileAllexe(Allexe &Input, llvm::StringRef Filename,
 /// bitcode module.
 ///
 /// \returns an llvm ObjectFile object on success.
-llvm::ErrorOr<std::unique_ptr<llvm::object::ObjectFile>>
+llvm::Expected<std::unique_ptr<llvm::object::ObjectFile>>
 compileAllexeWithLlcDefaults(Allexe &Input, llvm::StringRef Filename,
                              llvm::LLVMContext &Context);
 
@@ -123,9 +121,9 @@ compileAllexeWithLlcDefaults(Allexe &Input, llvm::StringRef Filename,
 /// exactly one bitcode module.
 ///
 /// \returns an llvm Binary object on success.
-llvm::ErrorOr<std::unique_ptr<llvm::object::Binary>>
+llvm::Expected<std::unique_ptr<llvm::object::Binary>>
 compileAndLinkAllexe(Allexe &Input, llvm::StringRef LibNone,
-                     llvm::StringRef Linker, llvm::StringRef Filename,
+                     const ALLVMLinker &Linker, llvm::StringRef Filename,
                      const CompilationOptions &Options,
                      llvm::LLVMContext &Context);
 
@@ -137,9 +135,9 @@ compileAndLinkAllexe(Allexe &Input, llvm::StringRef LibNone,
 /// bitcode module.
 ///
 /// \returns an llvm Binary object on success.
-llvm::ErrorOr<std::unique_ptr<llvm::object::Binary>>
+llvm::Expected<std::unique_ptr<llvm::object::Binary>>
 compileAndLinkAllexeWithLlcDefaults(Allexe &Input, llvm::StringRef LibNone,
-                                    llvm::StringRef Linker,
+                                    const ALLVMLinker &Linker,
                                     llvm::StringRef Filename,
                                     llvm::LLVMContext &Context);
 

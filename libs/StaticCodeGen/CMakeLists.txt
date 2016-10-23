@@ -16,7 +16,10 @@ set(LLVM_LINK_COMPONENTS
 
 add_llvm_library(StaticCodeGen
   StaticCodeGen.cpp
-  LINK_LIBS liball
+  ALLVMLinker.cpp
+  LINK_LIBS
+    liball
+    lldELF
 )
 
 add_definitions(${LLVM_DEFINITIONS})
