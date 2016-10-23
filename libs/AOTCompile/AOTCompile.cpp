@@ -40,12 +40,11 @@ Error allvm::AOTCompileIfNeeded(StaticBinaryCache &Cache, Allexe &allexe,
 
     std::unique_ptr<ALLVMLinker> LinkerDriver;
     if (Linker.empty())
-       LinkerDriver = make_unique<LldLinker>();
+      LinkerDriver = make_unique<LldLinker>();
     else
-       LinkerDriver = make_unique<PathLinker>(Linker);
-    auto binary =
-      compileAndLinkAllexeWithLlcDefaults(allexe, LibNone, *LinkerDriver,
-                                          tempFileName, context);
+      LinkerDriver = make_unique<PathLinker>(Linker);
+    auto binary = compileAndLinkAllexeWithLlcDefaults(
+        allexe, LibNone, *LinkerDriver, tempFileName, context);
     if (!binary)
       return binary.takeError();
     DEBUG(dbgs() << "Compiled successfully into " << tempFileName << "\n");

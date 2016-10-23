@@ -1,9 +1,9 @@
 #include "ALLVMLinker.h"
 
+#include <lld/Driver/Driver.h>
 #include <llvm/Support/Errc.h>
 #include <llvm/Support/Error.h>
 #include <llvm/Support/Program.h>
-#include <lld/Driver/Driver.h>
 
 using namespace allvm;
 using namespace llvm;
@@ -62,9 +62,9 @@ Error PathLinker::link(const SmallVectorImpl<StringRef> &ObjectFilenames,
     if (Res == -1) {
       return makeALLVMLinkerError("Failed to invoke the linker: " + ErrorMsg);
     } else {
-      assert (Res == -2 && "Unexpected result");
-      return makeALLVMLinkerError(
-               "Linker process crashed or timed out: " + ErrorMsg);
+      assert(Res == -2 && "Unexpected result");
+      return makeALLVMLinkerError("Linker process crashed or timed out: " +
+                                  ErrorMsg);
     }
   }
 
