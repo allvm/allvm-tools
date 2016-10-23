@@ -18,6 +18,8 @@ static Error makeALLVMLinkerError(const Twine &Msg) {
 
 namespace allvm {
 
+ALLVMLinker::~ALLVMLinker() {}
+
 Error PathLinker::link(const SmallVectorImpl<StringRef> &ObjectFilenames,
                        StringRef Filename) const {
 

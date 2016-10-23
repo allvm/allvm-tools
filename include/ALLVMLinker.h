@@ -18,6 +18,7 @@ public:
   virtual llvm::Error link(
     const llvm::SmallVectorImpl<llvm::StringRef> &ObjectFilenames,
     llvm::StringRef Filename) const =0;
+  virtual ~ALLVMLinker();
 };
 
 /// Implementation of the linker interface that uses a gcc-like driver that
