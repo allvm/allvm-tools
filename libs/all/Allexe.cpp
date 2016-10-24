@@ -82,8 +82,8 @@ StringRef Allexe::getModuleName(size_t idx) const {
 Error Allexe::updateModule(size_t idx, std::unique_ptr<llvm::Module> m) {
   assert(idx < getNumModules() && "invalid module idx");
   if (!archive->updateEntry(idx, moduleToBuffer(m.get())))
-    make_error<StringError>("Error updating module in allexe",
-                            errc::invalid_argument);
+    return make_error<StringError>("Error updating module in allexe",
+                                   errc::invalid_argument);
   return Error::success();
 }
 
