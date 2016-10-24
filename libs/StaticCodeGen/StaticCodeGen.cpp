@@ -1,6 +1,6 @@
 #include "StaticCodeGen.h"
-#include "Allexe.h"
 #include "ALLVMLinker.h"
+#include "Allexe.h"
 
 #include <llvm/ADT/StringExtras.h>
 #include <llvm/ADT/Triple.h>
@@ -108,8 +108,8 @@ static inline void setFunctionAttributes(StringRef CPU, StringRef Features,
 }
 
 static Error makeStaticCodeGenError(const Twine &Msg, std::error_code EC) {
-  return make_error<StringError>(
-           "ALLVM static code generator error: " + Msg, EC);
+  return make_error<StringError>("ALLVM static code generator error: " + Msg,
+                                 EC);
 }
 
 static Error makeStaticCodeGenError(const Twine &Msg) {
@@ -376,9 +376,9 @@ compileAllexeWithLlcDefaults(Allexe &Input, StringRef Filename,
 }
 
 Expected<std::unique_ptr<Binary>>
-compileAndLinkAllexe(Allexe &Input, StringRef LibNone, const ALLVMLinker &Linker,
-                     StringRef Filename, const CompilationOptions &Options,
-                     LLVMContext &Context) {
+compileAndLinkAllexe(Allexe &Input, StringRef LibNone,
+                     const ALLVMLinker &Linker, StringRef Filename,
+                     const CompilationOptions &Options, LLVMContext &Context) {
 
   std::string ObjectFilename(Filename);
   ObjectFilename.append(".o");

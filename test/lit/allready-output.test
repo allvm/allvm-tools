@@ -6,7 +6,7 @@
 // EMPTY: 0
 
 // TODO: Maybe only print message if -debug or -verbose?
-// RUN: ALLVM_CACHE_DIR=%t-cache allready -linker=cc %p/Inputs/which |& FileCheck %s
+// RUN: ALLVM_CACHE_DIR=%t-cache allready %p/Inputs/which |& FileCheck %s
 // RUN: find %t-cache/ -type f | wc -l | FileCheck %s -check-prefix=ONE
 // RUN: find %t-cache/static_binaries -type f | wc -l | FileCheck %s -check-prefix=ONE
 // ONE: 1

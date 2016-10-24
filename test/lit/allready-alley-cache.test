@@ -12,7 +12,7 @@
 // CHECK: 1
 
 // Okay, great.  Run 'allready'!
-// RUN: ALLVM_CACHE_DIR=%t-cache allready -linker=cc %p/Inputs/which
+// RUN: ALLVM_CACHE_DIR=%t-cache allready %p/Inputs/which
 // Check that a new cache entry was created, and not a JIT one
 // RUN: find %t-cache/static_binaries -type f | wc -l | FileCheck %s
 // RUN: find %t-cache/objects -type f | wc -l | FileCheck %s
