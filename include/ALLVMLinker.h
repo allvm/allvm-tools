@@ -17,31 +17,32 @@ public:
   /// Links the given object files into an exacutable with the given file name.
   virtual llvm::Error
   link(const llvm::SmallVectorImpl<llvm::StringRef> &ObjectFilenames,
-       llvm::StringRef Filename) const = 0;
+       llvm::StringRef CrtBits, llvm::StringRef Filename) const = 0;
   virtual ~ALLVMLinker();
 };
 
-/// Implementation of the linker interface that uses a gcc-like driver that
+/// Implementation of the linker interface that uses an ld-like linker that
 /// should be available in the user's PATH.
 class PathLinker : public ALLVMLinker {
 private:
   llvm::StringRef Linker;
+  bool GccLikeDriver;
 
 public:
-  PathLinker(llvm::StringRef LinkerName) : Linker(LinkerName) {}
+  PathLinker(llvm::StringRef LinkerName);
 
   llvm::Error
   link(const llvm::SmallVectorImpl<llvm::StringRef> &ObjectFilenames,
-       llvm::StringRef Filename) const override;
+       llvm::StringRef CrtBits, llvm::StringRef Filename) const override;
 };
 
-/// Implementation of the linker interface that uses the lld driver that
+/// Implementation of the linker interface that uses the lld linker that
 /// should have been built with LLVM.
 class LldLinker : public ALLVMLinker {
 public:
   llvm::Error
   link(const llvm::SmallVectorImpl<llvm::StringRef> &ObjectFilenames,
-       llvm::StringRef Filename) const override;
+       llvm::StringRef CrtBits, llvm::StringRef Filename) const override;
 };
 
 } // end namespace allvm

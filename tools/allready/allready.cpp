@@ -15,6 +15,7 @@
 #include "AOTCompile.h"
 
 #include <llvm/Bitcode/ReaderWriter.h>
+#include <llvm/CodeGen/CommandFlags.h>
 #include <llvm/ExecutionEngine/MCJIT.h>
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Module.h>
@@ -33,9 +34,13 @@ using namespace llvm;
 namespace {
 cl::opt<std::string> LibNone("libnone", cl::desc("Path of libnone.a"));
 
+cl::opt<std::string> CrtBits("crtbits",
+                             cl::desc("Path to the crt* object files"));
+
 cl::opt<std::string>
     Linker("linker",
-           cl::desc("Path of linker-driver to use for static compilation"));
+           cl::desc("Path of linker-driver to use for static compilation"),
+           cl::init("ld"));
 
 cl::opt<std::string> InputFilename(cl::Positional, cl::Required,
                                    cl::desc("<input allvm file>"));
@@ -52,6 +57,7 @@ int main(int argc, const char **argv) {
 
   ALLVMContext AC = ALLVMContext::getAnchored(argv[0]);
   LibNone.setInitialValue(AC.LibNonePath);
+  CrtBits.setInitialValue(AC.CrtBitsPath);
 
   cl::ParseCommandLineOptions(argc, argv, "allready static codegen -> cache");
 
@@ -61,7 +67,8 @@ int main(int argc, const char **argv) {
 
   const CompilationOptions Options; // TODO: Let use specify these?
   StaticBinaryCache Cache;
-  ExitOnErr(AOTCompileIfNeeded(Cache, *allexe, LibNone, Linker, Options));
+  ExitOnErr(
+      AOTCompileIfNeeded(Cache, *allexe, LibNone, CrtBits, Linker, Options));
 
   outs() << "Successfully cached static binary for '" << InputFilename << ".\n";
 

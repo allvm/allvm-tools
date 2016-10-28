@@ -59,3 +59,20 @@ add_custom_command(TARGET none POST_BUILD
   COMMAND mv libnone.a.merged ${LLVM_LIBRARY_OUTPUT_INTDIR}/libnone.a
   DEPENDS merge.ar
 )
+
+# Install crt bits from musl, since they are useful for static linking.
+set(MUSL_ABS ${CMAKE_CURRENT_BINARY_DIR}/${MUSL})
+set(CRTFILES
+  ${MUSL_ABS}/lib/crt1.o
+  ${MUSL_ABS}/lib/crti.o
+  ${MUSL_ABS}/lib/crtn.o
+  ${MUSL_ABS}/lib/rcrt1.o
+  ${MUSL_ABS}/lib/Scrt1.o
+)
+add_custom_command(TARGET musl POST_BUILD
+  COMMAND mkdir -p ${LLVM_LIBRARY_OUTPUT_INTDIR}/crt
+  COMMAND cp -t ${LLVM_LIBRARY_OUTPUT_INTDIR}/crt ${CRTFILES}
+)
+set_property(DIRECTORY APPEND PROPERTY
+  ADDITIONAL_MAKE_CLEAN_FILES "${LLVM_LIBRARY_OUTPUT_INTDIR}/crt")
+install(FILES ${CRTFILES} DESTINATION lib/crt)

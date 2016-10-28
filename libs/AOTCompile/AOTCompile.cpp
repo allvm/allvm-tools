@@ -11,7 +11,8 @@ using namespace allvm;
 using namespace llvm;
 
 Error allvm::AOTCompileIfNeeded(StaticBinaryCache &Cache, Allexe &allexe,
-                                StringRef LibNone, StringRef Linker,
+                                StringRef LibNone, StringRef CrtBits,
+                                StringRef Linker,
                                 const CompilationOptions &Options) {
   if (allexe.getNumModules() != 1)
     return make_error<StringError>(
@@ -44,7 +45,7 @@ Error allvm::AOTCompileIfNeeded(StaticBinaryCache &Cache, Allexe &allexe,
     else
       LinkerDriver = make_unique<PathLinker>(Linker);
     auto binary = compileAndLinkAllexeWithLlcDefaults(
-        allexe, LibNone, *LinkerDriver, tempFileName, context);
+        allexe, LibNone, CrtBits, *LinkerDriver, tempFileName, context);
     if (!binary)
       return binary.takeError();
     DEBUG(dbgs() << "Compiled successfully into " << tempFileName << "\n");

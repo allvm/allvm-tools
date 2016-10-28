@@ -376,7 +376,7 @@ compileAllexeWithLlcDefaults(Allexe &Input, StringRef Filename,
 }
 
 Expected<std::unique_ptr<Binary>>
-compileAndLinkAllexe(Allexe &Input, StringRef LibNone,
+compileAndLinkAllexe(Allexe &Input, StringRef LibNone, StringRef CrtBits,
                      const ALLVMLinker &Linker, StringRef Filename,
                      const CompilationOptions &Options, LLVMContext &Context) {
 
@@ -395,7 +395,7 @@ compileAndLinkAllexe(Allexe &Input, StringRef LibNone,
   SmallVector<StringRef, 2> Objects;
   Objects.push_back(ObjectFilename);
   Objects.push_back(LibNone);
-  if (auto E = Linker.link(Objects, Filename))
+  if (auto E = Linker.link(Objects, CrtBits, Filename))
     return Expected<std::unique_ptr<ObjectFile>>(std::move(E));
 
   // Get a MemoryBuffer of the output file and use it to create the binary file.
@@ -408,13 +408,12 @@ compileAndLinkAllexe(Allexe &Input, StringRef LibNone,
   return createBinary(Buffer);
 }
 
-Expected<std::unique_ptr<Binary>>
-compileAndLinkAllexeWithLlcDefaults(Allexe &Input, StringRef LibNone,
-                                    const ALLVMLinker &Linker,
-                                    StringRef Filename, LLVMContext &Context) {
+Expected<std::unique_ptr<Binary>> compileAndLinkAllexeWithLlcDefaults(
+    Allexe &Input, StringRef LibNone, StringRef CrtBits,
+    const ALLVMLinker &Linker, StringRef Filename, LLVMContext &Context) {
   CompilationOptions Options;
-  return compileAndLinkAllexe(Input, LibNone, Linker, Filename, Options,
-                              Context);
+  return compileAndLinkAllexe(Input, LibNone, CrtBits, Linker, Filename,
+                              Options, Context);
 }
 
 } // end namespace allvm
