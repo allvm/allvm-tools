@@ -282,7 +282,6 @@ std::string CompilationOptions::serializeCompilationOptions() const {
   buffer += std::to_string(TOptions.EnableIPRA);
   buffer += std::to_string(TOptions.FloatABIType);
   buffer += std::to_string(TOptions.AllowFPOpFusion);
-  buffer += std::to_string(TOptions.JTType);
   buffer += std::to_string(TOptions.ThreadModel);
   buffer += std::to_string(static_cast<int>(TOptions.EABIVersion));
   buffer += std::to_string(static_cast<int>(TOptions.DebuggerTuning));
