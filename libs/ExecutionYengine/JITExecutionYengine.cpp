@@ -33,8 +33,10 @@ Error ExecutionYengine::doJITExec() {
 
   auto Cache = make_unique<JITCache>();
 
-  if (!Cache->hasObjectFor((*MainMod).get()))
-    (*MainMod)->materializeAll();
+  if (!Cache->hasObjectFor((*MainMod).get())) {
+    if (auto E = (*MainMod)->materializeAll())
+      return E;
+  }
 
   // Create the EE using this module:
   EngineBuilder builder(std::move(*MainMod));
@@ -52,8 +54,10 @@ Error ExecutionYengine::doJITExec() {
     auto M = LoadModule(i);
     if (!M)
       return M.takeError();
-    if (!Cache->hasObjectFor((*M).get()))
-      (*M)->materializeAll();
+    if (!Cache->hasObjectFor((*M).get())) {
+      if (auto E = (*M)->materializeAll())
+        return E;
+    }
     EE->addModule(std::move(*M));
   }
 

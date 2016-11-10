@@ -10,8 +10,8 @@
 using namespace allvm;
 using namespace llvm;
 
-static llvm::Error makeOpenError(const StringRef Filename, const Twine &Msg,
-                                 std::error_code EC) {
+static Error makeOpenError(const StringRef Filename, const Twine &Msg,
+                           std::error_code EC) {
   return make_error<StringError>(
       "Could not open allexe '" + Filename + "': " + Msg, EC);
 }
@@ -65,8 +65,8 @@ Allexe::getModule(size_t idx, LLVMContext &ctx, uint32_t *crc,
                   bool shouldLoadLazyMetaData) {
   assert(idx < getNumModules() && "invalid module idx");
   auto bitcode = archive->getEntry(idx, crc);
-  return errorOrToExpected(
-      getLazyBitcodeModule(std::move(bitcode), ctx, shouldLoadLazyMetaData));
+  return errorOrToExpected(getOwningLazyBitcodeModule(std::move(bitcode), ctx,
+                                                      shouldLoadLazyMetaData));
 }
 
 uint32_t Allexe::getModuleCRC(size_t idx) {
@@ -79,7 +79,7 @@ StringRef Allexe::getModuleName(size_t idx) const {
   return archive->listFiles()[idx];
 }
 
-Error Allexe::updateModule(size_t idx, std::unique_ptr<llvm::Module> m) {
+Error Allexe::updateModule(size_t idx, std::unique_ptr<Module> m) {
   assert(idx < getNumModules() && "invalid module idx");
   if (!archive->updateEntry(idx, moduleToBuffer(m.get())))
     return make_error<StringError>("Error updating module in allexe",
@@ -87,7 +87,7 @@ Error Allexe::updateModule(size_t idx, std::unique_ptr<llvm::Module> m) {
   return Error::success();
 }
 
-Error Allexe::addModule(std::unique_ptr<llvm::Module> m, StringRef moduleName) {
+Error Allexe::addModule(std::unique_ptr<Module> m, StringRef moduleName) {
   StringRef entryName = !moduleName.empty() ? moduleName : m->getName();
   if (!archive->addEntry(moduleToBuffer(m.get()), entryName))
     return make_error<StringError>("Error adding module to allexe",

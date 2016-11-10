@@ -40,8 +40,7 @@ Error allvm::AOTCompileIfNeeded(StaticBinaryCache &Cache, Allexe &allexe,
     auto binary = compileAndLinkAllexeWithLlcDefaults(allexe, LibNone, Linker,
                                                       tempFileName, context);
     if (!binary)
-      return make_error<StringError>("error during compilation/linking",
-                                     binary.getError());
+      return binary.takeError();
     DEBUG(dbgs() << "Compiled successfully into " << tempFileName << "\n");
 
     // Now copy the executable to the cache location and delete the temp file

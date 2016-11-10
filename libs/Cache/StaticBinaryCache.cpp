@@ -20,7 +20,7 @@ using namespace llvm;
 
 namespace allvm {
 
-StaticBinaryCache::StaticBinaryCache(llvm::StringRef _CacheDir)
+StaticBinaryCache::StaticBinaryCache(StringRef _CacheDir)
     : CacheDir(_CacheDir) {
   // Add trailing '/' to cache dir if necessary.
   if (!CacheDir.empty() && CacheDir[CacheDir.size() - 1] != '/') {
