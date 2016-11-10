@@ -108,10 +108,9 @@ static inline void setFunctionAttributes(StringRef CPU, StringRef Features,
 }
 
 // Compiles the given module and return 0 on success.
-static Error compileModule(std::unique_ptr<Module> &M,
-                                 raw_pwrite_stream &OS,
-                                 const CompilationOptions &Options,
-                                 LLVMContext &Context) {
+static Error compileModule(std::unique_ptr<Module> &M, raw_pwrite_stream &OS,
+                           const CompilationOptions &Options,
+                           LLVMContext &Context) {
   assert(M && "no module provided for static code generation");
 
   // Verify module immediately to catch problems before doInitialization() is
@@ -197,8 +196,7 @@ static void DiagnosticHandler(const DiagnosticInfo &DI, void *Context) {
 namespace allvm {
 
 Error compileAllexe(Allexe &Input, raw_pwrite_stream &OS,
-                          const CompilationOptions &Options,
-                          LLVMContext &Context) {
+                    const CompilationOptions &Options, LLVMContext &Context) {
   assert(Input.getNumModules() == 1 &&
          "attempted static code gen for allexe with more than one modules");
 
@@ -325,7 +323,7 @@ std::string CompilationOptions::serializeCompilationOptions() const {
 }
 
 Error compileAllexeWithLlcDefaults(Allexe &Input, raw_pwrite_stream &OS,
-                                         LLVMContext &Context) {
+                                   LLVMContext &Context) {
   CompilationOptions Options;
   return compileAllexe(Input, OS, Options, Context);
 }
@@ -403,9 +401,9 @@ compileAndLinkAllexe(Allexe &Input, StringRef LibNone, StringRef Linker,
   std::string Error;
   bool ExecutionFailed;
   int Res = sys::ExecuteAndWait(LinkerProgram, LinkerArgv.data(),
-                                      /*env*/ nullptr, /*Redirects*/ nullptr,
-                                      /*secondsToWait*/ 0, /*memoryLimit*/ 0,
-                                      &Error, &ExecutionFailed);
+                                /*env*/ nullptr, /*Redirects*/ nullptr,
+                                /*secondsToWait*/ 0, /*memoryLimit*/ 0, &Error,
+                                &ExecutionFailed);
   if (!Error.empty()) {
     assert(Res && "Error string set with 0 result code!");
     return make_error<StringError>(Error, errc::invalid_argument);

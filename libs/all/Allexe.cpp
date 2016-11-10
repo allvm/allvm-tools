@@ -11,7 +11,7 @@ using namespace allvm;
 using namespace llvm;
 
 static Error makeOpenError(const StringRef Filename, const Twine &Msg,
-                                 std::error_code EC) {
+                           std::error_code EC) {
   return make_error<StringError>(
       "Could not open allexe '" + Filename + "': " + Msg, EC);
 }
