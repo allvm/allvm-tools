@@ -15,7 +15,7 @@ using namespace llvm;
 static const size_t INIT_STACK_MAX = 1024;
 
 namespace allvm {
-llvm::Error runHosted(ExecutionEngine &EE,
+Error runHosted(ExecutionEngine &EE,
                       ExecutionYengine::ExecutionInfo &Info) {
   auto BinaryOrErr = object::createBinary(Info.LibNone);
   if (!BinaryOrErr)

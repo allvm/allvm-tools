@@ -97,7 +97,7 @@ static inline void setFunctionAttributes(StringRef CPU, StringRef Features,
             if (const auto *Callee = Call->getCalledFunction())
               if (Callee->getIntrinsicID() == Intrinsic::debugtrap ||
                   Callee->getIntrinsicID() == Intrinsic::trap)
-                Call->addAttribute(llvm::AttributeSet::FunctionIndex,
+                Call->addAttribute(AttributeSet::FunctionIndex,
                                    Attribute::get(Ctx, "trap-func-name",
                                                   TrapFuncName.getValue()));
 
@@ -108,7 +108,7 @@ static inline void setFunctionAttributes(StringRef CPU, StringRef Features,
 }
 
 // Compiles the given module and return 0 on success.
-static llvm::Error compileModule(std::unique_ptr<Module> &M,
+static Error compileModule(std::unique_ptr<Module> &M,
                                  raw_pwrite_stream &OS,
                                  const CompilationOptions &Options,
                                  LLVMContext &Context) {
@@ -196,7 +196,7 @@ static void DiagnosticHandler(const DiagnosticInfo &DI, void *Context) {
 
 namespace allvm {
 
-llvm::Error compileAllexe(Allexe &Input, raw_pwrite_stream &OS,
+Error compileAllexe(Allexe &Input, raw_pwrite_stream &OS,
                           const CompilationOptions &Options,
                           LLVMContext &Context) {
   assert(Input.getNumModules() == 1 &&
@@ -324,13 +324,13 @@ std::string CompilationOptions::serializeCompilationOptions() const {
   return buffer;
 }
 
-llvm::Error compileAllexeWithLlcDefaults(Allexe &Input, raw_pwrite_stream &OS,
+Error compileAllexeWithLlcDefaults(Allexe &Input, raw_pwrite_stream &OS,
                                          LLVMContext &Context) {
   CompilationOptions Options;
   return compileAllexe(Input, OS, Options, Context);
 }
 
-llvm::Expected<std::unique_ptr<ObjectFile>>
+Expected<std::unique_ptr<ObjectFile>>
 compileAllexe(Allexe &Input, StringRef Filename,
               const CompilationOptions &Options, LLVMContext &Context) {
 
@@ -359,7 +359,7 @@ compileAllexe(Allexe &Input, StringRef Filename,
   return ObjectFile::createObjectFile(Buffer);
 }
 
-llvm::Expected<std::unique_ptr<ObjectFile>>
+Expected<std::unique_ptr<ObjectFile>>
 compileAllexeWithLlcDefaults(Allexe &Input, StringRef Filename,
                              LLVMContext &Context) {
   CompilationOptions Options;
@@ -384,7 +384,7 @@ compileAndLinkAllexe(Allexe &Input, StringRef LibNone, StringRef Linker,
   // Link the allexe.
   // TODO: For now we use gcc for linking, maybe we should add more
   // sophisticated linking in the future.
-  auto ErrorOrLinkerProgram = llvm::sys::findProgramByName(Linker);
+  auto ErrorOrLinkerProgram = sys::findProgramByName(Linker);
   if (!ErrorOrLinkerProgram)
     return make_error<StringError>("unable to find linker",
                                    ErrorOrLinkerProgram.getError());
@@ -402,7 +402,7 @@ compileAndLinkAllexe(Allexe &Input, StringRef LibNone, StringRef Linker,
 
   std::string Error;
   bool ExecutionFailed;
-  int Res = llvm::sys::ExecuteAndWait(LinkerProgram, LinkerArgv.data(),
+  int Res = sys::ExecuteAndWait(LinkerProgram, LinkerArgv.data(),
                                       /*env*/ nullptr, /*Redirects*/ nullptr,
                                       /*secondsToWait*/ 0, /*memoryLimit*/ 0,
                                       &Error, &ExecutionFailed);
