@@ -211,7 +211,11 @@ int compileAllexe(Allexe &Input, raw_pwrite_stream &OS,
   if (!ErrorOrM)
     return 1;
   auto &M = ErrorOrM.get();
-  M->materializeAll();
+  if (auto E = M->materializeAll()) {
+    // TODO: Return Error here instead of this nonsense!
+    handleAllErrors(std::move(E), [](const ErrorInfoBase &) {});
+    return 1;
+  }
 
   // Compile module.
   return compileModule(M, OS, Options, Context);
