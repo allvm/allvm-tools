@@ -13,7 +13,7 @@
 #include "Allexe.h"
 #include "WLLVMFile.h"
 
-#include <llvm/Bitcode/ReaderWriter.h>
+#include <llvm/Bitcode/BitcodeWriter.h>
 #include <llvm/IR/DebugInfo.h>
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Module.h>

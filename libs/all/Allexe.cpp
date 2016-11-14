@@ -1,7 +1,8 @@
 #include "Allexe.h"
 
 #include <llvm/ADT/Twine.h>
-#include <llvm/Bitcode/ReaderWriter.h>
+#include <llvm/Bitcode/BitcodeReader.h>
+#include <llvm/Bitcode/BitcodeWriter.h>
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Module.h>
 #include <llvm/Support/Errc.h>
@@ -65,8 +66,8 @@ Allexe::getModule(size_t idx, LLVMContext &ctx, uint32_t *crc,
                   bool shouldLoadLazyMetaData) {
   assert(idx < getNumModules() && "invalid module idx");
   auto bitcode = archive->getEntry(idx, crc);
-  return errorOrToExpected(getOwningLazyBitcodeModule(std::move(bitcode), ctx,
-                                                      shouldLoadLazyMetaData));
+  return getOwningLazyBitcodeModule(std::move(bitcode), ctx,
+                                    shouldLoadLazyMetaData);
 }
 
 uint32_t Allexe::getModuleCRC(size_t idx) {

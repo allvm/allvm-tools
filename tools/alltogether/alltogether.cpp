@@ -13,7 +13,6 @@
 #include "Allexe.h"
 
 #include <llvm/ADT/SmallString.h>
-#include <llvm/Bitcode/ReaderWriter.h>
 #include <llvm/CodeGen/CommandFlags.h>
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Module.h>
