@@ -28,3 +28,5 @@
 
 # Python byte code files
 *.pyc
+
+/build

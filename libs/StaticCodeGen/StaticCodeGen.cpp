@@ -97,7 +97,7 @@ static inline void setFunctionAttributes(StringRef CPU, StringRef Features,
             if (const auto *Callee = Call->getCalledFunction())
               if (Callee->getIntrinsicID() == Intrinsic::debugtrap ||
                   Callee->getIntrinsicID() == Intrinsic::trap)
-                Call->addAttribute(llvm::AttributeSet::FunctionIndex,
+                Call->addAttribute(AttributeSet::FunctionIndex,
                                    Attribute::get(Ctx, "trap-func-name",
                                                   TrapFuncName.getValue()));
 
@@ -175,16 +175,18 @@ static Error compileModule(std::unique_ptr<Module> &M, raw_pwrite_stream &OS,
   // Ask the target to add backend passes as necessary.
   if (Target->addPassesToEmitFile(PM, OS, TargetMachine::CGFT_ObjectFile,
                                   Options.NoVerify)) {
-    return makeStaticCodeGenError("target does not support generation of "
-                                  "object files!");
+    return makeStaticCodeGenError(
+        "target does not support generation of object files!",
+        errc::function_not_supported);
   }
 
   // Run passes to do compilation.
   PM.run(*M);
 
   auto HasError = *static_cast<bool *>(Context.getDiagnosticContext());
+  // TODO: Produce better error message?
   if (HasError) {
-    return makeStaticCodeGenError("static code generation failed!");
+    return makeStaticCodeGenError("unknown error compiling to object file");
   }
 
   return Error::success();
@@ -213,12 +215,12 @@ Error compileAllexe(Allexe &Input, raw_pwrite_stream &OS,
   Context.setDiagnosticHandler(DiagnosticHandler, &HasError);
 
   // Get module to be compiled.
-  auto ErrorOrM = Input.getModule(0, Context);
-  if (!ErrorOrM) {
-    return makeStaticCodeGenError("input module could not be loaded!");
-  }
-  auto &M = ErrorOrM.get();
-  M->materializeAll();
+  auto ExpM = Input.getModule(0, Context);
+  if (!ExpM)
+    return ExpM.takeError();
+  auto &M = ExpM.get();
+  if (auto E = M->materializeAll())
+    return E;
 
   // Compile module.
   return compileModule(M, OS, Options, Context);
@@ -289,7 +291,6 @@ std::string CompilationOptions::serializeCompilationOptions() const {
   buffer += std::to_string(TOptions.EnableIPRA);
   buffer += std::to_string(TOptions.FloatABIType);
   buffer += std::to_string(TOptions.AllowFPOpFusion);
-  buffer += std::to_string(TOptions.JTType);
   buffer += std::to_string(TOptions.ThreadModel);
   buffer += std::to_string(static_cast<int>(TOptions.EABIVersion));
   buffer += std::to_string(static_cast<int>(TOptions.DebuggerTuning));
@@ -347,13 +348,13 @@ compileAllexe(Allexe &Input, StringRef Filename,
     sys::fs::OpenFlags OpenFlags = sys::fs::F_None;
     auto FDOut = llvm::make_unique<tool_output_file>(Filename, EC, OpenFlags);
     if (EC) {
-      return makeStaticCodeGenError("Could not open output file!", EC);
+      return makeStaticCodeGenError("error opening compilation output", EC);
     }
     assert(FDOut->os().supportsSeeking());
 
     // Do static code generation.
     if (auto E = compileAllexe(Input, FDOut->os(), Options, Context))
-      return Expected<std::unique_ptr<ObjectFile>>(std::move(E));
+      return std::move(E);
 
     FDOut->keep();
   }
@@ -361,7 +362,7 @@ compileAllexe(Allexe &Input, StringRef Filename,
   // Get a MemoryBuffer of the output file and use it to create the object file.
   auto ErrorOrBuffer = MemoryBuffer::getFile(Filename);
   if (!ErrorOrBuffer) {
-    return makeStaticCodeGenError("Could not open file " + Filename,
+    return makeStaticCodeGenError("error reading compiled result",
                                   ErrorOrBuffer.getError());
   }
   MemoryBufferRef Buffer(**ErrorOrBuffer);
@@ -376,10 +377,10 @@ compileAllexeWithLlcDefaults(Allexe &Input, StringRef Filename,
 }
 
 Expected<std::unique_ptr<Binary>>
-compileAndLinkAllexe(Allexe &Input, StringRef LibNone, StringRef CrtBits,
+compileAndLinkAllexe(Allexe &Input, StringRef LibNone, llvm::StringRef CrtBits,
                      const ALLVMLinker &Linker, StringRef Filename,
                      const CompilationOptions &Options, LLVMContext &Context) {
-
+  // Compile the allexe.
   std::string ObjectFilename(Filename);
   ObjectFilename.append(".o");
 
@@ -396,12 +397,12 @@ compileAndLinkAllexe(Allexe &Input, StringRef LibNone, StringRef CrtBits,
   Objects.push_back(ObjectFilename);
   Objects.push_back(LibNone);
   if (auto E = Linker.link(Objects, CrtBits, Filename))
-    return Expected<std::unique_ptr<ObjectFile>>(std::move(E));
+    return std::move(E);
 
   // Get a MemoryBuffer of the output file and use it to create the binary file.
   auto ErrorOrBuffer = MemoryBuffer::getFile(Filename);
   if (!ErrorOrBuffer) {
-    return makeStaticCodeGenError("Could not open file " + Filename,
+    return makeStaticCodeGenError("error reading linker result",
                                   ErrorOrBuffer.getError());
   }
   MemoryBufferRef Buffer(**ErrorOrBuffer);

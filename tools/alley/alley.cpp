@@ -4,7 +4,6 @@
 #include "ALLVMVersion.h"
 #include "AOTCompile.h"
 
-#include <llvm/Bitcode/ReaderWriter.h>
 #include <llvm/CodeGen/CommandFlags.h>
 #include <llvm/ExecutionEngine/MCJIT.h>
 #include <llvm/IR/LLVMContext.h>

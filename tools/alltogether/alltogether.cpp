@@ -13,7 +13,6 @@
 #include "Allexe.h"
 
 #include <llvm/ADT/SmallString.h>
-#include <llvm/Bitcode/ReaderWriter.h>
 #include <llvm/CodeGen/CommandFlags.h>
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Module.h>
@@ -165,10 +164,7 @@ int main(int argc, const char **argv) {
     }
 
     auto alltogether = ExitOnErr(Allexe::open(OutputFilename, AC, Overwrite));
-    if (alltogether->addModule(TempBCPath, ALLEXE_MAIN)) {
-      errs() << "Error writing merged module\n";
-      return 1;
-    }
+    ExitOnErr(alltogether->addModule(TempBCPath, ALLEXE_MAIN));
   }
   info("Successfully wrote to '" + OutputFilename + "'!\n");
 

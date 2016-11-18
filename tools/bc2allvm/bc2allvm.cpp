@@ -66,9 +66,9 @@ int main(int argc, const char **argv) {
     errs() << "No output filename given!\n";
     return 1;
   }
-  if (llvm::sys::fs::exists(OutputFilename)) {
+  if (sys::fs::exists(OutputFilename)) {
     // Reject directory path
-    if (llvm::sys::fs::is_directory(OutputFilename)) {
+    if (sys::fs::is_directory(OutputFilename)) {
       errs() << "Output path is a directory!\n";
       return 1;
     }

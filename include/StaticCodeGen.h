@@ -82,6 +82,8 @@ struct CompilationOptions {
 /// and writes the corresponding object file to the provided stream. This
 /// function assumes that the allexe has been merged and contains exactly one
 /// bitcode module.
+///
+/// \returns Error::success() on success.
 llvm::Error compileAllexe(Allexe &Input, llvm::raw_pwrite_stream &OS,
                           const CompilationOptions &Options,
                           llvm::LLVMContext &Context);
@@ -91,6 +93,8 @@ llvm::Error compileAllexe(Allexe &Input, llvm::raw_pwrite_stream &OS,
 /// options are initialized to the default values used by llc. This function
 /// assumes that the allexe has been merged and contains exactly one bitcode
 /// module.
+///
+/// \returns Error::success() on success.
 llvm::Error compileAllexeWithLlcDefaults(Allexe &Input,
                                          llvm::raw_pwrite_stream &OS,
                                          llvm::LLVMContext &Context);

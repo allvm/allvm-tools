@@ -1,0 +1,11 @@
+// Test behavior when overwriting an existing but empty file
+// This uses alltogether but is really weakness in our stack of Zip/Allexe/etc...
+// XFAIL: *
+
+// Try overwriting with alltogether
+// RUN: :> %t-empty
+// RUN: not alltogether %p/Inputs/which -o %t-empty |& FileCheck %s -check-prefix=CHECK-TOGETHER-ERR
+// RUN: alltogether %p/Inputs/which -f -o %t-empty | FileCheck %s -check-prefix=CHECK-TOGETHER
+// CHECK-TOGETHER: Successfully wrote to
+// CHECK-TOGETHER-ERR-NOT: Successfully
+
