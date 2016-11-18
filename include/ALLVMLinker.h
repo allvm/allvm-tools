@@ -14,11 +14,26 @@ namespace allvm {
 /// generation.
 class ALLVMLinker {
 public:
-  /// Links the given object files into an exacutable with the given file name.
+  /// Links the given object files into an executable with the given file name.
   virtual llvm::Error
   link(const llvm::SmallVectorImpl<llvm::StringRef> &ObjectFilenames,
-       llvm::StringRef CrtBits, llvm::StringRef Filename) const = 0;
+       llvm::StringRef CrtBits, llvm::StringRef OutFilename) const = 0;
   virtual ~ALLVMLinker();
+
+protected:
+  /// Creates the command line arguments given to the linker and pushes them
+  /// back to the given LinkerArgv vector.
+  void createLinkerArguments(
+      const llvm::SmallVectorImpl<llvm::StringRef> &ObjectFilenames,
+      llvm::Optional<llvm::StringRef> CrtBits, llvm::StringRef OutFilename,
+      llvm::SmallVectorImpl<std::string> &LinkerArgs) const;
+
+  /// Calls the given linker program with the given arguments as an external
+  /// process and waits that process.
+  ///
+  /// \returns Error::success() on success.
+  llvm::Error callLinkerAsExternalProcess(llvm::StringRef LinkerProgram,
+                                          const char **LinkerArgv) const;
 };
 
 /// Implementation of the linker interface that uses an ld-like linker that
@@ -33,16 +48,21 @@ public:
 
   llvm::Error
   link(const llvm::SmallVectorImpl<llvm::StringRef> &ObjectFilenames,
-       llvm::StringRef CrtBits, llvm::StringRef Filename) const override;
+       llvm::StringRef CrtBits, llvm::StringRef OutFilename) const override;
 };
 
-/// Implementation of the linker interface that uses the lld linker that
-/// should have been built with LLVM.
-class LldLinker : public ALLVMLinker {
+/// Implementation of the linker interface that uses the alld linker that is
+/// built with the other allvm tools.
+class InternalLinker : public ALLVMLinker {
+private:
+  llvm::StringRef Alld;
+
 public:
+  InternalLinker(llvm::StringRef AlldPath);
+
   llvm::Error
   link(const llvm::SmallVectorImpl<llvm::StringRef> &ObjectFilenames,
-       llvm::StringRef CrtBits, llvm::StringRef Filename) const override;
+       llvm::StringRef CrtBits, llvm::StringRef OutFilename) const override;
 };
 
 } // end namespace allvm

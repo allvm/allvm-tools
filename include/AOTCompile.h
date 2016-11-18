@@ -11,7 +11,7 @@ namespace allvm {
 
 llvm::Error AOTCompileIfNeeded(StaticBinaryCache &Cache, Allexe &allexe,
                                llvm::StringRef LibNone, llvm::StringRef CrtBits,
-                               llvm::StringRef Linker,
+                               const ALLVMLinker &Linker,
                                const CompilationOptions &Options);
 
 } // end namespace allvm

@@ -44,6 +44,15 @@ if (USE_CLANG_WERROR_FLAGS)
   list(APPEND LLVM_DEFINITIONS ${WARNING_FLAGS} -Werror)
 endif()
 
+find_library(LLD_AVAILABLE_AS_LIB lldELF)
+if ( LLD_AVAILABLE_AS_LIB )
+  add_definitions(-DALLVM_alld_available)
+else()
+  message(WARNING
+"lld was not built with found LLVM. "
+"The internal linker (alld) will not be built.")
+endif()
+
 # Put libs and bins in expected place.
 # XXX: We don't setup CMAKE_CFG_INTDIR to distinguish Release/Debug/etc.
 set(LLVM_RUNTIME_OUTPUT_INTDIR

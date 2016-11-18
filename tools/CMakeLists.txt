@@ -1,3 +1,7 @@
+if ( LLD_AVAILABLE_AS_LIB )
+  add_subdirectory(alld)
+endif()
+
 add_subdirectory(alley)
 add_subdirectory(allready)
 add_subdirectory(alltogether)

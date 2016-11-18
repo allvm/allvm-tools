@@ -1,5 +1,4 @@
 #include "AOTCompile.h"
-#include "ALLVMLinker.h"
 
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/Object/Binary.h>
@@ -12,7 +11,7 @@ using namespace llvm;
 
 Error allvm::AOTCompileIfNeeded(StaticBinaryCache &Cache, Allexe &allexe,
                                 StringRef LibNone, StringRef CrtBits,
-                                StringRef Linker,
+                                const ALLVMLinker &Linker,
                                 const CompilationOptions &Options) {
   if (allexe.getNumModules() != 1)
     return make_error<StringError>(
@@ -39,13 +38,8 @@ Error allvm::AOTCompileIfNeeded(StaticBinaryCache &Cache, Allexe &allexe,
     if (auto EC = sys::fs::createTemporaryFile("allvm", "aot", tempFileName))
       return make_error<StringError>("Unable to create temporary file", EC);
 
-    std::unique_ptr<ALLVMLinker> LinkerDriver;
-    if (Linker.empty())
-      LinkerDriver = make_unique<LldLinker>();
-    else
-      LinkerDriver = make_unique<PathLinker>(Linker);
     auto binary = compileAndLinkAllexeWithLlcDefaults(
-        allexe, LibNone, CrtBits, *LinkerDriver, tempFileName, context);
+        allexe, LibNone, CrtBits, Linker, tempFileName, context);
     if (!binary)
       return binary.takeError();
     DEBUG(dbgs() << "Compiled successfully into " << tempFileName << "\n");

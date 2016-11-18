@@ -19,63 +19,32 @@ namespace allvm {
 
 ALLVMLinker::~ALLVMLinker() {}
 
-PathLinker::PathLinker(llvm::StringRef LinkerName)
-    : Linker(LinkerName),
-      GccLikeDriver(LinkerName == "gcc" || LinkerName == "clang" ||
-                    LinkerName == "cc") {}
+void ALLVMLinker::createLinkerArguments(
+    const SmallVectorImpl<StringRef> &ObjectFilenames,
+    Optional<StringRef> CrtBits, StringRef OutFilename,
+    SmallVectorImpl<std::string> &LinkerArgs) const {
 
-Error PathLinker::link(const SmallVectorImpl<StringRef> &ObjectFilenames,
-                       StringRef CrtBits, StringRef Filename) const {
-  if (GccLikeDriver) {
-    errs() << "\n"
-           << "ALLVM linker warning: Using the " << Linker << " driver as "
-           << "linker.\n"
-           << "Drivers such as " << Linker << " may invoke an underlying "
-           << "linker with flags that will\n"
-           << "add additional code to the executable other than code coming "
-           << "from the allexe\n"
-           << "and libnone, i.e. a different libc.\n"
-           << "Please consider using a naked linker such as ld.\n\n";
-  }
-
-  // Find linker.
-  auto ErrorOrLinkerProgram = llvm::sys::findProgramByName(Linker);
-  if (!ErrorOrLinkerProgram) {
-    return makeALLVMLinkerError("Linker driver " + Linker + " was not found",
-                                ErrorOrLinkerProgram.getError());
-  }
-  std::string &LinkerProgram = ErrorOrLinkerProgram.get();
-
-  // Create linker arguments.
-  std::string FilenameStr = Filename.str();
-  std::string Crt1Str = (CrtBits + "/crt1.o").str();
-  std::string CrtiStr = (CrtBits + "/crti.o").str();
-  std::string CrtnStr = (CrtBits + "/crtn.o").str();
-  SmallVector<std::string, 2> ObjectStrs;
-
-  SmallVector<const char *, 10> LinkerArgv;
-
-  LinkerArgv.push_back(LinkerProgram.c_str());
-  LinkerArgv.push_back("-o");
-  LinkerArgv.push_back(FilenameStr.c_str());
-  LinkerArgv.push_back("-static");
-  if (!GccLikeDriver) {
-    LinkerArgv.push_back(Crt1Str.c_str());
-    LinkerArgv.push_back(CrtiStr.c_str());
+  LinkerArgs.emplace_back("-o");
+  LinkerArgs.emplace_back(OutFilename.str());
+  LinkerArgs.emplace_back("-static");
+  if (CrtBits) {
+    LinkerArgs.emplace_back((CrtBits.getValue() + "/crt1.o").str());
+    LinkerArgs.emplace_back((CrtBits.getValue() + "/crti.o").str());
   }
   for (StringRef Object : ObjectFilenames) {
-    ObjectStrs.push_back(Object.str());
-    LinkerArgv.push_back(ObjectStrs.back().c_str());
+    LinkerArgs.emplace_back(Object.str());
   }
-  if (!GccLikeDriver) {
-    LinkerArgv.push_back(CrtnStr.c_str());
+  if (CrtBits) {
+    LinkerArgs.emplace_back((CrtBits.getValue() + "/crtn.o").str());
   }
-  LinkerArgv.push_back(nullptr);
+}
 
-  // Call linker as external process.
+Error ALLVMLinker::callLinkerAsExternalProcess(StringRef LinkerProgram,
+                                               const char **LinkerArgv) const {
+
   bool ExecutionFailed;
   std::string ErrorMsg;
-  int Res = llvm::sys::ExecuteAndWait(LinkerProgram, LinkerArgv.data(),
+  int Res = llvm::sys::ExecuteAndWait(LinkerProgram, LinkerArgv,
                                       /*env*/ nullptr, /*Redirects*/ nullptr,
                                       /*secondsToWait*/ 0, /*memoryLimit*/ 0,
                                       &ErrorMsg, &ExecutionFailed);
@@ -99,33 +68,80 @@ Error PathLinker::link(const SmallVectorImpl<StringRef> &ObjectFilenames,
   return Error::success();
 }
 
-Error LldLinker::link(const SmallVectorImpl<StringRef> &ObjectFilenames,
-                      StringRef CrtBits, StringRef Filename) const {
+PathLinker::PathLinker(llvm::StringRef LinkerName)
+    : Linker(LinkerName),
+      GccLikeDriver(LinkerName == "gcc" || LinkerName == "clang" ||
+                    LinkerName == "cc") {}
 
-  // Create driver arguments.
-  SmallVector<const char *, 5> LinkerArgs;
-
-  LinkerArgs.push_back("lld");
-
-  LinkerArgs.push_back("-o");
-
-  std::string FilenameStr = Filename.str();
-  LinkerArgs.push_back(FilenameStr.c_str());
-
-  SmallVector<std::string, 2> ObjectStrs;
-  for (StringRef Object : ObjectFilenames) {
-    ObjectStrs.push_back(Object.str());
-    LinkerArgs.push_back(ObjectStrs.back().c_str());
+Error PathLinker::link(const SmallVectorImpl<StringRef> &ObjectFilenames,
+                       StringRef CrtBits, StringRef OutFilename) const {
+  if (GccLikeDriver) {
+    errs() << "\n"
+           << "ALLVM linker warning: Using the " << Linker << " driver as "
+           << "linker.\n"
+           << "Drivers such as " << Linker << " may invoke an underlying "
+           << "linker with flags that will\n"
+           << "add additional code to the executable other than code coming "
+           << "from the allexe\n"
+           << "and libnone, i.e. a different libc.\n"
+           << "Please consider using a naked linker such as ld.\n\n";
   }
 
-  // Call lld entry point.
-  bool LinkingDone = false; // lld::elf::link(LinkerArgs);
+  // Find linker.
+  auto ErrorOrLinkerProgram = llvm::sys::findProgramByName(Linker);
+  if (!ErrorOrLinkerProgram) {
+    return makeALLVMLinkerError("Linker driver " + Linker + " was not found",
+                                ErrorOrLinkerProgram.getError());
+  }
+  std::string &LinkerProgram = ErrorOrLinkerProgram.get();
 
-  if (!LinkingDone) {
-    return makeALLVMLinkerError("Linking failed");
+  // Create linker arguments.
+  SmallVector<std::string, 8> LinkerArgs;
+  Optional<StringRef> CrtBitsOption(None);
+  if (!GccLikeDriver) {
+    CrtBitsOption = CrtBits;
+  }
+  createLinkerArguments(ObjectFilenames, CrtBitsOption, OutFilename,
+                        LinkerArgs);
+
+  SmallVector<const char *, 10> LinkerArgv;
+
+  LinkerArgv.push_back(LinkerProgram.c_str());
+
+  for (const std::string &Arg : LinkerArgs) {
+    LinkerArgv.push_back(Arg.c_str());
   }
 
-  return Error::success();
+  LinkerArgv.push_back(nullptr);
+
+  // Call linker as external process.
+  return callLinkerAsExternalProcess(LinkerProgram, LinkerArgv.data());
+}
+
+InternalLinker::InternalLinker(StringRef AlldPath) : Alld(AlldPath) {}
+
+Error InternalLinker::link(const SmallVectorImpl<StringRef> &ObjectFilenames,
+                           StringRef CrtBits, StringRef OutFilename) const {
+
+  // Create linker arguments.
+  SmallVector<std::string, 8> LinkerArgs;
+  Optional<StringRef> CrtBitsOption(CrtBits);
+  createLinkerArguments(ObjectFilenames, CrtBitsOption, OutFilename,
+                        LinkerArgs);
+
+  SmallVector<const char *, 10> LinkerArgv;
+
+  std::string AlldStr = Alld.str();
+  LinkerArgv.push_back(AlldStr.c_str());
+
+  for (const std::string &Arg : LinkerArgs) {
+    LinkerArgv.push_back(Arg.c_str());
+  }
+
+  LinkerArgv.push_back(nullptr);
+
+  // Call linker as external process.
+  return callLinkerAsExternalProcess(Alld, LinkerArgv.data());
 }
 
 } // end namespace allvm

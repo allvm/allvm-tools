@@ -11,6 +11,7 @@
 #include "ExecutionYengine.h"
 
 #include "ALLVMContextAnchor.h"
+#include "ALLVMLinker.h"
 #include "ALLVMVersion.h"
 #include "AOTCompile.h"
 
@@ -36,10 +37,13 @@ cl::opt<std::string> LibNone("libnone", cl::desc("Path of libnone.a"));
 cl::opt<std::string> CrtBits("crtbits",
                              cl::desc("Path to the crt* object files"));
 
-cl::opt<std::string>
-    Linker("linker",
-           cl::desc("Path of linker-driver to use for static compilation"),
-           cl::init("ld"));
+cl::opt<std::string> Linker("linker",
+                            cl::desc("Linker to use for static compilation")
+#ifndef ALLVM_alld_available
+                                ,
+                            cl::init("ld")
+#endif
+                                );
 
 cl::opt<std::string> InputFilename(cl::Positional, cl::Required,
                                    cl::desc("<input allvm file>"));
@@ -66,8 +70,13 @@ int main(int argc, const char **argv) {
 
   const CompilationOptions Options; // TODO: Let use specify these?
   StaticBinaryCache Cache;
-  ExitOnErr(
-      AOTCompileIfNeeded(Cache, *allexe, LibNone, CrtBits, Linker, Options));
+  std::unique_ptr<ALLVMLinker> TheLinker;
+  if (Linker.empty())
+    TheLinker = make_unique<InternalLinker>(AC.AlldPath);
+  else
+    TheLinker = make_unique<PathLinker>(Linker);
+  ExitOnErr(AOTCompileIfNeeded(Cache, *allexe, LibNone, CrtBits, *TheLinker,
+                               Options));
 
   outs() << "Successfully cached static binary for '" << InputFilename << ".\n";
 
