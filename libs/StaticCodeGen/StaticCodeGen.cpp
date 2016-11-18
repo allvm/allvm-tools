@@ -377,10 +377,9 @@ compileAllexeWithLlcDefaults(Allexe &Input, StringRef Filename,
 }
 
 Expected<std::unique_ptr<Binary>>
-compileAndLinkAllexe(Allexe &Input, StringRef LibNone, llvm::StringRef CrtBits,
+compileAndLinkAllexe(Allexe &Input, StringRef LibNone, StringRef CrtBits,
                      const ALLVMLinker &Linker, StringRef Filename,
                      const CompilationOptions &Options, LLVMContext &Context) {
-  // Compile the allexe.
   std::string ObjectFilename(Filename);
   ObjectFilename.append(".o");
 
