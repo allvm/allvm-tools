@@ -1,0 +1,27 @@
+// Test behavior when writing to an existing file
+
+// Remove temporaries
+// RUN: rm -f %t-which %t-asdf
+
+// Create various output files...
+// RUN: cp %p/Inputs/which %t-which
+// RUN: echo asdf > %t-asdf
+
+// 1) Try overwriting a valid allexe
+// RUN: not alltogether %p/Inputs/which -o %t-which |& FileCheck %s -check-prefix=ERROR
+// RUN: alltogether %p/Inputs/which -f -o %t-which | FileCheck %s
+
+// 2) Try overwriting a non-allexe file
+// RUN: not alltogether %p/Inputs/which -o %t-asdf |& FileCheck %s -check-prefix=ERROR
+// RUN: alltogether %p/Inputs/which -f -o %t-asdf | FileCheck %s
+
+// Finally, the more straightforward scenario:
+// 3) Run alltogether twice in a row :)
+// RUN: alltogether %p/Inputs/which -f -o %t | FileCheck %s
+// RUN: not alltogether %p/Inputs/which -o %t |& FileCheck %s -check-prefix=ERROR
+
+// CHECK: Successfully wrote to
+
+// ERROR-NOT: Successfully
+// ERROR: alltogether:
+// ERROR-NOT: Successfully
