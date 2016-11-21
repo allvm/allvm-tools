@@ -47,8 +47,8 @@ add_custom_command(OUTPUT ${MUSL}/lib/libc.a
 add_custom_target(musl DEPENDS ${MUSL}/lib/libc.a)
 set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "${MUSL}")
 
-# Compile our little libunwind bits into a library, then merge in musl's libc.a.
-add_library(none STATIC UnwindRegistersRestore.S UnwindRegistersSave.S)
+# Compile our little assembly bits into a library, then merge in musl's libc.a.
+add_library(none STATIC UnwindRegistersRestore.S UnwindRegistersSave.S dso_handle.S)
 install(TARGETS none DESTINATION lib)
 set_output_directory(none BINARY_DIR ${LLVM_RUNTIME_OUTPUT_INTDIR} LIBRARY_DIR ${LLVM_LIBRARY_OUTPUT_INTDIR})
 add_dependencies(none musl)
