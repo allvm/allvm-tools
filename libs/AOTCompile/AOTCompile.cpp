@@ -10,7 +10,8 @@ using namespace allvm;
 using namespace llvm;
 
 Error allvm::AOTCompileIfNeeded(StaticBinaryCache &Cache, Allexe &allexe,
-                                StringRef LibNone, StringRef Linker,
+                                StringRef LibNone, StringRef CrtBits,
+                                const ALLVMLinker &Linker,
                                 const CompilationOptions &Options) {
   if (allexe.getNumModules() != 1)
     return make_error<StringError>(
@@ -37,8 +38,8 @@ Error allvm::AOTCompileIfNeeded(StaticBinaryCache &Cache, Allexe &allexe,
     if (auto EC = sys::fs::createTemporaryFile("allvm", "aot", tempFileName))
       return make_error<StringError>("Unable to create temporary file", EC);
 
-    auto binary = compileAndLinkAllexeWithLlcDefaults(allexe, LibNone, Linker,
-                                                      tempFileName, context);
+    auto binary = compileAndLinkAllexeWithLlcDefaults(
+        allexe, LibNone, CrtBits, Linker, tempFileName, context);
     if (!binary)
       return binary.takeError();
     DEBUG(dbgs() << "Compiled successfully into " << tempFileName << "\n");

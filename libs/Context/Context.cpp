@@ -34,5 +34,12 @@ ALLVMContext ALLVMContext::get(const char *Argv, void *Main) {
 
 ALLVMContext ALLVMContext::get(StringRef PrefixDir) {
   return {PrefixDir, getPath(PrefixDir, "lib", "libnone.a"),
-          getPath(PrefixDir, "bin", "alley")};
+          getPath(PrefixDir, "lib/crt", "."),
+          getPath(PrefixDir, "bin", "alley"),
+#ifdef ALLVM_alld_available
+          getPath(PrefixDir, "bin", "alld")
+#else
+          ""
+#endif
+  };
 }

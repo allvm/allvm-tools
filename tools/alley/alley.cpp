@@ -1,6 +1,7 @@
 #include "ExecutionYengine.h"
 
 #include "ALLVMContextAnchor.h"
+#include "ALLVMLinker.h"
 #include "ALLVMVersion.h"
 #include "AOTCompile.h"
 
@@ -24,10 +25,16 @@ using namespace llvm;
 namespace {
 cl::opt<std::string> LibNone("libnone", cl::desc("Path of libnone.a"));
 
-cl::opt<std::string>
-    Linker("linker",
-           cl::desc("Path of linker-driver to use for static compilation"),
-           cl::init("clang"));
+cl::opt<std::string> CrtBits("crtbits",
+                             cl::desc("Path to the crt* object files"));
+
+cl::opt<std::string> Linker("linker",
+                            cl::desc("Linker to use for static compilation")
+#ifndef ALLVM_alld_available
+                                ,
+                            cl::init("ld")
+#endif
+                                );
 
 cl::opt<std::string> InputFilename(cl::Positional, cl::Required,
                                    cl::desc("<input allvm file>"));
@@ -57,6 +64,7 @@ int main(int argc, const char **argv, const char **envp) {
 
   ALLVMContext AC = ALLVMContext::getAnchored(argv[0]);
   LibNone.setInitialValue(AC.LibNonePath);
+  CrtBits.setInitialValue(AC.CrtBitsPath);
 
   cl::ParseCommandLineOptions(argc, argv, "allvm runtime executor");
   ExitOnErr.setBanner(std::string(argv[0]) + ": ");
@@ -71,7 +79,13 @@ int main(int argc, const char **argv, const char **envp) {
       return 1;
     }
     StaticBinaryCache Cache;
-    ExitOnErr(AOTCompileIfNeeded(Cache, *allexe, LibNone, Linker, Options));
+    std::unique_ptr<ALLVMLinker> TheLinker;
+    if (Linker.empty())
+      TheLinker = make_unique<InternalLinker>(AC.AlldPath);
+    else
+      TheLinker = make_unique<PathLinker>(Linker);
+    ExitOnErr(AOTCompileIfNeeded(Cache, *allexe, LibNone, CrtBits, *TheLinker,
+                                 Options));
   }
 
   // Fixup argv[0] to the allexe name without the allexe suffix.

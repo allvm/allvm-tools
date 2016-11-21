@@ -7,7 +7,7 @@
 // RUN: find %t-tmp -type f | wc -l | FileCheck %s -check-prefix=EMPTY
 // EMPTY: 0
 
-// RUN: ALLVM_CACHE_DIR=%t-cache TMPDIR=%t-tmp allready -linker=cc %p/Inputs/which
+// RUN: ALLVM_CACHE_DIR=%t-cache TMPDIR=%t-tmp allready %p/Inputs/which
 // RUN: find %t-cache/ -type f | wc -l | FileCheck %s -check-prefix=ONE
 // RUN: find %t-cache/static_binaries -type f | wc -l | FileCheck %s -check-prefix=ONE
 // ONE: 1

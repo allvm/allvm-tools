@@ -9,7 +9,9 @@ namespace allvm {
 struct ALLVMContext {
   std::string PrefixDir;
   std::string LibNonePath;
+  std::string CrtBitsPath;
   std::string AlleyPath;
+  std::string AlldPath;
   // To use this, include ALLVMContextAnchor in your tool.
   static ALLVMContext getAnchored(const char *Argv0);
   // Otherwise, use these and help us find where we're installed:
