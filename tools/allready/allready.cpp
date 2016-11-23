@@ -78,7 +78,8 @@ int main(int argc, const char **argv) {
   ExitOnErr(AOTCompileIfNeeded(Cache, *allexe, LibNone, CrtBits, *TheLinker,
                                Options));
 
-  outs() << "Successfully cached static binary for '" << InputFilename << "'.\n";
+  outs() << "Successfully cached static binary for '" << InputFilename
+         << "'.\n";
 
   return 0;
 }
