@@ -53,9 +53,10 @@ Allexe::open(StringRef filename, const ALLVMContext &AC, bool overwrite) {
 
   auto A = std::unique_ptr<Allexe>(new Allexe(std::move(*archive)));
   if (A->getNumModules() > 0 && A->getModuleName(0) != ALLEXE_MAIN)
-    return makeOpenError(filename, "invalid allexe: First entry was: '" +
-                                       A->getModuleName(0) + "', expected: '" +
-                                       ALLEXE_MAIN + "'",
+    return makeOpenError(filename,
+                         "invalid allexe: First entry was: '" +
+                             A->getModuleName(0) + "', expected: '" +
+                             ALLEXE_MAIN + "'",
                          errc::invalid_argument);
 
   return std::move(A);
