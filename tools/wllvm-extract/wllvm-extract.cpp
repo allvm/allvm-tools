@@ -47,11 +47,6 @@ cl::opt<std::string> InputFilename(cl::Positional, cl::Required,
 cl::opt<std::string> OutputFilename("o", cl::desc("Override output filename"),
                                     cl::value_desc("filename"));
 
-cl::opt<bool> InternalizeHidden(
-    "internalize-hidden",
-    cl::desc("Don't internalize hidden variables. Only for single bc/allexe."),
-    cl::init(true));
-
 cl::opt<bool> StripDebug("strip-debug",
                          cl::desc("Strip debugging information from bitcode"),
                          cl::init(false));
@@ -82,7 +77,7 @@ static Error writeAsSingleBC(const WLLVMFile &File, StringRef Filename) {
         "error opening output file '" + Filename + "'", EC);
 
   LLVMContext C;
-  auto Composite = File.getLinkedModule(C, InternalizeHidden);
+  auto Composite = File.getLinkedModule(C);
   if (!Composite)
     return Composite.takeError();
 
@@ -134,7 +129,7 @@ static Error writeAsAllexe(const WLLVMFile &File, StringRef Filename,
   if (!Output)
     return Output.takeError();
 
-  auto Composite = File.getLinkedModule(C, InternalizeHidden);
+  auto Composite = File.getLinkedModule(C);
   if (!Composite)
     return Composite.takeError();
 
