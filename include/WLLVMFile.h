@@ -41,7 +41,7 @@ public:
   ArrayRef<StringRef> getBCFilenames() const { return BCEntries; }
 
   llvm::Expected<std::unique_ptr<llvm::Module>>
-  getLinkedModule(LLVMContext &C, bool InternalizeHidden = true) const;
+  getLinkedModule(LLVMContext &C) const;
 
 private:
   void parseWLLVMSection(StringRef Contents);

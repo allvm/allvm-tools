@@ -19,50 +19,8 @@
 using namespace allvm;
 using namespace llvm;
 
-static bool internalizeHidden(GlobalValue &GV) {
-  if (!GV.hasHiddenVisibility())
-    return false;
-
-  // Don't mess with comdat globals,
-  // they're designed to handle being linked together.
-  if (GV.hasComdat())
-    return false;
-
-  // Don't internalize references to externally defined symbols
-  if (GV.isDeclaration())
-    return false;
-
-  // These are useful for opts, and should be dropped while linking.
-  if (GV.hasAvailableExternallyLinkage())
-    return false;
-
-  // Pretty sure weak-any will break things if we don't do something
-  // See FunctionImportUtils.cpp for some details.
-  // (it might make sense to try to leverage that work, part of ThinLTO)
-  assert(!GV.hasWeakAnyLinkage());
-
-  // Hopefully that's most of the things we'll run into,
-  // go ahead and convert this global to private (and non-hidden):
-  GV.setLinkage(GlobalValue::PrivateLinkage);
-
-  // (Setting local linkage type should change visibility)
-  assert(!GV.hasHiddenVisibility());
-
-  return true;
-}
-
-static void internalizeHidden(Module *M) {
-  for (auto &Func : *M)
-    if (Func.getName() != "main")
-      internalizeHidden(Func);
-  for (auto &Global : M->globals())
-    internalizeHidden(Global);
-  for (auto &Alias : M->aliases())
-    internalizeHidden(Alias);
-}
-
 Expected<std::unique_ptr<Module>>
-WLLVMFile::getLinkedModule(LLVMContext &C, bool InternalizeHidden) const {
+WLLVMFile::getLinkedModule(LLVMContext &C) const {
   // TODO: Rework how WLLVMFile* handles errors!
   SMDiagnostic Err;
 
@@ -81,9 +39,6 @@ WLLVMFile::getLinkedModule(LLVMContext &C, bool InternalizeHidden) const {
       return make_error<StringError>(BCFilename + ": error linking module",
                                      errc::invalid_argument);
   }
-
-  if (InternalizeHidden)
-    internalizeHidden(Composite.get());
 
   return std::move(Composite);
 }
