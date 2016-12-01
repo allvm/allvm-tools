@@ -50,9 +50,6 @@ Error runHosted(ExecutionEngine &EE, ExecutionYengine::ExecutionInfo &Info) {
   EE.addGlobalMapping("__fini_array_start", dummy_addr);
   EE.addGlobalMapping("__fini_array_end", dummy_addr);
 
-  // TODO: Look into Orc's LocalCXXRuntimeOverrides for a better solution!
-  EE.addGlobalMapping("__dso_handle", dummy_addr);
-
   // Setup our stack for running the libc initialization code
   // This needs to actually be stack-allocated as musl code
   // uses that property for some checks.
