@@ -9,6 +9,7 @@ set(MUSL_PATCHES
   musl-patches/0005-Another-weak_alias-victim-destructors-for-stdio-and-.patch
   musl-patches/0006-configure-improve-tryflag-to-reject-ignored-opt-argu.patch
   musl-patches/0007-Partially-revert-remove-potentially-PIC-incompatible.patch
+  musl-patches/CVE-2016-8859.patch
 )
 
 set(MUSL_CFLAGS_EXTRA "")
