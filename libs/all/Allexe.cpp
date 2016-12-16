@@ -67,6 +67,7 @@ Allexe::getModule(size_t idx, LLVMContext &ctx, uint32_t *crc,
                   bool shouldLoadLazyMetaData) {
   assert(idx < getNumModules() && "invalid module idx");
   auto bitcode = archive->getEntry(idx, crc);
+  // TODO: Give error here more context about module that caused the error
   return getOwningLazyBitcodeModule(std::move(bitcode), ctx,
                                     shouldLoadLazyMetaData);
 }
