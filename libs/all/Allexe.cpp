@@ -67,6 +67,7 @@ Allexe::getModule(size_t idx, LLVMContext &ctx, uint32_t *crc,
                   bool shouldLoadLazyMetaData) {
   assert(idx < getNumModules() && "invalid module idx");
   auto bitcode = archive->getEntry(idx, crc);
+  // TODO: Give error here more context about module that caused the error
   return getOwningLazyBitcodeModule(std::move(bitcode), ctx,
                                     shouldLoadLazyMetaData);
 }
@@ -98,11 +99,18 @@ Error Allexe::addModule(std::unique_ptr<Module> m, StringRef moduleName) {
 }
 
 Error Allexe::addModule(StringRef filename, StringRef moduleName) {
-  auto buf = MemoryBuffer::getFile(filename);
-  if (!buf)
-    return makeOpenError(filename, "invalid allexe file", buf.getError());
+  auto buf_or_err = MemoryBuffer::getFile(filename);
+  if (!buf_or_err)
+    return make_error<StringError>("unable to open file " + filename,
+                                   buf_or_err.getError());
+  auto buf = std::move(buf_or_err.get());
+  if (!llvm::isBitcode(
+          reinterpret_cast<const unsigned char *>(buf->getBufferStart()),
+          reinterpret_cast<const unsigned char *>(buf->getBufferEnd())))
+    return make_error<StringError>("file is not bitcode: " + filename,
+                                   errc::invalid_argument);
   StringRef entryName = !moduleName.empty() ? moduleName : filename;
-  if (!archive->addEntry(std::move(buf.get()), entryName))
+  if (!archive->addEntry(std::move(buf), entryName))
     return make_error<StringError>("Error adding module to allexe",
                                    errc::invalid_argument);
   return Error::success();

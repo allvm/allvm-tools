@@ -20,8 +20,7 @@ Error ExecutionYengine::doJITExec() {
     auto M = allexe.getModule(idx, context, &crc);
     auto name = allexe.getModuleName(idx);
     if (!M)
-      return make_error<StringError>("Could not read module '" + name + "'",
-                                     errc::invalid_argument);
+      return M.takeError();
     M.get()->setModuleIdentifier(JITCache::generateName(name, crc));
     return std::move(M.get());
   };

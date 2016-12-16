@@ -1,0 +1,1 @@
+// RUN: not bc2allvm %p/Inputs/simplest.ll -o %t
