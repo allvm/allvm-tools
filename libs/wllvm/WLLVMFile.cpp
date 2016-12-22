@@ -49,9 +49,9 @@ Expected<std::unique_ptr<WLLVMFile>> WLLVMFile::open(StringRef file) {
 
       StringRef Contents;
       if (auto ec = S.getContents(Contents))
-        return make_error<StringError>(
-            "Error reading section contents: " + ec.message(),
-            errc::invalid_argument);
+        return make_error<StringError>("Error reading section contents: " +
+                                           ec.message(),
+                                       errc::invalid_argument);
 
       return make_unique<WLLVMFile>(file, Contents);
     }

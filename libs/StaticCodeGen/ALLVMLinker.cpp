@@ -55,8 +55,8 @@ Error ALLVMLinker::callLinkerAsExternalProcess(StringRef LinkerProgram,
       return makeALLVMLinkerError("Failed to invoke the linker: " + ErrorMsg);
     } else {
       assert(Res == -2 && "Unexpected result");
-      return makeALLVMLinkerError(
-          "Linker process crashed or timed out: " + ErrorMsg);
+      return makeALLVMLinkerError("Linker process crashed or timed out: " +
+                                  ErrorMsg);
     }
   }
 
