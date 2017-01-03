@@ -1,7 +1,7 @@
-From 152e507ada0d14d033db352cef5acc9af2e87c00 Mon Sep 17 00:00:00 2001
+From a052fe16ee430847e2453dbb9684bce47da2402a Mon Sep 17 00:00:00 2001
 From: Will Dietz <w@wdtz.org>
 Date: Thu, 6 Oct 2016 14:09:59 -0500
-Subject: [PATCH 7/7] Partially revert "remove potentially PIC-incompatible
+Subject: [PATCH 7/8] Partially revert "remove potentially PIC-incompatible
  relocations from x86_64 and x32 asm"
 
 This partially reverts commit b35c4c475bea3c8f938d8e9696d1138eabb54a89.
@@ -13,7 +13,7 @@ This partially reverts commit b35c4c475bea3c8f938d8e9696d1138eabb54a89.
  4 files changed, 6 insertions(+), 6 deletions(-)
 
 diff --git a/src/math/x32/expl.s b/src/math/x32/expl.s
-index 369f7bd..aabea45 100644
+index 369f7bd2..aabea45e 100644
 --- a/src/math/x32/expl.s
 +++ b/src/math/x32/expl.s
 @@ -37,7 +37,7 @@ expl:
@@ -26,7 +26,7 @@ index 369f7bd..aabea45 100644
  	fld %st(0)
  	fstpt (%esp)
 diff --git a/src/math/x86_64/expl.s b/src/math/x86_64/expl.s
-index 798261d..3add810 100644
+index 798261d2..3add810d 100644
 --- a/src/math/x86_64/expl.s
 +++ b/src/math/x86_64/expl.s
 @@ -37,7 +37,7 @@ expl:
@@ -39,7 +39,7 @@ index 798261d..3add810 100644
  	fld %st(0)
  	fstpt (%rsp)
 diff --git a/src/signal/x32/sigsetjmp.s b/src/signal/x32/sigsetjmp.s
-index 1f02b0e..bb1c245 100644
+index 1f02b0e5..bb1c245e 100644
 --- a/src/signal/x32/sigsetjmp.s
 +++ b/src/signal/x32/sigsetjmp.s
 @@ -11,7 +11,7 @@ __sigsetjmp:
@@ -58,7 +58,7 @@ index 1f02b0e..bb1c245 100644
 -1:	jmp setjmp@PLT
 +1:	jmp setjmp
 diff --git a/src/signal/x86_64/sigsetjmp.s b/src/signal/x86_64/sigsetjmp.s
-index 9a7695f..d354d68 100644
+index 9a7695f9..d354d680 100644
 --- a/src/signal/x86_64/sigsetjmp.s
 +++ b/src/signal/x86_64/sigsetjmp.s
 @@ -11,7 +11,7 @@ __sigsetjmp:
@@ -77,5 +77,5 @@ index 9a7695f..d354d68 100644
 -1:	jmp setjmp@PLT
 +1:	jmp setjmp
 -- 
-2.7.4
+2.11.0
 

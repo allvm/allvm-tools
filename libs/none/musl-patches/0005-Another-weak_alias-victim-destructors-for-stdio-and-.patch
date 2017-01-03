@@ -1,7 +1,7 @@
-From b3bf9c8056ee4d15dd31e4e83c32d3441b20d12a Mon Sep 17 00:00:00 2001
+From 432de2ab934508ca3185f4d035123dba5cebc249 Mon Sep 17 00:00:00 2001
 From: Will Dietz <w@wdtz.org>
 Date: Fri, 23 Sep 2016 11:26:47 -0500
-Subject: [PATCH 5/7] Another weak_alias victim: destructors for stdio and
+Subject: [PATCH 5/8] Another weak_alias victim: destructors for stdio and
  related.
 
 ---
@@ -12,7 +12,7 @@ Subject: [PATCH 5/7] Another weak_alias victim: destructors for stdio and
  4 files changed, 23 insertions(+), 12 deletions(-)
 
 diff --git a/src/exit/exit.c b/src/exit/exit.c
-index bf7835a..4755a95 100644
+index bf7835a1..4755a959 100644
 --- a/src/exit/exit.c
 +++ b/src/exit/exit.c
 @@ -8,9 +8,13 @@ static void dummy()
@@ -32,7 +32,7 @@ index bf7835a..4755a95 100644
  __attribute__((__weak__, __visibility__("hidden")))
  extern void (*const __fini_array_start)(void), (*const __fini_array_end)(void);
 diff --git a/src/stdio/__stdio_exit.c b/src/stdio/__stdio_exit.c
-index 191b445..8859fb9 100644
+index 191b4454..8859fb9b 100644
 --- a/src/stdio/__stdio_exit.c
 +++ b/src/stdio/__stdio_exit.c
 @@ -1,9 +1,12 @@
@@ -53,7 +53,7 @@ index 191b445..8859fb9 100644
  static void close_file(FILE *f)
  {
 diff --git a/src/stdio/fflush.c b/src/stdio/fflush.c
-index c288106..c133df8 100644
+index c2881065..c133df84 100644
 --- a/src/stdio/fflush.c
 +++ b/src/stdio/fflush.c
 @@ -1,8 +1,9 @@
@@ -69,12 +69,12 @@ index c288106..c133df8 100644
  int fflush(FILE *f)
  {
 diff --git a/src/thread/pthread_create.c b/src/thread/pthread_create.c
-index 4513f47..3fed33f 100644
+index c5ea55c5..e0dab481 100644
 --- a/src/thread/pthread_create.c
 +++ b/src/thread/pthread_create.c
-@@ -166,10 +166,13 @@ extern void *__pthread_tsd_main;
- 
- volatile int __block_new_threads = 0;
+@@ -168,10 +168,13 @@ volatile int __block_new_threads = 0;
+ size_t __default_stacksize = DEFAULT_STACK_SIZE;
+ size_t __default_guardsize = DEFAULT_GUARD_SIZE;
  
 -static FILE *volatile dummy_file = 0;
 -weak_alias(dummy_file, __stdin_used);
@@ -91,5 +91,5 @@ index 4513f47..3fed33f 100644
  static void init_file_lock(FILE *f)
  {
 -- 
-2.7.4
+2.11.0
 

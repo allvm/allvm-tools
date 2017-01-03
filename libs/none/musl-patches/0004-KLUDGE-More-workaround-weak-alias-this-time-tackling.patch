@@ -1,7 +1,7 @@
-From b6ea074776ac2fe2cbd30eaad0c6de59cb4e8220 Mon Sep 17 00:00:00 2001
+From da7bbd52b53c7dc508b01d1688a56f39c1126210 Mon Sep 17 00:00:00 2001
 From: Will Dietz <w@wdtz.org>
 Date: Fri, 29 Jul 2016 07:51:23 -0500
-Subject: [PATCH 4/7] KLUDGE: More workaround weak alias, this time tackling
+Subject: [PATCH 4/8] KLUDGE: More workaround weak alias, this time tackling
  pthread stuff.
 
 In theory we'll now pull in pthread stuff when it's not strictly
@@ -11,7 +11,7 @@ needed, but that seems okay for now.
  1 file changed, 6 insertions(+), 4 deletions(-)
 
 diff --git a/src/thread/pthread_create.c b/src/thread/pthread_create.c
-index 9f6b98e..4513f47 100644
+index 49f2f729..c5ea55c5 100644
 --- a/src/thread/pthread_create.c
 +++ b/src/thread/pthread_create.c
 @@ -157,10 +157,12 @@ static int start_c11(void *p)
@@ -30,7 +30,7 @@ index 9f6b98e..4513f47 100644
 +extern void *__pthread_tsd_main;
  
  volatile int __block_new_threads = 0;
- 
+ size_t __default_stacksize = DEFAULT_STACK_SIZE;
 -- 
-2.7.4
+2.11.0
 

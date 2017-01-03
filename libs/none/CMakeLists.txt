@@ -1,6 +1,6 @@
 enable_language(ASM)
 
-set(MUSL musl-1.1.15)
+set(MUSL musl-1.1.16)
 
 set(MUSL_PATCHES
   musl-patches/0002-Disable-vdso-support-on-x86_64-we-don-t-support-it-y.patch
@@ -9,7 +9,7 @@ set(MUSL_PATCHES
   musl-patches/0005-Another-weak_alias-victim-destructors-for-stdio-and-.patch
   musl-patches/0006-configure-improve-tryflag-to-reject-ignored-opt-argu.patch
   musl-patches/0007-Partially-revert-remove-potentially-PIC-incompatible.patch
-  musl-patches/CVE-2016-8859.patch
+  musl-patches/0008-kludge-around-_DYNAMIC-and-our-bad-weak-symbol-handl.patch
 )
 
 set(MUSL_CFLAGS_EXTRA "")
