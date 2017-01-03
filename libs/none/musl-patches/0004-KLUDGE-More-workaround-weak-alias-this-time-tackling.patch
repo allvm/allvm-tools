@@ -1,7 +1,7 @@
 From da7bbd52b53c7dc508b01d1688a56f39c1126210 Mon Sep 17 00:00:00 2001
 From: Will Dietz <w@wdtz.org>
 Date: Fri, 29 Jul 2016 07:51:23 -0500
-Subject: [PATCH 4/7] KLUDGE: More workaround weak alias, this time tackling
+Subject: [PATCH 4/8] KLUDGE: More workaround weak alias, this time tackling
  pthread stuff.
 
 In theory we'll now pull in pthread stuff when it's not strictly

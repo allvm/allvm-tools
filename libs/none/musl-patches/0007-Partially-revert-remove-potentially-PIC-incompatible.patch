@@ -1,7 +1,7 @@
 From a052fe16ee430847e2453dbb9684bce47da2402a Mon Sep 17 00:00:00 2001
 From: Will Dietz <w@wdtz.org>
 Date: Thu, 6 Oct 2016 14:09:59 -0500
-Subject: [PATCH 7/7] Partially revert "remove potentially PIC-incompatible
+Subject: [PATCH 7/8] Partially revert "remove potentially PIC-incompatible
  relocations from x86_64 and x32 asm"
 
 This partially reverts commit b35c4c475bea3c8f938d8e9696d1138eabb54a89.

@@ -1,7 +1,7 @@
 From 2e14a4c3ccb9a1194f634fdede5683192f7f53d9 Mon Sep 17 00:00:00 2001
 From: Will Dietz <w@wdtz.org>
 Date: Fri, 29 Jul 2016 07:47:34 -0500
-Subject: [PATCH 2/7] Disable vdso support on x86_64, we don't support it
+Subject: [PATCH 2/8] Disable vdso support on x86_64, we don't support it
  (yet).
 
 ---
