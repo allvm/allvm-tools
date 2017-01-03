@@ -1,4 +1,4 @@
-From 835e0c0781d3cb3c4af916767ec8a264c36e3583 Mon Sep 17 00:00:00 2001
+From 013ec324fe8c144b6c19a058330d16635bfc9b46 Mon Sep 17 00:00:00 2001
 From: Will Dietz <w@wdtz.org>
 Date: Sat, 24 Sep 2016 10:12:58 -0500
 Subject: [PATCH 6/7] configure: improve 'tryflag' to reject ignored opt
@@ -9,7 +9,7 @@ Subject: [PATCH 6/7] configure: improve 'tryflag' to reject ignored opt
  1 file changed, 2 insertions(+)
 
 diff --git a/configure b/configure
-index 707eb12..d785168 100755
+index c2db298c..a1151add 100755
 --- a/configure
 +++ b/configure
 @@ -249,8 +249,10 @@ fi
@@ -24,5 +24,5 @@ index 707eb12..d785168 100755
  #
  # Need to know if the compiler is gcc or clang to decide which toolchain
 -- 
-2.7.4
+2.11.0
 

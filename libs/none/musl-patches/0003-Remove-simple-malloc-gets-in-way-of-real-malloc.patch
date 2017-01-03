@@ -1,4 +1,4 @@
-From d45ea4c2f5b5c01ba6a8ec7bfca7d8c9b26e0819 Mon Sep 17 00:00:00 2001
+From 84b4b9796f4b56a06c4c7b1ab6f181234542a363 Mon Sep 17 00:00:00 2001
 From: Will Dietz <w@wdtz.org>
 Date: Fri, 29 Jul 2016 07:48:18 -0500
 Subject: [PATCH 3/7] Remove simple malloc, gets in way of 'real' malloc.
@@ -16,7 +16,7 @@ this when we shouldn't.  Remove for now.
 
 diff --git a/src/malloc/lite_malloc.c b/src/malloc/lite_malloc.c
 deleted file mode 100644
-index a7e4a9f..0000000
+index a7e4a9f7..00000000
 --- a/src/malloc/lite_malloc.c
 +++ /dev/null
 @@ -1,50 +0,0 @@
@@ -71,5 +71,5 @@ index a7e4a9f..0000000
 -weak_alias(__simple_malloc, malloc);
 -weak_alias(__simple_malloc, __malloc0);
 -- 
-2.7.4
+2.11.0
 
