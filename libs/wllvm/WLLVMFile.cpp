@@ -53,7 +53,7 @@ Expected<std::unique_ptr<WLLVMFile>> WLLVMFile::open(StringRef file) {
                                            ec.message(),
                                        errc::invalid_argument);
 
-      return make_unique<WLLVMFile>(file, Contents);
+      return llvm::make_unique<WLLVMFile>(file, Contents);
     }
   }
   return make_error<StringError>("unable to find WLLVM section",

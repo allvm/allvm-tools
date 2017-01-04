@@ -81,9 +81,9 @@ int main(int argc, const char **argv, const char **envp) {
     StaticBinaryCache Cache;
     std::unique_ptr<ALLVMLinker> TheLinker;
     if (Linker.empty())
-      TheLinker = make_unique<InternalLinker>(AC.AlldPath);
+      TheLinker = llvm::make_unique<InternalLinker>(AC.AlldPath);
     else
-      TheLinker = make_unique<PathLinker>(Linker);
+      TheLinker = llvm::make_unique<PathLinker>(Linker);
     ExitOnErr(AOTCompileIfNeeded(Cache, *allexe, LibNone, CrtBits, *TheLinker,
                                  Options));
   }
