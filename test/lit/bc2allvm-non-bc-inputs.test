@@ -1,1 +1,5 @@
-// RUN: not bc2allvm %p/Inputs/simplest.ll -o %t
+// Don't error on .ll files, convert them transparently:
+// RUN: bc2allvm %p/Inputs/simplest.ll -f -o %t
+
+// Error on non-bitcode:
+// RUN: not bc2allvm %p/Inputs/which -f -o %t
