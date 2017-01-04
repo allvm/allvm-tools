@@ -65,6 +65,7 @@ static std::string getDefaultSuffix(OutputKind K) {
   case OutputKind::Allexe:
     return ".allexe";
   }
+  llvm_unreachable("invalid output kind");
 }
 
 static Error writeAsSingleBC(const WLLVMFile &File, StringRef Filename) {
