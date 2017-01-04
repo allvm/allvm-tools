@@ -30,9 +30,10 @@ using namespace llvm;
 
 namespace {
 cl::opt<std::string> MainFile(cl::Positional, cl::Required,
-                              cl::desc("<main LLVM bitcode file>"));
-cl::list<std::string> InputFiles(cl::Positional, cl::ZeroOrMore,
-                                 cl::desc("<input LLVM bitcode file>..."));
+                              cl::desc("<main LLVM bitcode file (or ll)>"));
+cl::list<std::string>
+    InputFiles(cl::Positional, cl::ZeroOrMore,
+               cl::desc("<input LLVM bitcode file (or ll)>..."));
 
 cl::opt<std::string> OutputFilename("o", cl::desc("Override output filename"),
                                     cl::value_desc("filename"));
@@ -83,11 +84,22 @@ int main(int argc, const char **argv) {
     // Try to open the output file first
     auto Output = ExitOnErr(Allexe::open(OutputFilename, AC, ForceOutput));
 
-    ExitOnErr(Output->addModule(MainFile, ALLEXE_MAIN));
+    // Use parseIRFile to handle both bitcode and textual IR
+    // Create helper lambda for re-use below.
+    SMDiagnostic Err;
+    LLVMContext C;
+    auto addModule = [&](StringRef Filename, StringRef Name = "") {
+      auto Module = parseIRFile(Filename, Err, C);
+      if (!Module) {
+        Err.print(argv[0], errs());
+        exit(1);
+      }
+      ExitOnErr(Output->addModule(std::move(Module), Name));
+    };
 
-    for (const auto &it : InputFiles) {
-      ExitOnErr(Output->addModule(it));
-    }
+    addModule(MainFile, ALLEXE_MAIN);
+    for (const auto &it : InputFiles)
+      addModule(it);
 
     // TODO: Add (on by default?) feature for checking that
     // the resulting allexe is sane/reasonable/not-obviously-invalid.
