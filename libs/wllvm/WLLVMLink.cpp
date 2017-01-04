@@ -25,7 +25,7 @@ WLLVMFile::getLinkedModule(LLVMContext &C) const {
   SMDiagnostic Err;
 
   // Create an empty module to link these into
-  auto Composite = make_unique<Module>("linked", C);
+  auto Composite = llvm::make_unique<Module>("linked", C);
   Linker L(*Composite);
   for (auto &BCFilename : getBCFilenames()) {
     auto M = parseIRFile(BCFilename, Err, C);

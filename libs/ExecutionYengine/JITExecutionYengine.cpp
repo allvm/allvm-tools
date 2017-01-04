@@ -30,7 +30,7 @@ Error ExecutionYengine::doJITExec() {
   if (!MainMod)
     return MainMod.takeError();
 
-  auto Cache = make_unique<JITCache>();
+  auto Cache = llvm::make_unique<JITCache>();
 
   if (!Cache->hasObjectFor((*MainMod).get())) {
     if (auto E = (*MainMod)->materializeAll())
