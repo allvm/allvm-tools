@@ -387,9 +387,9 @@ compileAndLinkAllexe(Allexe &Input, StringRef LibNone, StringRef CrtBits,
   FileRemover RemoveObject(ObjectFilename);
 
   // Compile the allexe.
-  auto ErrorOrObject = compileAllexe(Input, ObjectFilename, Options, Context);
-  if (!ErrorOrObject)
-    return ErrorOrObject;
+  auto Err = compileAllexe(Input, ObjectFilename, Options, Context);
+  if (!Err)
+    return std::move(Err);
 
   // Link the allexe.
   SmallVector<StringRef, 2> Objects;
