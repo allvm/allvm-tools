@@ -14,7 +14,15 @@ namespace {
 cl::opt<std::string> InputFilename(cl::Positional,
                                    cl::desc("<input Allexe file>"));
 ExitOnError ExitOnErr;
+
+std::string crcToHex(uint32_t crc) {
+  // Get fixed-width hex string for the crc
+  auto crcHex = utohexstr(crc);
+  while (crcHex.size() < 8)
+    crcHex = "0" + crcHex;
+  return crcHex;
 }
+} // end anonymous namespace
 
 int main(int argc, const char **argv) {
   sys::PrintStackTraceOnErrorSignal(argv[0]);
@@ -28,7 +36,9 @@ int main(int argc, const char **argv) {
 
   outs() << "Modules:\n";
   for (size_t i = 0; i < Input->getNumModules(); i++) {
-    outs() << "\t" << Input->getModuleName(i) << "\n";
+    auto name = Input->getModuleName(i);
+    auto hexcrc = crcToHex(Input->getModuleCRC(i));
+    outs() << "\t" << name << " (" << hexcrc << ")\n";
   }
 
   return 0;
