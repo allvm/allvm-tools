@@ -20,7 +20,7 @@ static Error makeOpenError(const StringRef Filename, const Twine &Msg,
 static std::unique_ptr<MemoryBuffer> moduleToBuffer(const Module *M) {
   std::string X;
   raw_string_ostream OS(X);
-  WriteBitcodeToFile(M, OS);
+  WriteBitcodeToFile(M, OS, true /* ShouldPreserveUseListOrder */, nullptr, true /* Generate hash info */);
   return MemoryBuffer::getMemBufferCopy(OS.str());
 }
 
