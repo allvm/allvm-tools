@@ -86,9 +86,9 @@ int main(int argc, const char **argv) {
 
     // Use parseIRFile to handle both bitcode and textual IR
     // Create helper lambda for re-use below.
-    SMDiagnostic Err;
-    LLVMContext C;
     auto addModule = [&](StringRef Filename, StringRef Name = "") {
+      LLVMContext C;
+      SMDiagnostic Err;
       auto Module = parseIRFile(Filename, Err, C);
       if (!Module) {
         Err.print(argv[0], errs());
