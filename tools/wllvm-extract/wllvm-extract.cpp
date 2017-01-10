@@ -86,7 +86,10 @@ static Error writeAsSingleBC(const WLLVMFile &File, StringRef Filename) {
     StripDebugInfo(**Composite);
 
   WriteBitcodeToFile((*Composite).get(), Out->os(),
-                     true /* preserve use-list order */);
+                     false,   // ShouldPreserveUseListOrder
+                     nullptr, // ModuleSummaryIndex (ThinLTO)
+                     true     // Generate Hash
+                     );
   // We made it this far without error, keep the result.
   Out->keep();
   return Error::success();
