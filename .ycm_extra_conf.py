@@ -37,17 +37,18 @@ def ExtractSearchPaths(compiler):
 # Most projects will NOT need to set this to anything; you can just change the
 # 'flags' list of compilation flags. Notice that YCM itself uses that approach.
 compilation_database_folder = os.path.join(DirectoryOfThisScript(), 'build')
-compiler = os.environ['CC']
-search_paths = ExtractSearchPaths(compiler)
-extra_flags = []
-for path in search_paths:
-  extra_flags.append('-I')
-  extra_flags.append(path)
 
 if os.path.exists( compilation_database_folder ):
   database = ycm_core.CompilationDatabase( compilation_database_folder )
 else:
   raise Exception("compilation database not found")
+
+compiler = os.environ['CXX'] # Apparently "CC -xc++" doesn't get us the right paths, dunno.
+search_paths = ExtractSearchPaths(compiler)
+extra_flags = []
+for path in search_paths:
+  extra_flags.append('-I')
+  extra_flags.append(path)
 
 SOURCE_EXTENSIONS = [ '.cpp', '.cxx', '.cc', '.c', '.m', '.mm' ]
 
