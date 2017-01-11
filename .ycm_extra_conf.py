@@ -1,19 +1,16 @@
 import os
 import ycm_core
 import subprocess
-import sys
 
 def DirectoryOfThisScript():
   return os.path.dirname( os.path.abspath( __file__ ) )
 
 def ExtractSearchPaths(compiler):
   def find_paths(compiler, c_arg):
-    stdout_bytes = subprocess.check_output([compiler, c_arg, '-E', '-v', '-'], stderr=subprocess.STDOUT)
-    stdout = stdout_bytes.decode(sys.stdout.encoding)
-    print(stdout)
+    stdout = subprocess.check_output([compiler, c_arg, '-E', '-v', '-'],
+                                     stdin=subprocess.DEVNULL, stderr=subprocess.STDOUT,
+                                     universal_newlines=True)
     lines = stdout.split("\n")
-    print("--------------")
-    print(lines)
     begin_token = '#include <...> search starts here:'
     end_token = 'End of search list.'
   
@@ -24,7 +21,7 @@ def ExtractSearchPaths(compiler):
       raise Exception("token not found: %s" % token)
     begin_index = find_token_index(lines, begin_token)
     end_index = find_token_index(lines, end_token)
-    return map(lambda x: x.strip(), lines[begin_index+1:end_index])
+    return [x.strip() for x in lines[begin_index+1:end_index]]
 
   results = find_paths(compiler, '-xc')
   results.extend(find_paths(compiler, '-xc++'))
