@@ -1,15 +1,19 @@
 import os
 import ycm_core
 import subprocess
+import sys
 
 def DirectoryOfThisScript():
   return os.path.dirname( os.path.abspath( __file__ ) )
 
 def ExtractSearchPaths(compiler):
   def find_paths(compiler, c_arg):
-    child = subprocess.Popen([compiler, c_arg, '-E', '-v', '-'], stdin=subprocess.PIPE, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
-    stderr, stdout = child.communicate(input="")
+    stdout_bytes = subprocess.check_output([compiler, c_arg, '-E', '-v', '-'], stderr=subprocess.STDOUT)
+    stdout = stdout_bytes.decode(sys.stdout.encoding)
+    print(stdout)
     lines = stdout.split("\n")
+    print("--------------")
+    print(lines)
     begin_token = '#include <...> search starts here:'
     end_token = 'End of search list.'
   
