@@ -7,9 +7,13 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 add_definitions(-Wall)
 
-find_package(LLVM 4.0.0 REQUIRED CONFIG)
+find_package(LLVM REQUIRED CONFIG)
 
 message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
+if (${LLVM_PACKAGE_VERSION} VERSION_LESS 4.0)
+  message(FATAL_ERROR "LLVM 4.0 or newer is required")
+endif()
+
 message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
 
 set(Python_ADDITIONAL_VERSIONS 2.7)
