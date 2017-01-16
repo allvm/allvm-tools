@@ -1,5 +1,13 @@
 # ALLVM
 
+## Contact
+
+**Mailing List**: https://lists.cs.illinois.edu/lists/info/allvm-dev
+
+**Chat** IRC: [#allvm on OFTC](irc://irc.oftc.net/allvm) (use an IRC client, or [using Riot](https://riot.im/app/#/room/#_oftc_#allvm:matrix.org))
+
+**Website**: http://allvm.org
+
 ## Building with allvm-nixpkgs
 
 ### Building
