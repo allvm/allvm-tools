@@ -40,8 +40,17 @@ add_custom_command(OUTPUT ${MUSL}/config.mak
   DEPENDS ${MUSL_PATCHES}
   COMMENT "Configuring ${MUSL}"
 )
+
+# Kludge to handle parallelism when using make,
+# without breaking compat when using other generators (like ninja)
+if ("${CMAKE_GENERATOR}" STREQUAL "Unix Makefiles")
+  set(MAKECMD $(MAKE))
+else()
+  set(MAKECMD make -j8)
+endif()
+
 add_custom_command(OUTPUT ${MUSL}/lib/libc.a
-  COMMAND $(MAKE) -C ${MUSL}
+  COMMAND ${MAKECMD} -C ${MUSL}
   DEPENDS ${MUSL}/config.mak
   COMMENT "Building ${MUSL}..."
 )
