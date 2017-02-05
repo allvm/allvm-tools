@@ -90,6 +90,10 @@ int main(int argc, const char **argv) {
     auto addModule = [&](StringRef Filename, StringRef Name = "") {
       LLVMContext C;
       SMDiagnostic Err;
+      SmallString<128> AbsFilename = Filename;
+
+      ExitOnErr(errorCodeToError(llvm::sys::fs::make_absolute(AbsFilename)));
+
       auto Module = parseIRFile(Filename, Err, C);
       if (!Module) {
         Err.print(argv[0], errs());
