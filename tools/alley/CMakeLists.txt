@@ -15,6 +15,12 @@ set(LLVM_LINK_COMPONENTS
 add_llvm_tool(alley
   alley.cpp
 )
-target_link_libraries(alley liball AOTCompile Cache Context ExecutionYengine)
+target_link_libraries(alley
+  liball
+  AOTCompile
+  Cache
+  ExecutionYengine
+  ResourcePaths
+)
 
 add_definitions(${LLVM_DEFINITIONS})
