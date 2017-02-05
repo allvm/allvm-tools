@@ -1,9 +1,9 @@
 #include "allvm/ExecutionYengine.h"
 
-#include "allvm/ContextAnchor.h"
 #include "allvm/ALLVMLinker.h"
-#include "allvm/GitVersion.h"
 #include "allvm/AOTCompile.h"
+#include "allvm/ContextAnchor.h"
+#include "allvm/GitVersion.h"
 
 #include <llvm/CodeGen/CommandFlags.h>
 #include <llvm/ExecutionEngine/MCJIT.h>

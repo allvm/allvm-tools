@@ -8,9 +8,9 @@
 //
 //===----------------------------------------------------------------------===//
 
+#include "allvm/Allexe.h"
 #include "allvm/ContextAnchor.h"
 #include "allvm/GitVersion.h"
-#include "allvm/Allexe.h"
 #include "allvm/WLLVMFile.h"
 
 #include <llvm/Bitcode/BitcodeWriter.h>
