@@ -1,6 +1,6 @@
-#include "ALLVMContextAnchor.h"
-#include "ALLVMVersion.h"
-#include "Allexe.h"
+#include "allvm/Allexe.h"
+#include "allvm/GitVersion.h"
+#include "allvm/ResourceAnchor.h"
 
 #include <llvm/Support/CommandLine.h>
 #include <llvm/Support/PrettyStackTrace.h>
@@ -31,8 +31,8 @@ int main(int argc, const char **argv) {
 
   cl::ParseCommandLineOptions(argc, argv);
 
-  ALLVMContext AC = ALLVMContext::getAnchored(argv[0]);
-  auto Input = ExitOnErr(Allexe::openForReading(InputFilename, AC));
+  ResourcePaths RP = ResourcePaths::getAnchored(argv[0]);
+  auto Input = ExitOnErr(Allexe::openForReading(InputFilename, RP));
 
   outs() << "Modules:\n";
   for (size_t i = 0; i < Input->getNumModules(); i++) {

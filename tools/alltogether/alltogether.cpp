@@ -8,9 +8,9 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "ALLVMContextAnchor.h"
-#include "ALLVMVersion.h"
-#include "Allexe.h"
+#include "allvm/Allexe.h"
+#include "allvm/GitVersion.h"
+#include "allvm/ResourceAnchor.h"
 
 #include <llvm/ADT/SmallString.h>
 #include <llvm/CodeGen/CommandFlags.h>
@@ -74,7 +74,7 @@ int main(int argc, const char **argv) {
   InitializeAllAsmPrinters();
   InitializeAllAsmParsers();
 
-  ALLVMContext AC = ALLVMContext::getAnchored(argv[0]);
+  ResourcePaths RP = ResourcePaths::getAnchored(argv[0]);
   if (OutputFilename.empty()) {
     if (StringRef(InputFilename) != "-") {
       SmallString<64> Output{StringRef(InputFilename)};
@@ -93,7 +93,7 @@ int main(int argc, const char **argv) {
 
   LLVMContext Context;
 
-  auto exe = ExitOnErr(Allexe::openForReading(InputFilename, AC));
+  auto exe = ExitOnErr(Allexe::openForReading(InputFilename, RP));
 
   SMDiagnostic Err;
   LTOCodeGenerator CodeGen(Context);
@@ -163,7 +163,7 @@ int main(int argc, const char **argv) {
       return 1;
     }
 
-    auto alltogether = ExitOnErr(Allexe::open(OutputFilename, AC, Overwrite));
+    auto alltogether = ExitOnErr(Allexe::open(OutputFilename, RP, Overwrite));
     ExitOnErr(alltogether->addModule(TempBCPath, ALLEXE_MAIN));
   }
   info("Successfully wrote to '" + OutputFilename + "'!\n");

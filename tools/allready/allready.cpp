@@ -8,12 +8,12 @@
 // That is to say, it's "all ready" for execution.
 //
 //===----------------------------------------------------------------------===//
-#include "ExecutionYengine.h"
+#include "allvm/ExecutionYengine.h"
 
-#include "ALLVMContextAnchor.h"
-#include "ALLVMLinker.h"
-#include "ALLVMVersion.h"
-#include "AOTCompile.h"
+#include "allvm/ALLVMLinker.h"
+#include "allvm/AOTCompile.h"
+#include "allvm/GitVersion.h"
+#include "allvm/ResourceAnchor.h"
 
 #include <llvm/CodeGen/CommandFlags.h>
 #include <llvm/ExecutionEngine/MCJIT.h>
@@ -58,21 +58,21 @@ int main(int argc, const char **argv) {
   InitializeNativeTargetAsmPrinter();
   InitializeNativeTargetAsmParser();
 
-  ALLVMContext AC = ALLVMContext::getAnchored(argv[0]);
-  LibNone.setInitialValue(AC.LibNonePath);
-  CrtBits.setInitialValue(AC.CrtBitsPath);
+  ResourcePaths RP = ResourcePaths::getAnchored(argv[0]);
+  LibNone.setInitialValue(RP.LibNonePath);
+  CrtBits.setInitialValue(RP.CrtBitsPath);
 
   cl::ParseCommandLineOptions(argc, argv, "allready static codegen -> cache");
 
   ExitOnErr.setBanner(std::string(argv[0]) + ": ");
 
-  auto allexe = ExitOnErr(Allexe::openForReading(InputFilename, AC));
+  auto allexe = ExitOnErr(Allexe::openForReading(InputFilename, RP));
 
   const CompilationOptions Options; // TODO: Let use specify these?
   StaticBinaryCache Cache;
   std::unique_ptr<ALLVMLinker> TheLinker;
   if (Linker.empty())
-    TheLinker = llvm::make_unique<InternalLinker>(AC.AlldPath);
+    TheLinker = llvm::make_unique<InternalLinker>(RP.AlldPath);
   else
     TheLinker = llvm::make_unique<PathLinker>(Linker);
   ExitOnErr(AOTCompileIfNeeded(Cache, *allexe, LibNone, CrtBits, *TheLinker,

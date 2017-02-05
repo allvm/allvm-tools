@@ -1,7 +1,8 @@
 #ifndef ALLVM_StaticBinaryCache_H
 #define ALLVM_StaticBinaryCache_H
 
-#include "StaticCodeGen.h"
+#include "allvm/StaticCodeGen.h"
+
 #include <llvm/Support/FileSystem.h>
 #include <llvm/Support/MemoryBuffer.h>
 #include <llvm/Support/Path.h>

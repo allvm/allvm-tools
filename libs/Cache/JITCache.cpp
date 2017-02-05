@@ -1,5 +1,6 @@
-#include "JITCache.h"
 #include "CacheLocation.h"
+
+#include "allvm/JITCache.h"
 
 #include <llvm/ADT/SmallString.h>
 #include <llvm/ADT/StringExtras.h>

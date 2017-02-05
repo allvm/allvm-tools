@@ -1,6 +1,6 @@
-#include "StaticCodeGen.h"
-#include "ALLVMLinker.h"
-#include "Allexe.h"
+#include "allvm/StaticCodeGen.h"
+#include "allvm/ALLVMLinker.h"
+#include "allvm/Allexe.h"
 
 #include <llvm/ADT/StringExtras.h>
 #include <llvm/ADT/Triple.h>

@@ -1,4 +1,5 @@
-#include "Allexe.h"
+#include "allvm/Allexe.h"
+#include "allvm/ResourcePaths.h"
 
 #include <llvm/ADT/Twine.h>
 #include <llvm/Bitcode/BitcodeReader.h>
@@ -34,8 +35,8 @@ Allexe::Allexe(std::unique_ptr<ZipArchive> zipArchive)
 size_t Allexe::getNumModules() const { return archive->listFiles().size(); }
 
 Expected<std::unique_ptr<Allexe>>
-Allexe::openForReading(StringRef filename, const ALLVMContext &AC) {
-  auto Allexe = Allexe::open(filename, AC, false);
+Allexe::openForReading(StringRef filename, const ResourcePaths &RP) {
+  auto Allexe = Allexe::open(filename, RP, false);
   if (!Allexe)
     return Allexe.takeError();
   if ((*Allexe)->getNumModules() == 0)
@@ -45,13 +46,13 @@ Allexe::openForReading(StringRef filename, const ALLVMContext &AC) {
 }
 
 Expected<std::unique_ptr<Allexe>>
-Allexe::open(StringRef filename, const ALLVMContext &AC, bool overwrite) {
+Allexe::open(StringRef filename, const ResourcePaths &RP, bool overwrite) {
   auto archive = ZipArchive::open(filename, overwrite);
   if (!archive)
     // TODO: Improve error handling reported by ZipArchive
     // so we can return a useful error here!
     return makeOpenError(filename, "unknown reason", errc::invalid_argument);
-  if (!(*archive)->setPrefixStr("#!" + AC.AlleyPath + "\n"))
+  if (!(*archive)->setPrefixStr("#!" + RP.AlleyPath + "\n"))
     return makeOpenError(filename, "unable to set prefix string",
                          errc::invalid_argument);
 
