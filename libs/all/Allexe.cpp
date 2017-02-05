@@ -69,7 +69,7 @@ Allexe::open(StringRef filename, const ResourcePaths &RP, bool overwrite) {
 
 Expected<std::unique_ptr<Module>>
 Allexe::getModule(size_t idx, LLVMContext &ctx, uint32_t *crc,
-                  bool shouldLoadLazyMetaData) {
+                  bool shouldLoadLazyMetaData) const {
   assert(idx < getNumModules() && "invalid module idx");
   auto bitcode = archive->getEntry(idx, crc);
   // TODO: Give error here more context about module that caused the error
@@ -77,7 +77,7 @@ Allexe::getModule(size_t idx, LLVMContext &ctx, uint32_t *crc,
                                     shouldLoadLazyMetaData);
 }
 
-uint32_t Allexe::getModuleCRC(size_t idx) {
+uint32_t Allexe::getModuleCRC(size_t idx) const {
   assert(idx < getNumModules() && "invalid module idx");
   return archive->getEntryCRC(idx);
 }

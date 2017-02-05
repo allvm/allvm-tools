@@ -33,9 +33,9 @@ public:
 
   llvm::Expected<std::unique_ptr<llvm::Module>>
   getModule(size_t i, llvm::LLVMContext &, uint32_t *crc = nullptr,
-            bool shouldLoadLazyMetaData = true);
+            bool shouldLoadLazyMetaData = true) const;
 
-  uint32_t getModuleCRC(size_t idx);
+  uint32_t getModuleCRC(size_t idx) const;
   uint64_t getModuleSize(size_t idx);
 
   llvm::StringRef getModuleName(size_t idx) const;
