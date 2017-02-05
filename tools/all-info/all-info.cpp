@@ -1,5 +1,5 @@
-#include "allvm/ALLVMContextAnchor.h"
-#include "allvm/ALLVMVersion.h"
+#include "allvm/ContextAnchor.h"
+#include "allvm/GitVersion.h"
 #include "allvm/Allexe.h"
 
 #include <llvm/Support/CommandLine.h>

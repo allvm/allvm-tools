@@ -1,7 +1,7 @@
 #ifndef ALLVM_ALLEXE
 #define ALLVM_ALLEXE
 
-#include "allvm/ALLVMContext.h"
+#include "allvm/Context.h"
 #include "allvm/ZipArchive.h"
 
 #include <llvm/ADT/StringRef.h>

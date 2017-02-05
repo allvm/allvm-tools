@@ -1,5 +1,5 @@
-#ifndef ALLVM_AOT_COMPILE_H
-#define ALLVM_AOT_COMPILE_H
+#ifndef ALLVM_AOTCOMPILE_H
+#define ALLVM_AOTCOMPILE_H
 
 #include "allvm/Allexe.h"
 #include "allvm/StaticBinaryCache.h"
@@ -16,4 +16,4 @@ llvm::Error AOTCompileIfNeeded(StaticBinaryCache &Cache, Allexe &allexe,
 
 } // end namespace allvm
 
-#endif // ALLVM_AOT_COMPILE_H
+#endif // ALLVM_AOTCOMPILE_H

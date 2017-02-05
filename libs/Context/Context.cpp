@@ -1,4 +1,4 @@
-#include "allvm/ALLVMContext.h"
+#include "allvm/Context.h"
 
 #include <llvm/Support/FileSystem.h>
 #include <llvm/Support/Path.h>

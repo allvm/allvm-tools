@@ -8,7 +8,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "allvm/ALLVMVersion.h"
+#include "allvm/GitVersion.h"
 #include "allvm/WLLVMFile.h"
 
 #include <llvm/Support/CommandLine.h>
