@@ -10,6 +10,7 @@
 
 #include "allvm/Allexe.h"
 #include "allvm/GitVersion.h"
+#include "allvm/ModuleFlags.h"
 #include "allvm/ResourceAnchor.h"
 #include "allvm/WLLVMFile.h"
 
@@ -85,7 +86,9 @@ static Error writeAsSingleBC(const WLLVMFile &File, StringRef Filename) {
   if (StripDebug)
     StripDebugInfo(**Composite);
 
-  WriteBitcodeToFile((*Composite).get(), Out->os(),
+  setWLLVMSource(Composite->get(), InputFilename);
+
+  WriteBitcodeToFile(Composite->get(), Out->os(),
                      false,   // ShouldPreserveUseListOrder
                      nullptr, // ModuleSummaryIndex (ThinLTO)
                      true     // Generate Hash
