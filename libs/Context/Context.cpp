@@ -1,4 +1,4 @@
-#include "allvm/Context.h"
+#include "allvm/ResourcePaths.h"
 
 #include <llvm/Support/FileSystem.h>
 #include <llvm/Support/Path.h>
@@ -35,11 +35,11 @@ std::string getPath(StringRef PrefixDir, StringRef Dir, StringRef File) {
 
 } // end anonymous namespace
 
-ALLVMContext ALLVMContext::get(const char *Argv0, void *Main) {
-  return ALLVMContext::get(getPrefixDir(Argv0, Main));
+ResourcePaths ResourcePaths::get(const char *Argv0, void *Main) {
+  return ResourcePaths::get(getPrefixDir(Argv0, Main));
 }
 
-ALLVMContext ALLVMContext::get(StringRef PrefixDir) {
+ResourcePaths ResourcePaths::get(StringRef PrefixDir) {
   return {PrefixDir, getPath(PrefixDir, "lib", "libnone.a"),
           getPath(PrefixDir, "lib/crt", "."),
           getPath(PrefixDir, "bin", "alley"),

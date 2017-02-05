@@ -9,8 +9,8 @@
 //===----------------------------------------------------------------------===//
 
 #include "allvm/Allexe.h"
-#include "allvm/ContextAnchor.h"
 #include "allvm/GitVersion.h"
+#include "allvm/ResourceAnchor.h"
 
 #include <llvm/ADT/SmallString.h>
 #include <llvm/IR/LLVMContext.h>
@@ -49,7 +49,7 @@ int main(int argc, const char **argv) {
   PrettyStackTraceProgram X(argc, argv);
   llvm_shutdown_obj Y; // Call llvm_shutdown() on exit.
 
-  ALLVMContext AC = ALLVMContext::getAnchored(argv[0]);
+  ResourcePaths RP = ResourcePaths::getAnchored(argv[0]);
 
   cl::ParseCommandLineOptions(argc, argv);
   ExitOnErr.setBanner(std::string(argv[0]) + ": ");
@@ -82,7 +82,7 @@ int main(int argc, const char **argv) {
 
   {
     // Try to open the output file first
-    auto Output = ExitOnErr(Allexe::open(OutputFilename, AC, ForceOutput));
+    auto Output = ExitOnErr(Allexe::open(OutputFilename, RP, ForceOutput));
 
     // Use parseIRFile to handle both bitcode and textual IR
     // Create helper lambda for re-use below.

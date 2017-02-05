@@ -1,7 +1,7 @@
 #ifndef ALLVM_ALLEXE
 #define ALLVM_ALLEXE
 
-#include "allvm/Context.h"
+#include "allvm/ResourcePaths.h"
 #include "allvm/ZipArchive.h"
 
 #include <llvm/ADT/StringRef.h>
@@ -53,11 +53,11 @@ public:
 
   /// open a allexe for reading only
   static llvm::Expected<std::unique_ptr<Allexe>>
-  openForReading(llvm::StringRef, const ALLVMContext &);
+  openForReading(llvm::StringRef, const ResourcePaths &);
 
   /// open a allexe for reading and writing
   static llvm::Expected<std::unique_ptr<Allexe>>
-  open(llvm::StringRef, const ALLVMContext &, bool overwrite = false);
+  open(llvm::StringRef, const ResourcePaths &, bool overwrite = false);
 };
 
 const llvm::StringRef ALLEXE_MAIN = "main.bc";

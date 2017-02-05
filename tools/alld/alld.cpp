@@ -7,7 +7,6 @@
 // Linker wrapper for lld.
 //
 //===----------------------------------------------------------------------===//
-#include "allvm/ContextAnchor.h"
 #include "allvm/GitVersion.h"
 
 #include <lld/Driver/Driver.h>
