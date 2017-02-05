@@ -5,6 +5,8 @@
 #include <llvm/IR/Metadata.h>
 #include <llvm/IR/Module.h>
 
+#include <vector>
+
 namespace allvm {
 
 static const llvm::StringRef MF_ALLVM_SOURCE = "ALLVM Source";
@@ -23,6 +25,31 @@ inline void setWLLVMSource(llvm::Module *M, llvm::StringRef Source) {
 
 inline void setALLVMSource(llvm::Module *M, llvm::StringRef Source) {
   setModuleFlag(M, MF_ALLVM_SOURCE, Source);
+}
+
+inline std::vector<llvm::StringRef> getALLVMSources(llvm::Module *M) {
+  using namespace llvm;
+  auto *Meta = M->getModuleFlag("ALLVM Source");
+  if (!Meta)
+    return {};
+  auto *MD = cast<MDNode>(Meta);
+
+  std::vector<StringRef> Sources;
+  for (auto I = MD->op_begin(), E = MD->op_end(); I != E; ++I)
+    Sources.push_back(cast<MDString>(*I)->getString());
+  return Sources;
+}
+
+inline llvm::StringRef getALLVMSourceString(llvm::Module *M) {
+  auto Sources = getALLVMSources(M);
+  assert(!Sources.empty());
+  assert(Sources.size() == 1);
+
+  return Sources.front();
+}
+
+inline llvm::StringRef getALLVMSourceString(llvm::Function *F) {
+  return getALLVMSourceString(F->getParent());
 }
 
 } // end namespace allvm
