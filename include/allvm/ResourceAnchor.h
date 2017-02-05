@@ -14,7 +14,7 @@ ResourcePaths ResourcePaths::getAnchored(const char *Argv0) {
 
 } // end namespace allvm
 
-#else // ALLVM_RESOURCEANCHOR_H 
+#else // ALLVM_RESOURCEANCHOR_H
 
 #error "Don't include this twice!"
 

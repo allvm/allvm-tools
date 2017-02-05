@@ -1,6 +1,6 @@
 #include "allvm/Allexe.h"
-#include "allvm/ResourceAnchor.h"
 #include "allvm/GitVersion.h"
+#include "allvm/ResourceAnchor.h"
 
 #include <llvm/Support/CommandLine.h>
 #include <llvm/Support/PrettyStackTrace.h>
