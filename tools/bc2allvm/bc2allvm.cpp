@@ -10,6 +10,7 @@
 
 #include "allvm/Allexe.h"
 #include "allvm/GitVersion.h"
+#include "allvm/ModuleFlags.h"
 #include "allvm/ResourceAnchor.h"
 
 #include <llvm/ADT/SmallString.h>
@@ -94,6 +95,7 @@ int main(int argc, const char **argv) {
         Err.print(argv[0], errs());
         exit(1);
       }
+      setALLVMSource(Module.get(), Filename);
       ExitOnErr(Output->addModule(std::move(Module), Name));
     };
 
