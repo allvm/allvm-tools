@@ -1,7 +1,7 @@
-#include "ExecutionYengine.h"
-#include "PlatformSpecificJIT.h"
+#include "allvm/ExecutionYengine.h"
+#include "allvm/JITCache.h"
 
-#include "JITCache.h"
+#include "PlatformSpecificJIT.h"
 
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Module.h>

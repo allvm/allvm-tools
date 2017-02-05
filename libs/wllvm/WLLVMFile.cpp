@@ -8,7 +8,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "WLLVMFile.h"
+#include "allvm/WLLVMFile.h"
 
 #include <llvm/Object/Archive.h>
 #include <llvm/Object/ObjectFile.h>

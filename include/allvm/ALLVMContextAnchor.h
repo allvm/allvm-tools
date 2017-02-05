@@ -1,7 +1,7 @@
 #ifndef ALLVMCONTEXT_ANCHOR_H
 #define ALLVMCONTEXT_ANCHOR_H
 
-#include "ALLVMContext.h"
+#include "allvm/ALLVMContext.h"
 
 namespace allvm {
 

@@ -1,7 +1,7 @@
-#include "ExecutionYengine.h"
+#include "allvm/ExecutionYengine.h"
 
-#include "AOTCompile.h"
-#include "StaticBinaryCache.h"
+#include "allvm/AOTCompile.h"
+#include "allvm/StaticBinaryCache.h"
 
 #include <llvm/ADT/SmallVector.h>
 #include <llvm/IR/LLVMContext.h>

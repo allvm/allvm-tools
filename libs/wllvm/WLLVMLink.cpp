@@ -8,7 +8,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "WLLVMFile.h"
+#include "allvm/WLLVMFile.h"
 
 #include <llvm/IR/Module.h>
 #include <llvm/IRReader/IRReader.h>

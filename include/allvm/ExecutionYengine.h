@@ -1,8 +1,8 @@
 #ifndef ALLVM_EXECUTION_YENGINE_H
 #define ALLVM_EXECUTION_YENGINE_H
 
-#include "Allexe.h"
-#include "StaticCodeGen.h" // for 'CompilationOptions'
+#include "allvm/Allexe.h"
+#include "allvm/StaticCodeGen.h" // for 'CompilationOptions'
 
 #include <llvm/ADT/ArrayRef.h>
 #include <llvm/ADT/StringRef.h>

@@ -8,10 +8,10 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "ALLVMContextAnchor.h"
-#include "ALLVMVersion.h"
-#include "Allexe.h"
-#include "WLLVMFile.h"
+#include "allvm/ALLVMContextAnchor.h"
+#include "allvm/ALLVMVersion.h"
+#include "allvm/Allexe.h"
+#include "allvm/WLLVMFile.h"
 
 #include <llvm/Bitcode/BitcodeWriter.h>
 #include <llvm/IR/DebugInfo.h>
