@@ -29,7 +29,7 @@ inline void setALLVMSource(llvm::Module *M, llvm::StringRef Source) {
 
 inline std::vector<llvm::StringRef> getALLVMSources(llvm::Module *M) {
   using namespace llvm;
-  auto *Meta = M->getModuleFlag("ALLVM Source");
+  auto *Meta = M->getModuleFlag(MF_ALLVM_SOURCE);
   if (!Meta)
     return {};
   auto *MD = cast<MDNode>(Meta);
