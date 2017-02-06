@@ -16,5 +16,5 @@ using namespace llvm;
 
 int main(int argc, const char **argv) {
   ArrayRef<const char *> Args(argv, argv + argc);
-  return lld::elf::link(Args, /* CanExitEarly */ true);
+  return !lld::elf::link(Args, /* CanExitEarly */ true);
 }
