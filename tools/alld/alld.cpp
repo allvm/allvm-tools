@@ -11,10 +11,17 @@
 
 #include <lld/Driver/Driver.h>
 
+#include <llvm/Support/PrettyStackTrace.h>
+#include <llvm/Support/Signals.h>
+
 using namespace allvm;
 using namespace llvm;
 
-int main(int argc, const char **argv) {
-  ArrayRef<const char *> Args(argv, argv + argc);
+int main(int Argc, const char **Argv) {
+  sys::PrintStackTraceOnErrorSignal(Argv[0]);
+  PrettyStackTraceProgram StackPrinter(Argc, Argv);
+  llvm_shutdown_obj Shutdown;
+
+  ArrayRef<const char *> Args(Argv, Argv + Argc);
   return !lld::elf::link(Args, /* CanExitEarly */ true);
 }
