@@ -63,6 +63,28 @@ Error ExecutionYengine::doJITExec() {
         assert(GlobalValue::isExternalWeakLinkage(atexit_impl->getLinkage()));
         errs() << "Kludging __cxa_thread_atexit_impl to NULL in " << (*M)->getModuleIdentifier() << "\n";
         atexit_impl->replaceAllUsesWith(ConstantPointerNull::get(atexit_impl->getType()));
+        atexit_impl->eraseFromParent();
+
+        auto thread_atexit = (*M)->getFunction("__cxa_thread_atexit");
+        assert(thread_atexit);
+        thread_atexit->eraseFromParent();
+        // (*M)->dump();
+
+        auto dtors_run = (*M)->getFunction("_ZN10__cxxabiv112_GLOBAL__N_19run_dtorsEPv");
+        assert(dtors_run);
+        dtors_run->eraseFromParent();
+
+        auto dtors_mgr = (*M)->getFunction("_ZN10__cxxabiv112_GLOBAL__N_112DtorsManagerD2Ev");
+        assert(dtors_mgr);
+        dtors_mgr->eraseFromParent();
+
+        auto dtors = (*M)->getNamedGlobal("_ZN10__cxxabiv112_GLOBAL__N_15dtorsE");
+        assert(dtors);
+        dtors->eraseFromParent();
+        auto dtors_alive = (*M)->getNamedGlobal("_ZN10__cxxabiv112_GLOBAL__N_111dtors_aliveE");
+        assert(dtors_alive);
+        dtors_alive->eraseFromParent();
+
       }
     }
     EE->addModule(std::move(*M));
