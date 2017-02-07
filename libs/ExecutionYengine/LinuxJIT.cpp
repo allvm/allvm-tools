@@ -22,6 +22,11 @@ Error runHosted(ExecutionEngine &EE, ExecutionYengine::ExecutionInfo &Info) {
 
   EE.DisableSymbolSearching();
   // EE->setProcessAllSections(true); // XXX: is this needed/useful?
+  EE.InstallLazyFunctionCreator([](auto &name) {
+    errs() << "[LFC] name: " << name << "\n";
+    return nullptr;
+  });
+
 
   // Get the binary as a OwningBinary<object::Archive>
   auto Pair = BinaryOrErr.get().takeBinary();
