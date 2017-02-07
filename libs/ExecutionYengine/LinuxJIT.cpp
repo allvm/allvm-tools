@@ -25,9 +25,9 @@ Error runHosted(ExecutionEngine &EE, ExecutionYengine::ExecutionInfo &Info) {
   EE.DisableSymbolSearching();
   // EE->setProcessAllSections(true); // XXX: is this needed/useful?
   EE.InstallLazyFunctionCreator([](auto &name) {
-    errs() << "[LFC] name: " << name << "\n";
-    if (name == "__cxa_thread_atexit_impl") {
-      errs() << "!!!!\n";
+    //errs() << "[LFC] name: " << name << "\n";
+    if (name == "__cxa_thread_atexit_impl" || name == "__cxa_thread_atexit") {
+      // errs() << "!!!!\n";
       return __cxa_thread_atexit;
     }
     return static_cast<void*>(nullptr);
