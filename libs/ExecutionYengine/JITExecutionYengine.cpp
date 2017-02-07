@@ -5,6 +5,7 @@
 
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Module.h>
+#include <llvm/IR/Constants.h>
 #include <llvm/Support/Errc.h>
 #include <llvm/Support/Path.h>
 #include <llvm/Support/raw_os_ostream.h>
@@ -56,6 +57,13 @@ Error ExecutionYengine::doJITExec() {
     if (!Cache->hasObjectFor((*M).get())) {
       if (auto E = (*M)->materializeAll())
         return E;
+      if (StringRef((*M)->getModuleIdentifier()).contains("libc++abi")) {
+        auto atexit_impl = (*M)->getFunction("__cxa_thread_atexit_impl");
+        assert(atexit_impl);
+        assert(GlobalValue::isExternalWeakLinkage(atexit_impl->getLinkage()));
+        errs() << "Kludging __cxa_thread_atexit_impl to NULL in " << (*M)->getModuleIdentifier() << "\n";
+        atexit_impl->replaceAllUsesWith(ConstantPointerNull::get(atexit_impl->getType()));
+      }
     }
     EE->addModule(std::move(*M));
   }
