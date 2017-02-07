@@ -14,7 +14,7 @@ using namespace llvm;
 
 static const size_t INIT_STACK_MAX = 1024;
 
-extern "C" void* __cxa_thread_atexit;
+extern "C" void *__cxa_thread_atexit;
 
 namespace allvm {
 Error runHosted(ExecutionEngine &EE, ExecutionYengine::ExecutionInfo &Info) {
@@ -25,14 +25,13 @@ Error runHosted(ExecutionEngine &EE, ExecutionYengine::ExecutionInfo &Info) {
   EE.DisableSymbolSearching();
   // EE->setProcessAllSections(true); // XXX: is this needed/useful?
   EE.InstallLazyFunctionCreator([](auto &name) {
-    //errs() << "[LFC] name: " << name << "\n";
+    // errs() << "[LFC] name: " << name << "\n";
     if (name == "__cxa_thread_atexit_impl" || name == "__cxa_thread_atexit") {
       // errs() << "!!!!\n";
       return __cxa_thread_atexit;
     }
-    return static_cast<void*>(nullptr);
+    return static_cast<void *>(nullptr);
   });
-
 
   // Get the binary as a OwningBinary<object::Archive>
   auto Pair = BinaryOrErr.get().takeBinary();
