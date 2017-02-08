@@ -13,6 +13,46 @@
 using namespace allvm;
 using namespace llvm;
 
+namespace {
+
+void libcxxabiKludge(Module &M) {
+  if (StringRef(M.getModuleIdentifier()).contains("libc++abi")) {
+    auto atexit_impl = M.getFunction("__cxa_thread_atexit_impl");
+    assert(atexit_impl);
+    assert(GlobalValue::isExternalWeakLinkage(atexit_impl->getLinkage()));
+    errs() << "[alley] WARNING: Applying workaround for "
+              "__cxa_thread_atexit_impl in "
+           << M.getModuleIdentifier() << "\n";
+    atexit_impl->replaceAllUsesWith(
+        ConstantPointerNull::get(atexit_impl->getType()));
+    atexit_impl->eraseFromParent();
+
+    auto thread_atexit = M.getFunction("__cxa_thread_atexit");
+    assert(thread_atexit);
+    thread_atexit->eraseFromParent();
+
+    auto dtors_run =
+        M.getFunction("_ZN10__cxxabiv112_GLOBAL__N_19run_dtorsEPv");
+    assert(dtors_run);
+    dtors_run->eraseFromParent();
+
+    auto dtors_mgr =
+        M.getFunction("_ZN10__cxxabiv112_GLOBAL__N_112DtorsManagerD2Ev");
+    assert(dtors_mgr);
+    dtors_mgr->eraseFromParent();
+
+    auto dtors = M.getNamedGlobal("_ZN10__cxxabiv112_GLOBAL__N_15dtorsE");
+    assert(dtors);
+    dtors->eraseFromParent();
+    auto dtors_alive =
+        M.getNamedGlobal("_ZN10__cxxabiv112_GLOBAL__N_111dtors_aliveE");
+    assert(dtors_alive);
+    dtors_alive->eraseFromParent();
+  }
+}
+
+} // end anonymous namespace
+
 Error ExecutionYengine::doJITExec() {
   LLVMContext context;
   auto &allexe = Info.allexe;
@@ -57,40 +97,8 @@ Error ExecutionYengine::doJITExec() {
     if (!Cache->hasObjectFor((*M).get())) {
       if (auto E = (*M)->materializeAll())
         return E;
-      if (StringRef((*M)->getModuleIdentifier()).contains("libc++abi")) {
-        auto atexit_impl = (*M)->getFunction("__cxa_thread_atexit_impl");
-        assert(atexit_impl);
-        assert(GlobalValue::isExternalWeakLinkage(atexit_impl->getLinkage()));
-        errs() << "Kludging __cxa_thread_atexit_impl to NULL in "
-               << (*M)->getModuleIdentifier() << "\n";
-        atexit_impl->replaceAllUsesWith(
-            ConstantPointerNull::get(atexit_impl->getType()));
-        atexit_impl->eraseFromParent();
 
-        auto thread_atexit = (*M)->getFunction("__cxa_thread_atexit");
-        assert(thread_atexit);
-        thread_atexit->eraseFromParent();
-        // (*M)->dump();
-
-        auto dtors_run =
-            (*M)->getFunction("_ZN10__cxxabiv112_GLOBAL__N_19run_dtorsEPv");
-        assert(dtors_run);
-        dtors_run->eraseFromParent();
-
-        auto dtors_mgr = (*M)->getFunction(
-            "_ZN10__cxxabiv112_GLOBAL__N_112DtorsManagerD2Ev");
-        assert(dtors_mgr);
-        dtors_mgr->eraseFromParent();
-
-        auto dtors =
-            (*M)->getNamedGlobal("_ZN10__cxxabiv112_GLOBAL__N_15dtorsE");
-        assert(dtors);
-        dtors->eraseFromParent();
-        auto dtors_alive =
-            (*M)->getNamedGlobal("_ZN10__cxxabiv112_GLOBAL__N_111dtors_aliveE");
-        assert(dtors_alive);
-        dtors_alive->eraseFromParent();
-      }
+      libcxxabiKludge(**M);
     }
     EE->addModule(std::move(*M));
   }
