@@ -14,6 +14,18 @@ using namespace llvm;
 
 static const size_t INIT_STACK_MAX = 1024;
 
+namespace {
+
+int cxa_thread_atexit_dummy(void (*dtor)(void *) LLVM_ATTRIBUTE_UNUSED,
+                            void *obj LLVM_ATTRIBUTE_UNUSED,
+                            void *dso_symbol LLVM_ATTRIBUTE_UNUSED) {
+  // Probably not great to use errs() here...
+  assert(0 && "program called cxa_thread_atexit, not yet supported!");
+  abort();
+}
+
+} // end anonymous namespace
+
 namespace allvm {
 Error runHosted(ExecutionEngine &EE, ExecutionYengine::ExecutionInfo &Info) {
   auto BinaryOrErr = object::createBinary(Info.LibNone);
@@ -22,6 +34,14 @@ Error runHosted(ExecutionEngine &EE, ExecutionYengine::ExecutionInfo &Info) {
 
   EE.DisableSymbolSearching();
   // EE->setProcessAllSections(true); // XXX: is this needed/useful?
+
+  EE.InstallLazyFunctionCreator([](auto &name) -> void * {
+    if (name == "__cxa_thread_atexit_impl" || name == "__cxa_thread_atexit") {
+      return reinterpret_cast<void *>(
+          reinterpret_cast<uintptr_t>(cxa_thread_atexit_dummy));
+    }
+    return static_cast<void *>(nullptr);
+  });
 
   // Get the binary as a OwningBinary<object::Archive>
   auto Pair = BinaryOrErr.get().takeBinary();
