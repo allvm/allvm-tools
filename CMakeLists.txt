@@ -67,7 +67,19 @@ set(LLVM_LIBRARY_OUTPUT_INTDIR
 link_directories(${LLVM_LIBRARY_DIR})
 include_directories(${LLVM_INCLUDE_DIR})
 
-include_directories ("${PROJECT_SOURCE_DIR}/include")
+### Headers
+
+# Generated header path
+set(ALLVM_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/include)
+
+include_directories (${PROJECT_SOURCE_DIR}/include ${ALLVM_INCLUDE_DIR})
+
+install(DIRECTORY include/allvm ${ALLVM_INCLUDE_DIR}/allvm
+  DESTINATION include
+  COMPONENT allvm-headers
+  FILES_MATCHING PATTERN "*.h"
+)
+###
 
 include(CheckFormat)
 include(Version)
@@ -75,4 +87,3 @@ include(Version)
 add_subdirectory (libs)
 add_subdirectory (tools)
 add_subdirectory (test)
-

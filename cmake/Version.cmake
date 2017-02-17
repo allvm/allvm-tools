@@ -13,9 +13,9 @@ else()
 endif()
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/allvm/GitVersion.h.in
-  ${CMAKE_CURRENT_BINARY_DIR}/include/allvm/GitVersion.h
+  ${ALLVM_INCLUDE_DIR}/allvm/GitVersion.h
 )
 
-include_directories("${CMAKE_CURRENT_BINARY_DIR}/include")
+include_directories(${ALLVM_INCLUDE_DIR})
 
 
