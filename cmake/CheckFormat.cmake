@@ -9,7 +9,9 @@ file(GLOB_RECURSE unwind_files libs/none/Unwind*.S libs/none/assembly.h)
 list(REMOVE_ITEM files ${archive_files} ${build_tree} ${musl_files} ${unwind_files})
 
 # Command use to format a file
-set(CLANGFORMAT_COMMAND clang-format -sort-includes -style=llvm)
+set(CLANGFORMAT clang-format CACHE STRING "Path to clang-format command to use")
+set(CLANGFORMAT_OPTIONS -sort-includes -style=llvm CACHE STRING "clang-format options")
+set(CLANGFORMAT_COMMAND ${CLANGFORMAT_PATH} ${CLANGFORMAT_OPTIONS})
 
 # cmake for loop, let's do this
 set(i 0)
