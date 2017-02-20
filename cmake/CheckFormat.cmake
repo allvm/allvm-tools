@@ -11,7 +11,7 @@ list(REMOVE_ITEM files ${archive_files} ${build_tree} ${musl_files} ${unwind_fil
 # Command use to format a file
 set(CLANGFORMAT clang-format CACHE STRING "Path to clang-format command to use")
 set(CLANGFORMAT_OPTIONS -sort-includes -style=llvm CACHE STRING "clang-format options")
-set(CLANGFORMAT_COMMAND ${CLANGFORMAT_PATH} ${CLANGFORMAT_OPTIONS})
+set(CLANGFORMAT_COMMAND ${CLANGFORMAT} ${CLANGFORMAT_OPTIONS})
 
 # cmake for loop, let's do this
 set(i 0)
