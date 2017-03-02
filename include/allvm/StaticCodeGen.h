@@ -20,7 +20,7 @@ class StringRef;
 namespace object {
 class ObjectFile;
 class Binary;
-}
+} // end namespace object
 } // end namespace llvm
 
 namespace allvm {
