@@ -55,7 +55,7 @@ cl::opt<bool> StripDebug("strip-debug",
 cl::opt<bool> ForceOutput("f", cl::desc("Replace output allexe if it exists"),
                           cl::init(false));
 
-} // end anon namespace
+} // end anonymous namespace
 
 static std::string getDefaultSuffix(OutputKind K) {
   switch (K) {
