@@ -6,7 +6,7 @@
 
 namespace llvm {
 class Error;
-}
+} // end namespace llvm
 
 namespace allvm {
 

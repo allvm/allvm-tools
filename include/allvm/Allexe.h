@@ -14,7 +14,7 @@
 namespace llvm {
 class Module;
 class LLVMContext;
-}
+} // end namespace llvm
 
 namespace allvm {
 
@@ -61,6 +61,7 @@ public:
 };
 
 const llvm::StringRef ALLEXE_MAIN = "main.bc";
-}
+
+} // end namespace allvm
 
 #endif // ALLVM_ALLEXE

@@ -18,7 +18,7 @@
 
 namespace llvm {
 class Module;
-}
+} // end namespace llvm
 
 namespace allvm {
 

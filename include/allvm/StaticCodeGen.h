@@ -21,12 +21,12 @@ namespace object {
 class ObjectFile;
 class Binary;
 }
-}
+} // end namespace llvm
 
 namespace allvm {
 class Allexe;
 class ALLVMLinker;
-}
+} // end namespace allvm
 
 namespace allvm {
 

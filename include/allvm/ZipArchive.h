@@ -13,7 +13,7 @@ typedef struct zip zip_t;
 
 namespace llvm {
 class Twine;
-}
+} // end namespace llvm
 
 namespace allvm {
 
@@ -69,6 +69,6 @@ public:
   // Returns true on success.
   bool setPrefixStr(const llvm::Twine &Prefix);
 };
-}
+} // end namespace allvm
 
 #endif
