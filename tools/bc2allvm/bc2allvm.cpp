@@ -99,7 +99,12 @@ int main(int argc, const char **argv) {
         Err.print(argv[0], errs());
         exit(1);
       }
-      setALLVMSource(Module.get(), Filename);
+      auto Sources = getALLVMSources(Module.get());
+      if (Sources.empty())
+        setALLVMSource(Module.get(), Filename);
+      else
+        errs() << "Warning: Module flag '" << MF_ALLVM_SOURCE
+               << "' already set, not changing\n";
       ExitOnErr(Output->addModule(std::move(Module), Name));
     };
 
