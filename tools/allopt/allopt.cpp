@@ -31,6 +31,8 @@ cl::opt<std::string> InputFilename("i", cl::Required,
                                    cl::desc("<input allexe>"));
 cl::opt<std::string> OutputFilename("o", cl::Required,
                                     cl::desc("<output allexe>"));
+cl::opt<bool> ForceOutput("f", cl::desc("Replace output allexe if it exists"),
+                          cl::init(false));
 cl::opt<std::string> Pipeline(cl::Positional, cl::Required,
                               cl::desc("<pipeline command>"));
 cl::list<std::string> Args(cl::ConsumeAfter, cl::desc("<pipeline arguments>"));
@@ -108,7 +110,7 @@ int main(int argc, const char *argv[]) {
 
   // Write new allexe
   {
-    auto outexe = ExitOnErr(Allexe::open(OutputFilename, RP));
+    auto outexe = ExitOnErr(Allexe::open(OutputFilename, RP, ForceOutput));
     ExitOnErr(outexe->addModule(TempOut, ALLEXE_MAIN));
   }
 

@@ -1,0 +1,3 @@
+// Test allopt overwrite behavior
+// RUN: allopt -i %p/Inputs/which -f -o %t cat
+// RUN: not allopt -i %p/Inputs/which -o %t cat
