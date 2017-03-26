@@ -90,10 +90,11 @@ int main(int argc, const char *argv[]) {
       sys::fs::createTemporaryFile("allopt-allexe", "allexe", TempExe)));
   FileRemover InRemover(TempIn), OutRemover(TempOut), ExeRemover(TempExe);
 
-  if (OutputFilename == "-" && !ForceOutput && sys::Process::StandardOutIsDisplayed()) {
-      ExitOnErr(make_error<StringError>(
-          "refusing to scribble to display stdout, use -f to override",
-          errc::invalid_argument));
+  if (OutputFilename == "-" && !ForceOutput &&
+      sys::Process::StandardOutIsDisplayed()) {
+    ExitOnErr(make_error<StringError>(
+        "refusing to scribble to display stdout, use -f to override",
+        errc::invalid_argument));
   }
 
   // Put the allexe's bitcode into tempin
@@ -140,7 +141,8 @@ int main(int argc, const char *argv[]) {
     }
 
     if (OutputFilename == "-") {
-      auto OutData = ExitOnErr(errorOrToExpected(MemoryBuffer::getFile(OutputPath)));
+      auto OutData =
+          ExitOnErr(errorOrToExpected(MemoryBuffer::getFile(OutputPath)));
       outs().write(OutData->getBufferStart(), OutData->getBufferSize());
     }
   }
