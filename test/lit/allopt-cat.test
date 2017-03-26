@@ -1,0 +1,3 @@
+// Test basic allopt
+// RUN: allopt -i %p/Inputs/which -f -o %t cat
+// RUN: %t cat

@@ -4,6 +4,7 @@ endif()
 
 add_subdirectory(all-info)
 add_subdirectory(alley)
+add_subdirectory(allopt)
 add_subdirectory(allready)
 add_subdirectory(alltogether)
 add_subdirectory(bc2allvm)

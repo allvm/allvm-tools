@@ -1,0 +1,4 @@
+// Test allopt invoking 'opt'
+// RUN: allopt -i %p/Inputs/which -f -o %t opt -O2
+// RUN: %t cat
+// RUN: not diff %t %p/Inputs/which
