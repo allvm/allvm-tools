@@ -20,6 +20,7 @@
 #include <llvm/Support/FileSystem.h>
 #include <llvm/Support/FileUtilities.h>
 #include <llvm/Support/PrettyStackTrace.h>
+#include <llvm/Support/Process.h>
 #include <llvm/Support/Program.h>
 #include <llvm/Support/Signals.h>
 
@@ -27,9 +28,9 @@ using namespace allvm;
 using namespace llvm;
 
 namespace {
-cl::opt<std::string> InputFilename("i", cl::Required,
+cl::opt<std::string> InputFilename("i", cl::init("-"),
                                    cl::desc("<input allexe>"));
-cl::opt<std::string> OutputFilename("o", cl::Required,
+cl::opt<std::string> OutputFilename("o", cl::init("-"),
                                     cl::desc("<output allexe>"));
 cl::opt<bool> ForceOutput("f", cl::desc("Replace output allexe if it exists"),
                           cl::init(false));
@@ -80,16 +81,35 @@ int main(int argc, const char *argv[]) {
   ExitOnErr.setBanner(std::string(argv[0]) + ": ");
 
   // Create temporary files for bitcode input and output
-  SmallString<32> TempIn, TempOut;
+  SmallString<32> TempIn, TempOut, TempExe;
   ExitOnErr(errorCodeToError(
       sys::fs::createTemporaryFile("allopt-in", "bc", TempIn)));
   ExitOnErr(errorCodeToError(
       sys::fs::createTemporaryFile("allopt-out", "bc", TempOut)));
-  FileRemover InRemover(TempIn), OutRemover(TempOut);
+  ExitOnErr(errorCodeToError(
+      sys::fs::createTemporaryFile("allopt-allexe", "allexe", TempExe)));
+  FileRemover InRemover(TempIn), OutRemover(TempOut), ExeRemover(TempExe);
+
+  if (OutputFilename == "-" && !ForceOutput && sys::Process::StandardOutIsDisplayed()) {
+      ExitOnErr(make_error<StringError>(
+          "refusing to scribble to display stdout, use -f to override",
+          errc::invalid_argument));
+  }
 
   // Put the allexe's bitcode into tempin
+  std::error_code EC;
   {
-    auto exe = ExitOnErr(Allexe::openForReading(InputFilename, RP));
+    FileRemover ExeLocalRemover(TempExe);
+    StringRef InputPath = InputFilename;
+    if (InputFilename == "-") {
+      auto InputBuf = ExitOnErr(errorOrToExpected(MemoryBuffer::getSTDIN()));
+      raw_fd_ostream ExeS(TempExe, EC, sys::fs::F_None);
+      ExitOnErr(errorCodeToError(EC));
+      ExeS.write(InputBuf->getBufferStart(), InputBuf->getBufferSize());
+      InputPath = TempExe;
+    }
+
+    auto exe = ExitOnErr(Allexe::openForReading(InputPath, RP));
 
     if (exe->getNumModules() != 1)
       ExitOnErr(make_error<StringError>(
@@ -99,7 +119,6 @@ int main(int argc, const char *argv[]) {
     LLVMContext C;
     auto M = ExitOnErr(exe->getModule(0, C));
     ExitOnErr(M->materializeAll());
-    std::error_code EC;
     raw_fd_ostream InS(TempIn, EC, sys::fs::F_None);
     ExitOnErr(errorCodeToError(EC));
     WriteBitcodeToFile(M.get(), InS);
@@ -110,8 +129,20 @@ int main(int argc, const char *argv[]) {
 
   // Write new allexe
   {
-    auto outexe = ExitOnErr(Allexe::open(OutputFilename, RP, ForceOutput));
-    ExitOnErr(outexe->addModule(TempOut, ALLEXE_MAIN));
+    StringRef OutputPath = OutputFilename;
+    if (OutputFilename == "-")
+      OutputPath = TempExe;
+
+    // Limited lifetime, write the allexe on dtor
+    {
+      auto outexe = ExitOnErr(Allexe::open(OutputPath, RP, ForceOutput));
+      ExitOnErr(outexe->addModule(TempOut, ALLEXE_MAIN));
+    }
+
+    if (OutputFilename == "-") {
+      auto OutData = ExitOnErr(errorOrToExpected(MemoryBuffer::getFile(OutputPath)));
+      outs().write(OutData->getBufferStart(), OutData->getBufferSize());
+    }
   }
 
   return 0;
