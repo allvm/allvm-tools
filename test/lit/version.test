@@ -5,6 +5,7 @@ RUN: bc2allvm --version|& FileCheck %s
 RUN: wllvm-dump --version|& FileCheck %s
 RUN: wllvm-extract --version|& FileCheck %s
 RUN: all-info --version|& FileCheck %s
+RUN: allopt --version|& FileCheck %s
 
 CHECK: ALLVM Tools
 CHECK: git
