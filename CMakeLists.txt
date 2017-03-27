@@ -39,6 +39,30 @@ set(LLVM_BUILD_TOOLS ON)
 
 find_package( ZLIB REQUIRED )
 
+#### PANDOC / BUILD_DOCS ####
+if(NOT PANDOC_EXECUTABLE)
+    find_program(PANDOC_EXECUTABLE pandoc)
+    mark_as_advanced(PANDOC_EXECUTABLE)
+endif()
+
+if (PANDOC_EXECUTABLE)
+  set(PANDOC_FOUND 1)
+endif()
+
+option(BUILD_DOCS "Build documentation (requires pandoc)" ${PANDOC_FOUND})
+
+if (BUILD_DOCS)
+  if(NOT PANDOC_EXECUTABLE)
+    message(FATAL_ERROR
+      "BUILD_DOCS requested, but pandoc not found.\n"
+      "Install Pandoc or set cache variable PANDOC_EXECUTABLE.")
+  endif()
+  add_subdirectory(docs)
+endif()
+message(STATUS "Building documentation: ${BUILD_DOCS}")
+
+##########
+
 option(USE_CLANG_WERROR_FLAGS OFF)
 
 if (USE_CLANG_WERROR_FLAGS)
