@@ -8,6 +8,41 @@
 
 **Website**: http://allvm.org
 
+## Nix Quickstart
+
+### Note
+
+Using Nix (without allvm-nixpkgs) does not build the tools the same way they're used
+for experiments, for example a musl-based toolchain is not used.
+
+For many purposes however that doesn't matter,
+and for development it's likely easier to use the in-tree expressions.
+
+### Installation
+
+To build and install into your profile, run:
+
+```console
+$ nix-env -f . -i
+```
+
+### Building
+From the root of the source directory, run:
+
+```console
+$ nix-build
+```
+
+The built result will be available in `./result`.
+
+### Development
+
+To enter a development shell with all dependencies available, run:
+
+```console
+$ nix-shell
+```
+
 ## Building with allvm-nixpkgs
 
 ### Building
@@ -60,7 +95,7 @@ as you would normally:
 ```
 
 
-## How to build (without using allvm-nixpkgs)
+## How to build (without using Nix)
 
 ### Requirements
 
