@@ -67,7 +67,7 @@ as you would normally:
 The main requirement is LLVM.
 To ensure your built LLVM will work and contains the required functionality:
 
-* Use a supported version.  The latest version tested and known to work is tracked here: [llvm-version-info.log](https://gitlab.engr.illinois.edu/llvm/allvm-nixpkgs/blob/master/llvm-version-info.log).
+* Use a supported version.  The currently supported version is LLVM 4.0.
 * Enable the `LLVM_INSTALL_UTILS` CMake option to ensure required tools like `FileCheck` are also installed.
 
 ### Building ALLVM Tools
