@@ -7,4 +7,4 @@ LLVM Versions in ALLVM
 Discussion
 ----------
 
-[Meeting notes covering initial discussion - 6/20/16](https://gitlab-beta.engr.illinois.edu/llvm/wiki/blob/master/ALLVM/ALLVM_Meetings/allvm_system_06-20-2016.md#llvm-version-which-one)
+[Meeting notes covering initial discussion - 6/20/16](https://gitlab.engr.illinois.edu/llvm/wiki/blob/master/ALLVM/ALLVM_Meetings/allvm_system_06-20-2016.md#llvm-version-which-one)

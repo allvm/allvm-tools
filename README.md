@@ -67,8 +67,8 @@ as you would normally:
 The main requirement is LLVM.
 To ensure your built LLVM will work and contains the required functionality:
 
-* Use a supported version.  The latest version tested and known to work is tracked here: [llvm-version-info.log](https://gitlab-beta.engr.illinois.edu/llvm/allvm-nixpkgs/blob/master/llvm-version-info.log).
-* Be sure to apply this [patch](https://gitlab-beta.engr.illinois.edu/llvm/allvm-nixpkgs/raw/master/pkgs/development/compilers/llvm/master/patches/llvm-R_X86_64_NONE.patch).
+* Use a supported version.  The latest version tested and known to work is tracked here: [llvm-version-info.log](https://gitlab.engr.illinois.edu/llvm/allvm-nixpkgs/blob/master/llvm-version-info.log).
+* Be sure to apply this [patch](https://gitlab.engr.illinois.edu/llvm/allvm-nixpkgs/raw/master/pkgs/development/compilers/llvm/master/patches/llvm-R_X86_64_NONE.patch).
 * Enable the `LLVM_INSTALL_UTILS` CMake option to ensure required tools like `FileCheck` are also installed.
 
 ### Building ALLVM Tools
@@ -88,7 +88,7 @@ and CMake will find llvm automatically.
 
 ## Troubleshooting
 
-See the [issues page](https://gitlab-beta.engr.illinois.edu/llvm/allvm/issues) for known problems or to report a new one.
+See the [issues page](https://gitlab.engr.illinois.edu/llvm/allvm/issues) for known problems or to report a new one.
 
 The following issue is believed to be fixed regardless of whether allvm is built with GCC or Clang.
 However it frequently crops up again.
