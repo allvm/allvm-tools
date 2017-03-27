@@ -22,6 +22,7 @@ config.environment['PATH'] = newpath
 libnone = "@LLVM_LIBRARY_OUTPUT_INTDIR@/libnone.a"
 
 config.substitutions.append( ('%libnone', libnone) )
+config.substitutions.append( ('%alley', "@LLVM_RUNTIME_OUTPUT_INTDIR@/alley") )
 
 #libpath = os.environ.get('LD_LIBRARY_PATH', '')
 #if libpath:
