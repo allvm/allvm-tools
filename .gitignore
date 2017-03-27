@@ -32,4 +32,6 @@
 # Vi swap files
 *.swp
 
-/build*
+/build*/
+/install
+/result
