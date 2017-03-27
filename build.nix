@@ -1,5 +1,5 @@
 # This file is usually 'default.nix'
-{ stdenv, cmake, git, llvm, clang, lld, zlib, python2 }:
+{ stdenv, cmake, git, llvm, clang, lld, zlib, python2, pandoc, texlive }:
 
 let
   inherit (stdenv) lib;
@@ -12,6 +12,7 @@ let
                                lib.hasPrefix "install" baseName))
   );
 
+  tex = texlive.combined.scheme-medium;
 in
 
 stdenv.mkDerivation {
@@ -20,7 +21,7 @@ stdenv.mkDerivation {
 
   src = builtins.filterSource sourceFilter ./.;
 
-  nativeBuildInputs = [ cmake git python2 ];
+  nativeBuildInputs = [ cmake git python2 pandoc tex ];
   buildInputs = [ llvm lld zlib ];
 
   doCheck = true;
