@@ -80,10 +80,7 @@ $ mkdir build && cd build
 $ cmake -DLLVM_DIR=YOUR_LLVM_PREFIX/lib/cmake/llvm ..
 $ make check -j$(nproc)
 ```
-
-If you installed llvm to `/usr`, you can leave out the `-D LLVM_DIR=...` option
-and CMake will find llvm automatically.
-
+You only need to set `-D LLVM_DIR=...` when cmake has trouble finding your LLVM installation.
 
 ## Troubleshooting
 
