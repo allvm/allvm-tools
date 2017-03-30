@@ -19,7 +19,7 @@ namespace allvm {
 class ExitOnError {
 public:
   /// Create an error on exit helper.
-  ExitOnError(std::string B= "", int DefaultErrorExitCode = 1)
+  ExitOnError(std::string B = "", int DefaultErrorExitCode = 1)
       : Banner(std::move(B)),
         GetExitCode([=](const llvm::Error &) { return DefaultErrorExitCode; }) {
   }
@@ -28,7 +28,8 @@ public:
   void setBanner(std::string B) { this->Banner = std::move(B); }
 
   /// Set the exit-code mapper function.
-  void setExitCodeMapper(std::function<int(const llvm::Error &)> GetExitCodeFn) {
+  void
+  setExitCodeMapper(std::function<int(const llvm::Error &)> GetExitCodeFn) {
     this->GetExitCode = std::move(GetExitCodeFn);
   }
 
