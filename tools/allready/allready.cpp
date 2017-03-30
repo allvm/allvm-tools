@@ -12,6 +12,7 @@
 
 #include "allvm/ALLVMLinker.h"
 #include "allvm/AOTCompile.h"
+#include "allvm/ExitOnError.h"
 #include "allvm/GitVersion.h"
 #include "allvm/ResourceAnchor.h"
 
@@ -48,7 +49,7 @@ cl::opt<std::string> Linker("linker",
 cl::opt<std::string> InputFilename(cl::Positional, cl::Required,
                                    cl::desc("<input allvm file>"));
 
-ExitOnError ExitOnErr;
+allvm::ExitOnError ExitOnErr;
 } // end anonymous namespace
 
 int main(int argc, const char **argv) {

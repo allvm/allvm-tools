@@ -1,6 +1,7 @@
 #include "allvm/StaticCodeGen.h"
 #include "allvm/ALLVMLinker.h"
 #include "allvm/Allexe.h"
+#include "allvm/FileRemoverPlus.h"
 
 #include <llvm/ADT/StringExtras.h>
 #include <llvm/ADT/Triple.h>
@@ -388,7 +389,7 @@ compileAndLinkAllexe(Allexe &Input, StringRef LibNone, StringRef CrtBits,
   ObjectFilename.append(".o");
 
   // Remove the created .o before leaving this function.
-  FileRemover RemoveObject(ObjectFilename);
+  FileRemoverPlus RemoveObject(ObjectFilename);
 
   // Compile the allexe.
   auto Err = compileAllexe(Input, ObjectFilename, Options, Context);

@@ -2,6 +2,7 @@
 
 #include "allvm/ALLVMLinker.h"
 #include "allvm/AOTCompile.h"
+#include "allvm/ExitOnError.h"
 #include "allvm/GitVersion.h"
 #include "allvm/ResourceAnchor.h"
 
@@ -52,7 +53,7 @@ cl::opt<bool> ForceStatic("force-static", cl::init(false),
 cl::opt<bool> NoExec("noexec", cl::desc("Don't actually execute the program"),
                      cl::init(false), cl::Hidden);
 
-ExitOnError ExitOnErr;
+allvm::ExitOnError ExitOnErr;
 
 } // end anonymous namespace
 

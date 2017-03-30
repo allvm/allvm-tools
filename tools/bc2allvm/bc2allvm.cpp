@@ -9,6 +9,7 @@
 //===----------------------------------------------------------------------===//
 
 #include "allvm/Allexe.h"
+#include "allvm/ExitOnError.h"
 #include "allvm/GitVersion.h"
 #include "allvm/ModuleFlags.h"
 #include "allvm/ResourceAnchor.h"
@@ -41,7 +42,7 @@ cl::opt<std::string> OutputFilename("o", cl::desc("Override output filename"),
 cl::opt<bool> ForceOutput("f", cl::desc("Replace output allexe if it exists"),
                           cl::init(false));
 
-ExitOnError ExitOnErr;
+allvm::ExitOnError ExitOnErr;
 
 } // end anonymous namespace
 

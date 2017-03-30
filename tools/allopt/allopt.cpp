@@ -13,6 +13,8 @@
 #include "allvm/ResourceAnchor.h"
 
 #include "allvm/Allexe.h"
+#include "allvm/ExitOnError.h"
+#include "allvm/FileRemoverPlus.h"
 
 #include <llvm/ADT/SmallVector.h>
 #include <llvm/Bitcode/BitcodeWriter.h>
@@ -38,7 +40,7 @@ cl::opt<std::string> Pipeline(cl::Positional, cl::Required,
                               cl::desc("<pipeline command>"));
 cl::list<std::string> Args(cl::ConsumeAfter, cl::desc("<pipeline arguments>"));
 
-ExitOnError ExitOnErr;
+allvm::ExitOnError ExitOnErr;
 
 Error runPipeline(StringRef Input, StringRef Output) {
   SmallVector<const char *, 4> ArgStrs;
@@ -88,7 +90,7 @@ int main(int argc, const char *argv[]) {
       sys::fs::createTemporaryFile("allopt-out", "bc", TempOut)));
   ExitOnErr(errorCodeToError(
       sys::fs::createTemporaryFile("allopt-allexe", "allexe", TempExe)));
-  FileRemover InRemover(TempIn), OutRemover(TempOut), ExeRemover(TempExe);
+  FileRemoverPlus InRemover(TempIn), OutRemover(TempOut), ExeRemover(TempExe);
 
   if (OutputFilename == "-" && !ForceOutput &&
       sys::Process::StandardOutIsDisplayed()) {
@@ -100,7 +102,7 @@ int main(int argc, const char *argv[]) {
   // Put the allexe's bitcode into tempin
   std::error_code EC;
   {
-    FileRemover ExeLocalRemover(TempExe);
+    FileRemoverPlus ExeLocalRemover(TempExe);
     StringRef InputPath = InputFilename;
     if (InputFilename == "-") {
       auto InputBuf = ExitOnErr(errorOrToExpected(MemoryBuffer::getSTDIN()));

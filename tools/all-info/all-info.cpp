@@ -1,4 +1,5 @@
 #include "allvm/Allexe.h"
+#include "allvm/ExitOnError.h"
 #include "allvm/GitVersion.h"
 #include "allvm/ResourceAnchor.h"
 
@@ -13,7 +14,7 @@ using namespace allvm;
 namespace {
 cl::opt<std::string> InputFilename(cl::Positional,
                                    cl::desc("<input Allexe file>"));
-ExitOnError ExitOnErr;
+allvm::ExitOnError ExitOnErr;
 
 std::string crcToHex(uint32_t crc) {
   // Get fixed-width hex string for the crc

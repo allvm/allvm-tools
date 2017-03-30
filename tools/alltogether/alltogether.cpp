@@ -9,6 +9,8 @@
 //===----------------------------------------------------------------------===//
 
 #include "allvm/Allexe.h"
+#include "allvm/ExitOnError.h"
+#include "allvm/FileRemoverPlus.h"
 #include "allvm/GitVersion.h"
 #include "allvm/ResourceAnchor.h"
 
@@ -57,7 +59,7 @@ inline void info(const Twine &Message) {
   }
 }
 
-ExitOnError ExitOnErr;
+allvm::ExitOnError ExitOnErr;
 
 } // end anonymous namespace
 
@@ -154,7 +156,7 @@ int main(int argc, const char **argv) {
       errs() << "Error creating temporary file\n";
       return 1;
     }
-    FileRemover Remover(TempBCPath);
+    FileRemoverPlus Remover(TempBCPath);
 
     // Save merged bitcode file to temporary path
     // (Ideally we would just generate this in memory instead!)
