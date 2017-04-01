@@ -22,4 +22,4 @@ add_document(
   NO_EXPORT_PRODUCT
 )
 
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/ALLVMFormat.pdf DESTINATION share/doc)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/ALLVMFormat.pdf DESTINATION share/doc/allvm)
