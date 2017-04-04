@@ -5,11 +5,8 @@ used for software running in an ALLVM system.
 We use the following extensions for such files:
 
 * .allexe -- self-contained executable files, e.g., for an application
-* .alllib -- statically linked libraries in ALLVM format
-* .allso  -- dynamically loadable libraries in ALLVM format
 
-All these files use a common format, which is a zip container that
-contains various files.
+More may be added in the future.
 
 ## Purpose
 
