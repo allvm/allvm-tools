@@ -52,6 +52,11 @@ cl::opt<bool> DisableOpt("disable-opt",
 cl::opt<bool> Quiet("quiet", cl::desc("Don't print informational messages"));
 cl::alias QuietA("q", cl::desc("Alias for -quiet"), cl::aliasopt(Quiet));
 
+cl::opt<bool>
+    NoInternalizeHidden("no-internalize-hidden",
+                        cl::desc("Don't internalize hidden variables."),
+                        cl::init(false));
+
 inline void info(const Twine &Message) {
   if (!Quiet) {
     outs() << Message;
@@ -62,6 +67,11 @@ inline void info(const Twine &Message) {
 allvm::ExitOnError ExitOnErr;
 
 } // end anonymous namespace
+
+static void processGlobal(GlobalValue &GV) {
+  if (!NoInternalizeHidden && GV.hasHiddenVisibility() && !GV.isDeclaration())
+    GV.setLinkage(GlobalValue::InternalLinkage);
+}
 
 int main(int argc, const char **argv) {
   sys::PrintStackTraceOnErrorSignal(argv[0]);
@@ -125,6 +135,14 @@ int main(int argc, const char **argv) {
                                     bitcode->getBufferSize(), Options, bcEntry);
     info("Adding...");
     auto &LTOMod = *ErrOrMod;
+
+    for (auto &F : LTOMod->getModule())
+      processGlobal(F);
+    for (auto &GV : LTOMod->getModule().globals())
+      processGlobal(GV);
+    for (auto &GA : LTOMod->getModule().aliases())
+      processGlobal(GA);
+
     if (!CodeGen.addModule(LTOMod.get())) {
       errs() << "Error adding '" << bcEntry << "'\n";
       return 1;
