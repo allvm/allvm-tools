@@ -9,6 +9,8 @@ in
 { nixpkgs ? default_nixpkgs }:
 
 with import nixpkgs {};
-callPackage ./build.nix {
-  inherit (llvmPackages_4) llvm clang lld;
+{
+  allvm-tools = callPackage ./build.nix {
+    inherit (llvmPackages_4) llvm clang lld;
+  };
 }
