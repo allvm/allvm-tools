@@ -27,8 +27,12 @@ std::string getPrefixDir(const char *Argv0, void *Main) {
 std::string getPath(StringRef PrefixDir, StringRef Dir, StringRef File) {
   SmallString<128> Path{PrefixDir};
   sys::path::append(Path, Dir, File);
-  auto EC = sys::fs::make_absolute(Path);
-  assert(!EC && "Failed to create absolute path for resource file");
+  if (auto EC = sys::fs::make_absolute(Path)) {
+    // IF assertions are enabled, this will hint as to why things failed
+    assert(0 && "Failed to create absolute path for resource file");
+    // Otherwise.. abort?
+    abort();
+  }
   assert(sys::fs::exists(Path));
   return Path.str();
 }

@@ -114,7 +114,9 @@ Error runHosted(ExecutionEngine &EE, ExecutionYengine::ExecutionInfo &Info) {
   stack_init.push_back(AT_NULL);
 
   // Move all this into a stack allocation:
-  assert(stack_init.size() < INIT_STACK_MAX && "Too many vars!");
+  if (stack_init.size() >= INIT_STACK_MAX)
+    return make_error<StringError>("too many variables; stack size too large",
+                                   errc::invalid_argument);
   size_t stack_size = stack_init.size() * sizeof(stack_init[0]);
   uint64_t *stack = static_cast<uint64_t *>(alloca(stack_size));
   memcpy(stack, stack_init.data(), stack_size);

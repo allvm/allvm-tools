@@ -68,7 +68,7 @@ option(USE_CLANG_WERROR_FLAGS OFF)
 if (USE_CLANG_WERROR_FLAGS)
   set(WARNING_FLAGS -Weverything
     -Wno-unknown-warning-option -Wno-c++98-compat -Wno-padded
-    -Wno-global-constructors -Wno-exit-time-destructors)
+    -Wno-global-constructors -Wno-exit-time-destructors -Wno-unused-macros)
   list(APPEND LLVM_DEFINITIONS ${WARNING_FLAGS} -Werror)
 endif()
 
