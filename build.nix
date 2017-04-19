@@ -1,5 +1,10 @@
 # This file is usually 'default.nix'
-{ stdenv, cmake, git, llvm, clang, lld, zlib, python2, pandoc, texlive }:
+{ stdenv, cmake, git, llvm, clang, lld, zlib, python2, pandoc, texlive,
+  useClangWerrorFlags ? stdenv.cc.isClang }:
+
+# Make sure no one tries to enable clang-specific flags
+# when building using gcc or any non-clang
+assert useClangWerrorFlags -> stdenv.cc.isClang;
 
 let
   inherit (stdenv) lib;
@@ -29,7 +34,7 @@ stdenv.mkDerivation {
   cmakeFlags = [
     "-DGITVERSION=${gitshort}-dev"
     "-DCLANGFORMAT=${clang.cc}/bin/clang-format"
-  ] ++ stdenv.lib.optional stdenv.cc.isClang "-DUSE_CLANG_WERROR_FLAGS=ON";
+  ] ++ stdenv.lib.optional useClangWerrorFlags "-DUSE_CLANG_WERROR_FLAGS=ON";
 
   # Check formatting, not parallel for more readable output
   preCheck = ''
