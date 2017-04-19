@@ -29,7 +29,7 @@ stdenv.mkDerivation {
   cmakeFlags = [
     "-DGITVERSION=${gitshort}-dev"
     "-DCLANGFORMAT=${clang.cc}/bin/clang-format"
-  ];
+  ] ++ stdenv.lib.optional stdenv.cc.isClang "-DUSE_CLANG_WERROR_FLAGS=ON";
 
   # Check formatting, not parallel for more readable output
   preCheck = ''
