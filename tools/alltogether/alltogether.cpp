@@ -137,7 +137,8 @@ int main(int argc, const char **argv) {
     auto &LTOMod = *ErrOrMod;
 
     for (auto &F : LTOMod->getModule())
-      processGlobal(F);
+      if (F.getName() != "main")
+        processGlobal(F);
     for (auto &GV : LTOMod->getModule().globals())
       processGlobal(GV);
     for (auto &GA : LTOMod->getModule().aliases())
