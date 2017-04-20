@@ -88,7 +88,7 @@ int main(int argc, const char **argv) {
 
     // Use parseIRFile to handle both bitcode and textual IR
     // Create helper lambda for re-use below.
-    auto addModule = [&](StringRef Filename, StringRef Name = "") {
+    auto addModule = [&](StringRef Filename, bool isMain = false) {
       LLVMContext C;
       SMDiagnostic Err;
       SmallString<128> AbsFilename = Filename;
@@ -100,16 +100,29 @@ int main(int argc, const char **argv) {
         Err.print(argv[0], errs());
         exit(1);
       }
+      if (isMain) {
+        // Check that "main.bc" actually has, you know, 'main'!
+        auto main = Module->getFunction("main");
+        if (!main) {
+          errs() << "Failed to find 'main' function in " << Filename << "!\n";
+          exit(1);
+        }
+        if (main->isDeclaration()) {
+          errs() << "'main' must not be a declaration in first module\n";
+          exit(1);
+        }
+      }
       auto Sources = getALLVMSources(Module.get());
       if (Sources.empty())
         setALLVMSource(Module.get(), Filename);
       else
         errs() << "Warning: Module flag '" << MF_ALLVM_SOURCE
                << "' already set, not changing\n";
+      auto Name = isMain ? ALLEXE_MAIN : "";
       ExitOnErr(Output->addModule(std::move(Module), Name));
     };
 
-    addModule(MainFile, ALLEXE_MAIN);
+    addModule(MainFile, true);
     for (const auto &it : InputFiles)
       addModule(it);
 
