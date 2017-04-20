@@ -1,0 +1,5 @@
+// RUN: llvm-as %p/Inputs/multi-lib.ll -o %t-lib.bc
+// RUN: not bc2allvm %t-lib.bc -f -o %t |& FileCheck %s
+
+// CHECK: Failed to find 'main' function in
+
