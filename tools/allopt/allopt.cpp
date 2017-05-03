@@ -25,6 +25,7 @@
 #include <llvm/Support/Process.h>
 #include <llvm/Support/Program.h>
 #include <llvm/Support/Signals.h>
+#include <llvm/Support/ToolOutputFile.h>
 
 using namespace allvm;
 using namespace llvm;
@@ -36,6 +37,10 @@ cl::opt<std::string> OutputFilename("o", cl::init("-"),
                                     cl::desc("<output allexe>"));
 cl::opt<bool> ForceOutput("f", cl::desc("Replace output allexe if it exists"),
                           cl::init(false));
+cl::opt<bool>
+    AnalyzeOnly("analyze",
+                cl::desc("don't expect bitcode as output of pipeline"),
+                cl::init(false));
 cl::opt<std::string> Pipeline(cl::Positional, cl::Required,
                               cl::desc("<pipeline command>"));
 cl::list<std::string> Args(cl::ConsumeAfter, cl::desc("<pipeline arguments>"));
@@ -92,7 +97,7 @@ int main(int argc, const char *argv[]) {
       sys::fs::createTemporaryFile("allopt-allexe", "allexe", TempExe)));
   FileRemoverPlus InRemover(TempIn), OutRemover(TempOut), ExeRemover(TempExe);
 
-  if (OutputFilename == "-" && !ForceOutput &&
+  if (OutputFilename == "-" && !ForceOutput && !AnalyzeOnly &&
       sys::Process::StandardOutIsDisplayed()) {
     ExitOnErr(make_error<StringError>(
         "refusing to scribble to display stdout, use -f to override",
@@ -131,7 +136,7 @@ int main(int argc, const char *argv[]) {
   ExitOnErr(runPipeline(TempIn, TempOut));
 
   // Write new allexe
-  {
+  if (!AnalyzeOnly) {
     StringRef OutputPath = OutputFilename;
     if (OutputFilename == "-")
       OutputPath = TempExe;
@@ -147,6 +152,12 @@ int main(int argc, const char *argv[]) {
           ExitOnErr(errorOrToExpected(MemoryBuffer::getFile(OutputPath)));
       outs().write(OutData->getBufferStart(), OutData->getBufferSize());
     }
+  } else {
+    tool_output_file out(OutputFilename, EC, sys::fs::F_None);
+    ExitOnErr(errorCodeToError(EC));
+
+    auto OutData = ExitOnErr(errorOrToExpected(MemoryBuffer::getFile(TempOut)));
+    out.os().write(OutData->getBufferStart(), OutData->getBufferSize());
   }
 
   return 0;

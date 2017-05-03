@@ -1,0 +1,14 @@
+RUN: allopt -analyze -i %p/Inputs/which llvm-dis |& FileCheck %s
+CHECK: Module
+CHECK: @main
+
+Disassemble (checking that '-o' goes to llvm-dis and not allopt),
+check results by reassembling and executing
+RUN: allopt -analyze -i %p/Inputs/which llvm-dis -o %t.ll
+RUN: bc2allvm %t.ll -f -o %t
+RUN: %t bc2allvm
+
+RUN: allopt -analyze -i %p/Inputs/which echo Hi |& FileCheck %s --check-prefix=ECHO
+ECHO: Hi
+
+
