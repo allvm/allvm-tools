@@ -8,6 +8,6 @@ set(LLVM_LINK_COMPONENTS
 add_llvm_tool(bc2allvm
   bc2allvm.cpp
 )
-target_link_libraries(bc2allvm liball ResourcePaths)
+target_link_libraries(bc2allvm liball Passes ResourcePaths)
 
 add_definitions(${LLVM_DEFINITIONS})
