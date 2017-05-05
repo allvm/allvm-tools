@@ -58,7 +58,8 @@ public:
 private:
   std::vector<Instruction *> toRemove;
 };
-}
+
+} // end anonymous namespace
 
 PreservedAnalyses DeInlineAsm::run(Module &M, ModuleAnalysisManager &) {
   InlineAsmVisitor visitor;
