@@ -1,15 +1,21 @@
 // (This test actually uses 'Inputs/deasm-bswap.ll')
 // hardeningDisable=all clang deasm-bswap.c -o Inputs/deasm-bswap.ll -O2 -emit-llvm -S
 
-// Check we can create an allexe and run it:
+// Check we can create an allexe and run it (and that the code's dynamic tests don't fail)
 // RUN: bc2allvm %p/Inputs/deasm-bswap.ll -f -o %t
 // RUN: %t
 
 // Check all asm has been removed:
-// RUN: allopt -analyze -i %t llvm-dis|& FileCheck %s
+// RUN: allopt -analyze -i %t llvm-dis |& FileCheck %s
 
+// CHECK-NOT: call {{.*}} asm
 // CHECK: llvm.bswap
 // CHECK-NOT: call {{.*}} asm
+
+// Check that the -preserve-asm flag works
+// RUN: bc2allvm -preserve-asm %p/Inputs/deasm-bswap.ll -f -o %t-asm
+// RUN: allopt -analyze -i %t-asm llvm-dis |& FileCheck %s -check-prefix=PRESERVE
+// PRESERVE: call {{.*}} asm
 
 #include <stdint.h>
 #include <stdio.h>
