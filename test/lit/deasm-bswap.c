@@ -1,5 +1,6 @@
 // This test actually uses 'Inputs/deasm-bswap.ll', built with:
 // hardeningDisable=all clang deasm-bswap.c -o Inputs/deasm-bswap.ll -O2 -emit-llvm -S
+// This C code was provided by @cranmer2.
 
 // Check we can create an allexe and run it (and that the code's dynamic tests don't fail)
 // RUN: bc2allvm %p/Inputs/deasm-bswap.ll -f -o %t
