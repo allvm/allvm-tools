@@ -9,6 +9,7 @@
 //===----------------------------------------------------------------------===//
 
 #include "allvm/Allexe.h"
+#include "allvm/DeInlineAsm.h"
 #include "allvm/GitVersion.h"
 #include "allvm/ModuleFlags.h"
 #include "allvm/ResourceAnchor.h"
@@ -52,8 +53,19 @@ cl::opt<bool> StripDebug("strip-debug",
                          cl::desc("Strip debugging information from bitcode"),
                          cl::init(false));
 
+cl::opt<bool> PreserveAsm("preserve-asm",
+                          cl::desc("Don't attempt to replace inline ASM code"),
+                          cl::init(true));
+
 cl::opt<bool> ForceOutput("f", cl::desc("Replace output allexe if it exists"),
                           cl::init(false));
+
+void runDeInlineAsm(Module &M) {
+  ModulePassManager MPM;
+  ModuleAnalysisManager MAM;
+  MPM.addPass<DeInlineAsm>(DeInlineAsm());
+  MPM.run(M, MAM);
+}
 
 } // end anonymous namespace
 
@@ -85,6 +97,8 @@ static Error writeAsSingleBC(const WLLVMFile &File, StringRef Filename) {
 
   if (StripDebug)
     StripDebugInfo(**Composite);
+  if (!PreserveAsm)
+    runDeInlineAsm(**Composite);
 
   setWLLVMSource(Composite->get(), InputFilename);
 
@@ -142,6 +156,8 @@ static Error writeAsAllexe(const WLLVMFile &File, StringRef Filename,
 
   if (StripDebug)
     StripDebugInfo(**Composite);
+  if (!PreserveAsm)
+    runDeInlineAsm(**Composite);
 
   return (*Output)->addModule(std::move(*Composite), ALLEXE_MAIN);
 }
