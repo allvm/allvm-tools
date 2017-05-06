@@ -55,7 +55,7 @@ cl::opt<bool> StripDebug("strip-debug",
 
 cl::opt<bool> PreserveAsm("preserve-asm",
                           cl::desc("Don't attempt to replace inline ASM code"),
-                          cl::init(true));
+                          cl::init(false));
 
 cl::opt<bool> ForceOutput("f", cl::desc("Replace output allexe if it exists"),
                           cl::init(false));
