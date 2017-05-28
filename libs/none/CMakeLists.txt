@@ -5,7 +5,7 @@ set(MUSL musl-1.1.16)
 set(MUSL_PATCHES
   musl-patches/0002-Disable-vdso-support-on-x86_64-we-don-t-support-it-y.patch
   musl-patches/0003-Remove-simple-malloc-gets-in-way-of-real-malloc.patch
-  musl-patches/0004-KLUDGE-More-workaround-weak-alias-this-time-tackling.patch
+  #  musl-patches/0004-KLUDGE-More-workaround-weak-alias-this-time-tackling.patch
   musl-patches/0005-Another-weak_alias-victim-destructors-for-stdio-and-.patch
   musl-patches/0006-configure-improve-tryflag-to-reject-ignored-opt-argu.patch
   musl-patches/0007-Partially-revert-remove-potentially-PIC-incompatible.patch
