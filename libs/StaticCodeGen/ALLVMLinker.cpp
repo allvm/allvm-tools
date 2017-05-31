@@ -27,6 +27,7 @@ void ALLVMLinker::createLinkerArguments(
   LinkerArgs.emplace_back("-o");
   LinkerArgs.emplace_back(OutFilename.str());
   LinkerArgs.emplace_back("-static");
+  LinkerArgs.emplace_back("--eh-frame-hdr");
   if (CrtBits) {
     LinkerArgs.emplace_back((CrtBits.getValue() + "/crt1.o").str());
     LinkerArgs.emplace_back((CrtBits.getValue() + "/crti.o").str());
