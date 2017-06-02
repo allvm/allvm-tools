@@ -1,6 +1,10 @@
 # This file is usually 'default.nix'
-{ stdenv, cmake, git, llvm, clang, lld, zlib, python2, pandoc, texlive,
-  useClangWerrorFlags ? stdenv.cc.isClang }:
+{ stdenv
+, cmake, git, python2
+, llvm, clang, lld, zlib
+, buildDocs ? true, pandoc, texlive
+, useClangWerrorFlags ? stdenv.cc.isClang
+}:
 
 # Make sure no one tries to enable clang-specific flags
 # when building using gcc or any non-clang
@@ -26,12 +30,13 @@ stdenv.mkDerivation {
 
   src = builtins.filterSource sourceFilter ./.;
 
-  nativeBuildInputs = [ cmake git python2 pandoc tex ];
+  nativeBuildInputs = [ cmake git python2 ] ++ lib.optionals buildDocs [ pandoc tex ];
   buildInputs = [ llvm lld zlib ];
 
   doCheck = true;
 
   cmakeFlags = [
+    "-DBUILDDOCS=${if buildDocs then "ON" else "OFF"}"
     "-DGITVERSION=${gitshort}-dev"
     "-DCLANGFORMAT=${clang.cc}/bin/clang-format"
   ] ++ stdenv.lib.optional useClangWerrorFlags "-DUSE_CLANG_WERROR_FLAGS=ON";
