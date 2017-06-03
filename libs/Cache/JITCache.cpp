@@ -33,8 +33,13 @@ void JITCache::notifyObjectCompiled(const Module *M, MemoryBufferRef Obj) {
   }
   std::error_code EC;
   raw_fd_ostream outfile(CacheName, EC, sys::fs::F_None);
-  outfile.write(Obj.getBufferStart(), Obj.getBufferSize());
-  outfile.close();
+  if (!EC) {
+    outfile.write(Obj.getBufferStart(), Obj.getBufferSize());
+    outfile.close();
+  } else {
+    // Using errs() in JITCache seems like a Bad Idea (tm).
+    // errs() << "Error writing to cache, trying to ignore...\n";
+  }
 }
 
 std::unique_ptr<MemoryBuffer> JITCache::getObject(const Module *M) {
