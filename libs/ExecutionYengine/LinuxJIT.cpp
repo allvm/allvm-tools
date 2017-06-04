@@ -12,7 +12,7 @@
 
 using namespace llvm;
 
-static const size_t INIT_STACK_MAX = 1ULL << 14; // 16K
+static const size_t INIT_STACK_MAX = 16384;
 
 namespace {
 
