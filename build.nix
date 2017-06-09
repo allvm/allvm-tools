@@ -36,7 +36,7 @@ stdenv.mkDerivation {
   doCheck = true;
 
   cmakeFlags = [
-    "-DBUILDDOCS=${if buildDocs then "ON" else "OFF"}"
+    "-DBUILD_DOCS=${if buildDocs then "ON" else "OFF"}"
     "-DGITVERSION=${gitshort}-dev"
     "-DCLANGFORMAT=${clang.cc}/bin/clang-format"
   ] ++ stdenv.lib.optional useClangWerrorFlags "-DUSE_CLANG_WERROR_FLAGS=ON";
