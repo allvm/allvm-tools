@@ -1,0 +1,29 @@
+// Test basic allmux usage
+
+// RUN: rm -rf %t && mkdir -p %t
+// RUN: allmux %p/Inputs/which %p/Inputs/time -f -o %t/timewhich
+// RUN: ln -s %t/{timewhich,time}
+// RUN: ln -s %t/{timewhich,which}
+
+// RUN: %t/time --help |& FileCheck %s -check-prefix=TIME
+// TIME-NOT: which
+// TIME: Usage: {{.*}}/time [-apvV] [-f format] [-o file] [--append] [--verbose]
+// TIME-NOT: which
+
+// RUN: %t/which --help |& FileCheck %s -check-prefix=WHICH
+// WHICH: Usage: {{.*}}/which [options] [--] COMMAND [...]
+
+// RUN: %t/which alley |& FileCheck %s -check-prefix=WHICHALLEY
+// WHICHALLEY: alley
+
+// And for good measure, alltogether/allready this
+// RUN: alltogether %t/timewhich -f -o %t/timewhich.merged
+// RUN: allready %t/timewhich.merged
+
+// Recreate the links using merged version
+// RUN: ln -sf %t/{timewhich.merged,time}
+// RUN: ln -sf %t/{timewhich.merged,which}
+
+// Re-exec the same '--help' checks as before:
+// RUN: %t/time --help |& FileCheck %s -check-prefix=TIME
+// RUN: %t/which --help |& FileCheck %s -check-prefix=WHICH
