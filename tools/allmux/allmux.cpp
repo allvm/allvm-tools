@@ -154,12 +154,13 @@ Expected<std::unique_ptr<Module>> genMain(ArrayRef<Entry> Es, LLVMContext &C,
 void processGlobal(GlobalValue &GV) {
   // Don't internalize these symbols,
   // list taken from "AlwaysPreserved" StringSet in Internalize.cpp
-  auto AlwaysPreserved = StringSwitch<bool>(GV.getName())
-    .Cases("llvm.used", "llvm.compiler.used", true)
-    .Cases("llvm.global_ctors", "llvm.global_dtors", true)
-    .Case("llvm.global.annotations", true)
-    .Cases("__stack_chk_fail", "__stack_chk_guard", true)
-    .Default(false);
+  auto AlwaysPreserved =
+      StringSwitch<bool>(GV.getName())
+          .Cases("llvm.used", "llvm.compiler.used", true)
+          .Cases("llvm.global_ctors", "llvm.global_dtors", true)
+          .Case("llvm.global.annotations", true)
+          .Cases("__stack_chk_fail", "__stack_chk_guard", true)
+          .Default(false);
 
   if (AlwaysPreserved)
     return;
