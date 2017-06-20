@@ -78,7 +78,6 @@ Expected<std::unique_ptr<Module>> genMain(ArrayRef<Entry> Es, LLVMContext &C,
   // @mains = external local_unnamed_addr global [0 x %struct.main_info], align
   // 8
   auto *OriginalArray = MuxMain->getNamedValue("mains");
-  assert(OriginalArray->getType()->isArrayTy());
   auto *MITy = MuxMain->getTypeByName("struct.main_info");
 
   IRBuilder<> Builder(C);
