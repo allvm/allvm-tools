@@ -190,6 +190,7 @@ int main(int argc, const char **argv) {
       auto *MainF = E.Main->getFunction("main");
       MainF->setName(E.MainName);
       MainF->setLinkage(GlobalValue::ExternalLinkage);
+      MainF->setVisibility(GlobalValue::DefaultVisibility);
       internalizeModule(*E.Main, [&MainF](auto &GV) { return &GV == MainF; });
 
       ExitOnErr(Output->addModule(std::move(E.Main), E.MainName + ".bc"));
