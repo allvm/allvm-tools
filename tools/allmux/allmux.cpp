@@ -150,6 +150,11 @@ Expected<std::unique_ptr<Module>> genMain(ArrayRef<Entry> Es, LLVMContext &C,
   return std::move(MuxMain);
 }
 
+void processGlobal(GlobalValue &GV) {
+  if (!GV.isDeclaration())
+    GV.setLinkage(GlobalValue::InternalLinkage);
+}
+
 } // end anonymous namespace
 
 int main(int argc, const char **argv) {
@@ -192,6 +197,15 @@ int main(int argc, const char **argv) {
       MainF->setLinkage(GlobalValue::ExternalLinkage);
       MainF->setVisibility(GlobalValue::DefaultVisibility);
       internalizeModule(*E.Main, [&MainF](auto &GV) { return &GV == MainF; });
+
+      // Don't export any definitions other than the renamed main
+      for (auto &F : *E.Main)
+        if (&F != MainF)
+          processGlobal(F);
+      for (auto &GV : E.Main->globals())
+        processGlobal(GV);
+      for (auto &GA : E.Main->aliases())
+        processGlobal(GA);
 
       ExitOnErr(Output->addModule(std::move(E.Main), E.MainName + ".bc"));
     }
