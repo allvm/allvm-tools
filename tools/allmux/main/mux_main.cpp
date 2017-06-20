@@ -32,6 +32,7 @@ int main(int argc, char *argv[],
   // * can probably roll our own w/o too much trouble
 
   char *name = basename(argv[0]);
+#pragma clang loop unroll(full)
   for (size_t idx = 0; mains[idx].main; ++idx) {
     if (!strcmp(name, mains[idx].name)) {
       return mains[idx].main(argc, argv, envp);
