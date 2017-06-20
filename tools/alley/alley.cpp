@@ -91,8 +91,11 @@ int main(int argc, const char **argv, const char **envp) {
 
   // Fixup argv[0] to the allexe name without the allexe suffix.
   StringRef ProgName = InputFilename;
-  if (sys::path::has_extension(InputFilename))
-    ProgName = ProgName.drop_back(sys::path::extension(ProgName).size());
+  if (sys::path::has_extension(InputFilename)) {
+    auto Ext = sys::path::extension(ProgName);
+    if (Ext == "allexe")
+      ProgName = ProgName.drop_back(Ext.size());
+  }
   InputArgv.insert(InputArgv.begin(), ProgName);
 
   ExecutionYengine EY({*allexe, InputArgv, envp, LibNone, NoExec});
