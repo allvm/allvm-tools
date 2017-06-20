@@ -136,7 +136,7 @@ Expected<std::unique_ptr<Module>> genMain(ArrayRef<Entry> Es, LLVMContext &C,
   auto *MainsInit = ConstantArray::get(ATy, MainInfos);
 
   auto *MainsArray = new GlobalVariable(*MuxMain, MainsInit->getType(), true,
-                                        GlobalVariable::ExternalLinkage,
+                                        GlobalVariable::InternalLinkage,
                                         MainsInit, "mains_array");
 
   // Replace original array with new array casted to its type
