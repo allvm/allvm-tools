@@ -3,7 +3,7 @@
 #include <cstring>
 
 struct main_info {
-  int (*main)(int, char *[]);
+  int (*main)(int, char *[], char *[]);
   const char *name;
 };
 
@@ -16,7 +16,8 @@ char *basename(char *name) {
   return name;
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[],
+         char *envp[] /* not POSIX but needed by some things */) {
   // TODO: Look at busybox and coreutils for inspiration/ideas?
 
   // TODO: Static initializers?
@@ -33,7 +34,7 @@ int main(int argc, char *argv[]) {
   char *name = basename(argv[0]);
   for (size_t idx = 0; mains[idx].main; ++idx) {
     if (!strcmp(name, mains[idx].name)) {
-      return mains[idx].main(argc, argv);
+      return mains[idx].main(argc, argv, envp);
     }
   }
 
