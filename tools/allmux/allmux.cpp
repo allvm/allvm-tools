@@ -91,12 +91,38 @@ Expected<std::unique_ptr<Module>> genMain(ArrayRef<Entry> Es, LLVMContext &C,
 
   SmallVector<Constant *, 4> MainInfos;
   for (auto &E : Es) {
-    auto *MainDecl = MuxMain->getOrInsertFunction(E.MainName, MainFnTy);
-    assert(MainDecl->getType() == MainPtrTy);
+    auto *MainWrapper = cast<Function>(MuxMain->getOrInsertFunction(E.MainName + "_wrapper", MainFnTy));
+    auto *BB = BasicBlock::Create(C, "entry", MainWrapper);
+    Builder.SetInsertPoint(BB);
+    SmallVector<Value*, 2> Args;
+
+    auto *RealMain = E.Main->getFunction("main" /* E.MainName */);
+    auto *RealMainTy = RealMain->getFunctionType();
+    assert(!RealMainTy->isVarArg());
+    auto *RealMainDecl = MuxMain->getOrInsertFunction(E.MainName, RealMainTy);
+
+    auto AI = MainWrapper->arg_begin(), AE = MainWrapper->arg_end();
+    auto PI = RealMainTy->param_begin(), PE = RealMainTy->param_end();
+
+    assert((std::distance(AI,AE) >= std::distance(PI,PE)) && "real main has more arguments than we provide");
+
+    for ( ; AI != AE && PI != PE; ++AI, ++PI) {
+      assert(AI->getType() == *PI);
+      if (AI->getType() != *PI) abort();
+      Args.push_back(&*AI);
+    }
+
+    auto *Call = Builder.CreateCall(RealMainDecl, Args);
+    Value *Ret = Call;
+    if (Call->getType()->isVoidTy())
+      Ret = Constant::getNullValue(MainFnTy->getReturnType());
+    Builder.CreateRet(Ret);
+    for (auto &A: MainWrapper->args())
+      Args.push_back(&A);
+
 
     auto *NameV = cast<Constant>(Builder.CreateGlobalStringPtr(E.Base));
-
-    MainInfos.push_back(ConstantStruct::get(MITy, {MainDecl, NameV}));
+    MainInfos.push_back(ConstantStruct::get(MITy, {MainWrapper, NameV}));
   }
 
   MainInfos.push_back(
@@ -164,6 +190,7 @@ int main(int argc, const char **argv) {
       MainF->setName(E.MainName);
       MainF->setLinkage(GlobalValue::ExternalLinkage);
       internalizeModule(*E.Main, [&MainF](auto &GV) { return &GV == MainF; });
+
       ExitOnErr(Output->addModule(std::move(E.Main), E.MainName + ".bc"));
     }
 
