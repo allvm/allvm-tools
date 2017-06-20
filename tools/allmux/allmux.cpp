@@ -64,34 +64,34 @@ Error verifyModule(Module &M) {
 Expected<std::unique_ptr<Module>> genMain(ArrayRef<Entry> Es, LLVMContext &C,
                                           const ResourcePaths &RP) {
   SMDiagnostic Err;
-  auto Main = parseIRFile(RP.MuxMainPath, Err, C);
-  if (!Main) {
+  auto MuxMain = parseIRFile(RP.MuxMainPath, Err, C);
+  if (!MuxMain) {
     // TODO: Fix, return an Error instead
     Err.print("allmux", errs());
     exit(1);
   }
-  ExitOnErr(Main->materializeAll());
+  ExitOnErr(MuxMain->materializeAll());
 
   // Replace "mains" array
 
   // %struct.main_info = type { i32 (i32, i8**)*, i8* }
   // @mains = external local_unnamed_addr global [0 x %struct.main_info], align
   // 8
-  auto *MainsG = Main->getNamedValue("mains");
-  assert(MainsG->getType()->isArrayTy());
-  auto *MITy = Main->getTypeByName("struct.main_info");
+  auto *OriginalArray = MuxMain->getNamedValue("mains");
+  assert(OriginalArray->getType()->isArrayTy());
+  auto *MITy = MuxMain->getTypeByName("struct.main_info");
 
   IRBuilder<> Builder(C);
   // Set insert point so things are added to the right module
-  auto *MFn = Main->getFunction("main");
-  Builder.SetInsertPoint(MFn->getEntryBlock().getTerminator());
+  auto *Main = MuxMain->getFunction("main");
+  Builder.SetInsertPoint(Main->getEntryBlock().getTerminator());
 
   auto *MainPtrTy = cast<PointerType>(MITy->getTypeAtIndex(unsigned{0}));
   auto *MainFnTy = cast<FunctionType>(MainPtrTy->getElementType());
 
   SmallVector<Constant *, 4> MainInfos;
   for (auto &E : Es) {
-    auto *MainDecl = Main->getOrInsertFunction(E.MainName, MainFnTy);
+    auto *MainDecl = MuxMain->getOrInsertFunction(E.MainName, MainFnTy);
     assert(MainDecl->getType() == MainPtrTy);
 
     auto *NameV = cast<Constant>(Builder.CreateGlobalStringPtr(E.Base));
@@ -107,19 +107,20 @@ Expected<std::unique_ptr<Module>> genMain(ArrayRef<Entry> Es, LLVMContext &C,
   auto *ATy = ArrayType::get(MITy, MainInfos.size());
   auto *MainsInit = ConstantArray::get(ATy, MainInfos);
 
-  auto *MainsArray = new GlobalVariable(*Main, MainsInit->getType(), true,
+  auto *MainsArray = new GlobalVariable(*MuxMain, MainsInit->getType(), true,
                                         GlobalVariable::ExternalLinkage,
                                         MainsInit, "mains_array");
 
+  // Replace original array with new array casted to its type
   auto *MainsCasted =
-      ConstantExpr::getPointerCast(MainsArray, MainsG->getType());
-  MainsG->replaceAllUsesWith(MainsCasted);
-  MainsG->eraseFromParent();
+      ConstantExpr::getPointerCast(MainsArray, OriginalArray->getType());
+  OriginalArray->replaceAllUsesWith(MainsCasted);
+  OriginalArray->eraseFromParent();
 
-  if (auto E = verifyModule(*Main))
+  if (auto E = verifyModule(*MuxMain))
     return std::move(E);
 
-  return std::move(Main);
+  return std::move(MuxMain);
 }
 
 } // end anonymous namespace
