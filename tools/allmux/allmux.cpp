@@ -91,10 +91,11 @@ Expected<std::unique_ptr<Module>> genMain(ArrayRef<Entry> Es, LLVMContext &C,
 
   SmallVector<Constant *, 4> MainInfos;
   for (auto &E : Es) {
-    auto *MainWrapper = cast<Function>(MuxMain->getOrInsertFunction(E.MainName + "_wrapper", MainFnTy));
+    auto *MainWrapper = cast<Function>(
+        MuxMain->getOrInsertFunction(E.MainName + "_wrapper", MainFnTy));
     auto *BB = BasicBlock::Create(C, "entry", MainWrapper);
     Builder.SetInsertPoint(BB);
-    SmallVector<Value*, 2> Args;
+    SmallVector<Value *, 2> Args;
 
     auto *RealMain = E.Main->getFunction("main" /* E.MainName */);
     auto *RealMainTy = RealMain->getFunctionType();
@@ -104,11 +105,13 @@ Expected<std::unique_ptr<Module>> genMain(ArrayRef<Entry> Es, LLVMContext &C,
     auto AI = MainWrapper->arg_begin(), AE = MainWrapper->arg_end();
     auto PI = RealMainTy->param_begin(), PE = RealMainTy->param_end();
 
-    assert((std::distance(AI,AE) >= std::distance(PI,PE)) && "real main has more arguments than we provide");
+    assert((std::distance(AI, AE) >= std::distance(PI, PE)) &&
+           "real main has more arguments than we provide");
 
-    for ( ; AI != AE && PI != PE; ++AI, ++PI) {
+    for (; AI != AE && PI != PE; ++AI, ++PI) {
       assert(AI->getType() == *PI);
-      if (AI->getType() != *PI) abort();
+      if (AI->getType() != *PI)
+        abort();
       Args.push_back(&*AI);
     }
 
@@ -117,9 +120,8 @@ Expected<std::unique_ptr<Module>> genMain(ArrayRef<Entry> Es, LLVMContext &C,
     if (Call->getType()->isVoidTy())
       Ret = Constant::getNullValue(MainFnTy->getReturnType());
     Builder.CreateRet(Ret);
-    for (auto &A: MainWrapper->args())
+    for (auto &A : MainWrapper->args())
       Args.push_back(&A);
-
 
     auto *NameV = cast<Constant>(Builder.CreateGlobalStringPtr(E.Base));
     MainInfos.push_back(ConstantStruct::get(MITy, {MainWrapper, NameV}));
