@@ -1,6 +1,5 @@
 // check that allmux bails if there are conflicting names
 
-// RUN: rm -rf %t && mkdir -p %t
-// RUN: not allmux %p/Inputs/time %p/Inputs/time -f -o %t/timewhich |& FileCheck %s
+// RUN: not allmux %p/Inputs/time %p/Inputs/time -f -o %t |& FileCheck %s
 
 // CHECK: Duplicate
