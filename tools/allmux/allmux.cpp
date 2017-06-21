@@ -17,6 +17,7 @@
 
 #include <llvm/ADT/DenseSet.h>
 #include <llvm/ADT/SmallVector.h>
+#include <llvm/ADT/StringSet.h>
 #include <llvm/ADT/StringSwitch.h>
 #include <llvm/Analysis/TargetLibraryInfo.h>
 #include <llvm/IR/Constants.h>
@@ -173,12 +174,17 @@ int main(int argc, const char **argv) {
   ExitOnErr.setBanner(std::string(argv[0]) + ": ");
 
   LLVMContext C;
-  SmallVector<Entry, 2> Entries;
+  SmallVector<Entry, 16> Entries;
+  StringSet<> Basenames;
   for (auto &I : InputFiles) {
     auto A = ExitOnErr(Allexe::openForReading(I, RP));
     auto Main = ExitOnErr(A->getModule(0, C));
 
     auto Base = sys::path::filename(I);
+    if (!Basenames.insert(Base).second) {
+      errs() << formatv("error: Duplicate basename '{0}' encountered\n", Base);
+      return -1;
+    }
     Entries.push_back(
         {std::move(A), std::move(Main), I, Base, formatv("main_{0}", Base)});
   }
