@@ -4,8 +4,7 @@
 // 'Inputs/env.allexe', since we don't require
 // a bitcode-capable compiler for building yet.
 //
-// RUN: rm -rf %t-jit && mkdir %t-jit
-// RUN: rm -rf %t-static && mkdir %t-static
+// RUN: mkdir %t-jit %t-static
 //
 // Make sure we can run this at all, on both code paths
 // (the code contains various checks as asserts)

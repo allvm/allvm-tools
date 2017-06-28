@@ -1,6 +1,6 @@
 ; Check that we provide __dso_handle
 ; RUN: llvm-as %s -o %t.bc
-; RUN: bc2allvm %t.bc -f -o %t
+; RUN: bc2allvm %t.bc -o %t
 ; RUN: alley %t
 ; RUN: alley -force-static %t
 

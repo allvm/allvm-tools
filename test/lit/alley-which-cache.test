@@ -2,8 +2,7 @@
 // Also requires/tests the ALLVM_CACHE_DIR env override.
 
 // Ensure our test dir is empty...
-// RUN: rm -rf %t-cache && mkdir %t-cache
-
+// RUN: mkdir %t-cache
 // RUN: find %t-cache -type f | wc -l | FileCheck %s -check-prefix=EMPTY
 // EMPTY: 0
 

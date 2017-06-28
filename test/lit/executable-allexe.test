@@ -1,7 +1,7 @@
 
 // Get an allexe:
 // RUN: llvm-as %p/Inputs/simplest.ll -o %t.bc
-// RUN: bc2allvm %t.bc -f -o %t
+// RUN: bc2allvm %t.bc -o %t
 
 // Verify that we can run it with alley explicitly:
 // RUN: alley %t

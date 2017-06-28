@@ -1,3 +1,3 @@
 // Test chaining all-opt pipelines
-// RUN: allopt -i %p/Inputs/which cat | allopt opt -O0 | allopt -f -o %t cat
+// RUN: allopt -i %p/Inputs/which cat | allopt opt -O0 | allopt -o %t cat
 // RUN: %t allopt

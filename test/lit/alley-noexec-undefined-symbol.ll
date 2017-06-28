@@ -1,5 +1,5 @@
 ; RUN: llvm-as %s -o %t.bc
-; RUN: bc2allvm %t.bc -f -o %t
+; RUN: bc2allvm %t.bc -o %t
 
 ; Check that symbol resolution errors (at least from main)
 ; produce errors even when running with -noexec.

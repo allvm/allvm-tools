@@ -1,8 +1,7 @@
 // Regression test for #34
 
 // Ensure our test cache dir is empty...
-// RUN: rm -rf %t-cache && mkdir %t-cache
-// RUN: rm -rf %t-tmp && mkdir %t-tmp
+// RUN: mkdir %t-cache %t-tmp
 // RUN: find %t-cache -type f | wc -l | FileCheck %s -check-prefix=EMPTY
 // RUN: find %t-tmp -type f | wc -l | FileCheck %s -check-prefix=EMPTY
 // EMPTY: 0

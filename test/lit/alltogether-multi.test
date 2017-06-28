@@ -1,4 +1,4 @@
 // Make sure alltogether actually handles multi-module allexe's
 
-// RUN: alltogether %p/Inputs/simple-multi -f -o %t
+// RUN: alltogether %p/Inputs/simple-multi -o %t
 // RUN: alley %t

@@ -1,7 +1,7 @@
 // Test 'allready' tool output when used successfully
 
 // Ensure our test dir is empty...
-// RUN: rm -rf %t-cache && mkdir %t-cache
+// RUN: mkdir %t-cache
 // RUN: find %t-cache -type f | wc -l | FileCheck %s -check-prefix=EMPTY
 // EMPTY: 0
 

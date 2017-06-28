@@ -7,7 +7,7 @@
 
 //
 // Test trying to write to a file that already exists
-// RUN: bc2allvm %t.bc -f -o %t
+// RUN: bc2allvm %t.bc -o %t
 // RUN: not bc2allvm %t.bc -o %t |& FileCheck -check-prefix=CHECK-EXISTS %s
 // CHECK-EXISTS: Output file exists. Use -f flag to force overwrite
 

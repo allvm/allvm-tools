@@ -1,8 +1,5 @@
 // Test behavior when writing to an existing file
 
-// Remove temporaries
-// RUN: rm -f %t-which %t-asdf
-
 // Create various output files...
 // RUN: cp %p/Inputs/which %t-which
 // RUN: echo asdf > %t-asdf

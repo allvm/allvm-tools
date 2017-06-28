@@ -1,4 +1,4 @@
 // RUN: llvm-as %p/Inputs/simplest.ll -o %t.bc
-// RUN: bc2allvm %t.bc -f -o %t
+// RUN: bc2allvm %t.bc -o %t
 // RUN: not bc2allvm %t.bc -o %t
 // RUN: bc2allvm %t.bc -f -o %t

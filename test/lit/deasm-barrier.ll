@@ -8,7 +8,7 @@
 ; http://en.cppreference.com/w/c/atomic/atomic_signal_fence
 
 ; Check that we can make an allexe out of this
-; RUN: bc2allvm %s -f -o %t
+; RUN: bc2allvm %s -o %t
 ; RUN: %t
 
 ; Check all asm has been removed:

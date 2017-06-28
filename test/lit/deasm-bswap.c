@@ -3,7 +3,7 @@
 // This C code was provided by @cranmer2.
 
 // Check we can create an allexe and run it (and that the code's dynamic tests don't fail)
-// RUN: bc2allvm %p/Inputs/deasm-bswap.ll -f -o %t
+// RUN: bc2allvm %p/Inputs/deasm-bswap.ll -o %t
 // RUN: %t
 
 // Check all asm has been removed:
@@ -14,7 +14,7 @@
 // CHECK-NOT: call {{.*}} asm
 
 // Check that the -preserve-asm flag works
-// RUN: bc2allvm -preserve-asm %p/Inputs/deasm-bswap.ll -f -o %t-asm
+// RUN: bc2allvm -preserve-asm %p/Inputs/deasm-bswap.ll -o %t-asm
 // RUN: allopt -analyze -i %t-asm llvm-dis |& FileCheck %s -check-prefix=PRESERVE
 // PRESERVE: call {{.*}} asm
 // And I suppose might as well check that the asm version works?

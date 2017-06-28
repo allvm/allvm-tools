@@ -1,8 +1,5 @@
 // Check static execution path
 
-// Ensure our test dir is empty...
-// RUN: rm -rf %t-cache && mkdir %t-cache
-
 // Run 'which' without any argments, check output
 // RUN: ALLVM_CACHE_DIR=%t-cache not alley -force-static %p/Inputs/which |& FileCheck %s
 
