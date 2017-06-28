@@ -1,15 +1,15 @@
 ; Check allmux'ing allexe's w/static constructors
 
 ; RUN: rm -rf %t && mkdir -p %t/mux %t/mux2
-; RUN: bc2allvm %s -f -o %t/test
+; RUN: bc2allvm %s -o %t/test
 ; RUN: alley %t/test |& FileCheck %s
 ; Single-allexe mux:
-; RUN: allmux %t/test -f -o %t/mux/test
+; RUN: allmux %t/test -o %t/mux/test
 ; RUN: alley %t/mux/test |& FileCheck %s
 
 ; multiple-allexe mux
 ; RUN: cp %t/test %t/test2
-; RUN: allmux %t/test %t/test2 -f -o %t/mux2/mux
+; RUN: allmux %t/test %t/test2 -o %t/mux2/mux
 ; RUN: ln -s %t/mux2/mux %t/mux2/test
 ; RUN: ln -s %t/mux2/mux %t/mux2/test2
 

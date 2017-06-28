@@ -1,7 +1,7 @@
 // Test basic allmux usage
 
 // RUN: rm -rf %t && mkdir -p %t
-// RUN: allmux %p/Inputs/which %p/Inputs/time -f -o %t/timewhich
+// RUN: allmux %p/Inputs/which %p/Inputs/time -o %t/timewhich
 // RUN: ln -s %t/{timewhich,time}
 // RUN: ln -s %t/{timewhich,which}
 
@@ -17,7 +17,7 @@
 // WHICHALLEY: alley
 
 // And for good measure, alltogether/allready this
-// RUN: alltogether %t/timewhich -f -o %t/timewhich.merged
+// RUN: alltogether %t/timewhich -o %t/timewhich.merged
 // RUN: allready %t/timewhich.merged
 
 // Recreate the links using merged version
