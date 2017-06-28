@@ -11,7 +11,12 @@ Index: llvm/utils/lit/lit/Test.py
  
  class Test:
      """Test - Information on a single test instance."""
-@@ -226,16 +226,22 @@
+@@ -222,20 +222,26 @@
+             # Syntax error in an XFAIL line.
+             self.result.code = UNRESOLVED
+             self.result.output = str(e)
+-        
++
      def getFullName(self):
          return self.suite.config.name + ' :: ' + '/'.join(self.path_in_suite)
  
@@ -30,16 +35,52 @@ Index: llvm/utils/lit/lit/Test.py
 -        return self.suite.getExecPath(self.path_in_suite)
 +    def getTempFilePrefix(self):
 +        return self.suite.getExecPath(self.path_in_suite) + ".tmp"
-+    
++
 +    def getTempFileDir(self):
 +        return os.path.dirname(self.getTempFilePrefix())
  
      def isExpectedToFail(self):
          """
+@@ -347,7 +353,7 @@
+         safe_name = self.suite.name.replace(".","-")
+ 
+         if safe_test_path:
+-            class_name = safe_name + "." + "/".join(safe_test_path) 
++            class_name = safe_name + "." + "/".join(safe_test_path)
+         else:
+             class_name = safe_name + "." + safe_name
+ 
 Index: llvm/utils/lit/lit/TestRunner.py
 ===================================================================
 --- llvm/utils/lit/lit/TestRunner.py
 +++ llvm/utils/lit/lit/TestRunner.py
+@@ -123,7 +123,7 @@
+         self.exitCode = exitCode
+         self.timeoutReached = timeoutReached
+         self.outputFiles = list(outputFiles)
+-               
++
+ def executeShCmd(cmd, shenv, results, timeout=0):
+     """
+         Wrapper around _executeShCmd that handles
+@@ -501,7 +501,7 @@
+                         data = None
+                     if data is not None:
+                         output_files.append((name, path, data))
+-            
++
+         results.append(ShellCommandResult(
+             cmd.commands[i], out, err, res, timeoutHelper.timeoutReached(),
+             output_files))
+@@ -573,7 +573,7 @@
+                 else:
+                     out += data
+                 out += "\n"
+-                    
++
+         if result.stdout.strip():
+             out += '# command output:\n%s\n' % (result.stdout,)
+         if result.stderr.strip():
 @@ -690,37 +690,28 @@
      finally:
          f.close()
@@ -110,6 +151,42 @@ Index: llvm/utils/lit/lit/TestRunner.py
                  ('%:T', tmpDir),
                  ])
      return substitutions
+@@ -779,7 +770,7 @@
+     TAG: A keyword taking no value. Ex 'END.'
+     COMMAND: A keyword taking a list of shell commands. Ex 'RUN:'
+     LIST: A keyword taking a comma-separated list of values.
+-    BOOLEAN_EXPR: A keyword taking a comma-separated list of 
++    BOOLEAN_EXPR: A keyword taking a comma-separated list of
+         boolean expressions. Ex 'XFAIL:'
+     CUSTOM: A keyword with custom parsing semantics.
+     """
+@@ -951,14 +942,14 @@
+         IntegratedTestKeywordParser('REQUIRES:', ParserKind.BOOLEAN_EXPR,
+                                     initial_value=test.requires),
+         IntegratedTestKeywordParser('REQUIRES-ANY:', ParserKind.CUSTOM,
+-                                    IntegratedTestKeywordParser._handleRequiresAny, 
+-                                    initial_value=test.requires), 
++                                    IntegratedTestKeywordParser._handleRequiresAny,
++                                    initial_value=test.requires),
+         IntegratedTestKeywordParser('UNSUPPORTED:', ParserKind.BOOLEAN_EXPR,
+                                     initial_value=test.unsupported),
+         IntegratedTestKeywordParser('END.', ParserKind.TAG)
+     ]
+     keyword_parsers = {p.keyword: p for p in builtin_parsers}
+-    
++
+     # Install user-defined additional parsers.
+     for parser in additional_parsers:
+         if not isinstance(parser, IntegratedTestKeywordParser):
+@@ -968,7 +959,7 @@
+             raise ValueError("Parser for keyword '%s' already exists"
+                              % parser.keyword)
+         keyword_parsers[parser.keyword] = parser
+-        
++
+     # Collect the test lines from the script.
+     sourcepath = test.getSourcePath()
+     for line_number, command_type, ln in \
 @@ -1014,12 +1005,8 @@
  
      return script
