@@ -10,6 +10,7 @@ struct ResourcePaths {
   std::string PrefixDir;
   std::string LibNonePath;
   std::string CrtBitsPath;
+  std::string MuxMainPath;
   std::string AlleyPath;
   std::string AlldPath;
   // To use this, include ResourceAnchor in your tool.

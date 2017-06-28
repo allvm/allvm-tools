@@ -44,8 +44,10 @@ ResourcePaths ResourcePaths::get(const char *Argv0, void *Main) {
 }
 
 ResourcePaths ResourcePaths::get(StringRef PrefixDir) {
-  return {PrefixDir, getPath(PrefixDir, "lib", "libnone.a"),
+  return {PrefixDir,
+          getPath(PrefixDir, "lib", "libnone.a"),
           getPath(PrefixDir, "lib/crt", "."),
+          getPath(PrefixDir, "lib", "mux_main.bc"),
           getPath(PrefixDir, "bin", "alley"),
 #ifdef ALLVM_alld_available
           getPath(PrefixDir, "bin", "alld")

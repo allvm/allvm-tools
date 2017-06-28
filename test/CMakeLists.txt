@@ -8,6 +8,7 @@ configure_lit_site_cfg(
 list(APPEND ALLVM_TEST_DEPENDS
   all-info
   alley
+  allmux
   allopt
   allready
   alltogether
