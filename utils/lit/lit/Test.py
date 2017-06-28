@@ -222,7 +222,7 @@ class Test:
             # Syntax error in an XFAIL line.
             self.result.code = UNRESOLVED
             self.result.output = str(e)
-        
+
     def getFullName(self):
         return self.suite.config.name + ' :: ' + '/'.join(self.path_in_suite)
 
@@ -239,7 +239,7 @@ class Test:
 
     def getTempFilePrefix(self):
         return self.suite.getExecPath(self.path_in_suite) + ".tmp"
-    
+
     def getTempFileDir(self):
         return os.path.dirname(self.getTempFilePrefix())
 
@@ -353,7 +353,7 @@ class Test:
         safe_name = self.suite.name.replace(".","-")
 
         if safe_test_path:
-            class_name = safe_name + "." + "/".join(safe_test_path) 
+            class_name = safe_name + "." + "/".join(safe_test_path)
         else:
             class_name = safe_name + "." + safe_name
 
