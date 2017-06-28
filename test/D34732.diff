@@ -1,0 +1,182 @@
+Index: llvm/utils/lit/lit/Test.py
+===================================================================
+--- llvm/utils/lit/lit/Test.py
++++ llvm/utils/lit/lit/Test.py
+@@ -172,7 +172,7 @@
+         return os.path.join(self.source_root, *components)
+ 
+     def getExecPath(self, components):
+-        return os.path.join(self.exec_root, *components)
++        return os.path.join(self.exec_root, "Output", *components)
+ 
+ class Test:
+     """Test - Information on a single test instance."""
+@@ -226,16 +226,22 @@
+     def getFullName(self):
+         return self.suite.config.name + ' :: ' + '/'.join(self.path_in_suite)
+ 
++    def getTestBaseName(self):
++        return self.path_in_suite[-1]
++
+     def getFilePath(self):
+         if self.file_path:
+             return self.file_path
+         return self.getSourcePath()
+ 
+     def getSourcePath(self):
+         return self.suite.getSourcePath(self.path_in_suite)
+ 
+-    def getExecPath(self):
+-        return self.suite.getExecPath(self.path_in_suite)
++    def getTempFilePrefix(self):
++        return self.suite.getExecPath(self.path_in_suite) + ".tmp"
++    
++    def getTempFileDir(self):
++        return os.path.dirname(self.getTempFilePrefix())
+ 
+     def isExpectedToFail(self):
+         """
+Index: llvm/utils/lit/lit/TestRunner.py
+===================================================================
+--- llvm/utils/lit/lit/TestRunner.py
++++ llvm/utils/lit/lit/TestRunner.py
+@@ -690,37 +690,28 @@
+     finally:
+         f.close()
+ 
+-def getTempPaths(test):
+-    """Get the temporary location, this is always relative to the test suite
+-    root, not test source root."""
+-    execpath = test.getExecPath()
+-    execdir,execbase = os.path.split(execpath)
+-    tmpDir = os.path.join(execdir, 'Output')
+-    tmpBase = os.path.join(tmpDir, execbase)
+-    return tmpDir, tmpBase
+-
+-def getDefaultSubstitutions(test, tmpDir, tmpBase, normalize_slashes=False):
++def getDefaultSubstitutions(test, normalize_slashes=False):
+     sourcepath = test.getSourcePath()
+     sourcedir = os.path.dirname(sourcepath)
++    tmpDir = test.getTempFileDir()
++    tmpPrefix = test.getTempFilePrefix()
++    baseName = test.getTestBaseName()
+ 
+     # Normalize slashes, if requested.
+     if normalize_slashes:
+         sourcepath = sourcepath.replace('\\', '/')
+         sourcedir = sourcedir.replace('\\', '/')
+         tmpDir = tmpDir.replace('\\', '/')
+-        tmpBase = tmpBase.replace('\\', '/')
+ 
+     # We use #_MARKER_# to hide %% while we do the other substitutions.
+     substitutions = []
+     substitutions.extend([('%%', '#_MARKER_#')])
+     substitutions.extend(test.config.substitutions)
+-    tmpName = tmpBase + '.tmp'
+-    baseName = os.path.basename(tmpBase)
+     substitutions.extend([('%s', sourcepath),
+                           ('%S', sourcedir),
+                           ('%p', sourcedir),
+                           ('%{pathsep}', os.pathsep),
+-                          ('%t', tmpName),
++                          ('%t', tmpPrefix),
+                           ('%basename_t', baseName),
+                           ('%T', tmpDir),
+                           ('#_MARKER_#', '%')])
+@@ -730,7 +721,7 @@
+             ('%/s', sourcepath.replace('\\', '/')),
+             ('%/S', sourcedir.replace('\\', '/')),
+             ('%/p', sourcedir.replace('\\', '/')),
+-            ('%/t', tmpBase.replace('\\', '/') + '.tmp'),
++            ('%/t', tmpPrefix.replace('\\', '/')),
+             ('%/T', tmpDir.replace('\\', '/')),
+             ])
+ 
+@@ -740,15 +731,15 @@
+                 ('%:s', re.sub(r'^(.):', r'\1', sourcepath)),
+                 ('%:S', re.sub(r'^(.):', r'\1', sourcedir)),
+                 ('%:p', re.sub(r'^(.):', r'\1', sourcedir)),
+-                ('%:t', re.sub(r'^(.):', r'\1', tmpBase) + '.tmp'),
++                ('%:t', re.sub(r'^(.):', r'\1', tmpPrefix)),
+                 ('%:T', re.sub(r'^(.):', r'\1', tmpDir)),
+                 ])
+     else:
+         substitutions.extend([
+                 ('%:s', sourcepath),
+                 ('%:S', sourcedir),
+                 ('%:p', sourcedir),
+-                ('%:t', tmpBase + '.tmp'),
++                ('%:t', tmpPrefix),
+                 ('%:T', tmpDir),
+                 ])
+     return substitutions
+@@ -1014,12 +1005,8 @@
+ 
+     return script
+ 
+-
+ def _runShTest(test, litConfig, useExternalSh, script, tmpBase):
+-    # Create the output directory if it does not already exist.
+-    lit.util.mkdir_p(os.path.dirname(tmpBase))
+-
+-    execdir = os.path.dirname(test.getExecPath())
++    execdir = os.path.dirname(test.getTempFileDir())
+     if useExternalSh:
+         res = executeScript(test, litConfig, tmpBase, script, execdir)
+     else:
+@@ -1063,19 +1050,18 @@
+         return script
+     if litConfig.noExecute:
+         return lit.Test.Result(Test.PASS)
+-
+-    tmpDir, tmpBase = getTempPaths(test)
+     substitutions = list(extra_substitutions)
+-    substitutions += getDefaultSubstitutions(test, tmpDir, tmpBase,
++    substitutions += getDefaultSubstitutions(test,
+                                              normalize_slashes=useExternalSh)
+     script = applySubstitutions(script, substitutions)
+ 
+     # Re-run failed tests up to test_retry_attempts times.
+     attempts = 1
+     if hasattr(test.config, 'test_retry_attempts'):
+         attempts += test.config.test_retry_attempts
+     for i in range(attempts):
+-        res = _runShTest(test, litConfig, useExternalSh, script, tmpBase)
++        res = _runShTest(test, litConfig, useExternalSh, script,
++                         test.getTempFilePrefix())
+         if res.code != Test.FAIL:
+             break
+     # If we had to run the test more than once, count it as a flaky pass. These
+Index: llvm/utils/lit/lit/run.py
+===================================================================
+--- llvm/utils/lit/lit/run.py
++++ llvm/utils/lit/lit/run.py
+@@ -248,6 +248,28 @@
+         if not self.tests or jobs == 0:
+             return
+ 
++        # Create fresh output directories for each test we're going to run.
++        # This guarantees that test runs will not remnants of previous test
++        # runs' output.
++        import time
++        start = time.time()
++        clean_paths = set()
++        for test in self.tests:
++            clean_paths.add(os.path.normpath(test.getTempFileDir()))
++        clean_paths = list(clean_paths)
++        clean_paths.sort(key=lambda x: len(x.split(os.sep)))
++        for base in clean_paths:
++            if os.path.exists(base):
++                if not os.path.islink(base) and os.path.isdir(base):
++                    from shutil import rmtree
++                    rmtree(base, True)
++                else:
++                    os.unlink(os.path)
++            if not os.path.exists(base):
++                lit.util.mkdir_p(base)
++        end = time.time()
++        print("Cleanup took {} seconds".format(end - start))
++
+         # Set up semaphores to limit parallelism of certain classes of tests.
+         # For example, some ASan tests require lots of virtual memory and run
+         # faster with less parallelism on OS X.
