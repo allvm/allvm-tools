@@ -77,7 +77,7 @@ int StaticBinaryCache::getObjectFileDesc(StringRef Name) const {
   DEBUG(dbgs() << "Exec cache file name: " << CacheName << "\n");
 
   // Open the cache file in read-only mode and return the file descriptor.
-  int execFD = open(CacheName.c_str(), S_IRUSR /*perm: 00400*/);
+  int execFD = open(CacheName.c_str(), O_PATH | O_CLOEXEC);
   if (execFD == -1) { // Not an error: just a cache miss
     DEBUG(dbgs() << "Executable does not exist in file cache " << CacheDir
                  << "\n");
