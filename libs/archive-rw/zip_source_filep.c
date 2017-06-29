@@ -280,7 +280,7 @@ read_file(void *state, void *data, zip_uint64_t len, zip_source_cmd_t cmd)
             
         case ZIP_SOURCE_OPEN:
             if (ctx->fname) {
-                if ((ctx->f=fopen(ctx->fname, "rb")) == NULL) {
+                if ((ctx->f=fopen(ctx->fname, "rbe")) == NULL) {
                     zip_error_set(&ctx->error, ZIP_ER_OPEN, errno);
                     return -1;
                 }
