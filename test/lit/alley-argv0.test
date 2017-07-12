@@ -1,0 +1,17 @@
+// Test how alley behaves when invoked with unusual argv0
+// Happens sometimes when allexe's are execve'd
+// with an argv0 other than the filename.
+
+// RUN: mkdir %t
+// RUN: allopt -i %p/Inputs/which -o %t/which cat
+// RUN: %t/which --help |& FileCheck %s -check-prefix=WHICH
+// RUN: (exec %t/which --help) |& FileCheck %s -check-prefix=WHICH
+
+// WHICH: Usage:
+// WHICH: /which
+
+// RUNX: (exec -a %t/whoch %t/which --help) |& FileCheck %s -check-prefix=WHOCH
+// RUN: (exec -a %t/whoch alley %t/which --help) |& FileCheck %s -check-prefix=WHOCH
+
+// WHOCH: Usage:
+// WHOCH-SAME: /whoch

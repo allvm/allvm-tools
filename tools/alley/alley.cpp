@@ -13,6 +13,7 @@
 #include <llvm/IRReader/IRReader.h>
 #include <llvm/Support/CommandLine.h>
 #include <llvm/Support/Compiler.h>
+#include <llvm/Support/FileSystem.h>
 #include <llvm/Support/MemoryBuffer.h>
 #include <llvm/Support/Path.h>
 #include <llvm/Support/SourceMgr.h>
@@ -55,6 +56,23 @@ cl::opt<bool> NoExec("noexec", cl::desc("Don't actually execute the program"),
 
 allvm::ExitOnError ExitOnErr;
 
+bool invokedAsAlley(StringRef Argv0, const ResourcePaths &RP) {
+  SmallString<128> Executable = StringRef(Argv0);
+
+  auto EC = sys::fs::make_absolute(Executable);
+  if (EC) {
+    // Not sure how/if/why this could happen, let's just use allexe's name
+    return true;
+  }
+
+  // XXX: These could be the same file named differently
+  // (hardlinks, bind-mounts, etc),
+  // but I'm not sure what to do in those cases anyway.
+  //
+  // Keep this simple.
+  return RP.AlleyPath == Executable;
+}
+
 } // end anonymous namespace
 
 int main(int argc, const char **argv, const char **envp) {
@@ -89,13 +107,19 @@ int main(int argc, const char **argv, const char **envp) {
                                  Options));
   }
 
-  // Fixup argv[0] to the allexe name without the allexe suffix.
-  StringRef ProgName = InputFilename;
-  if (sys::path::has_extension(InputFilename)) {
-    auto Ext = sys::path::extension(ProgName);
-    if (Ext == "allexe")
-      ProgName = ProgName.drop_back(Ext.size());
-  }
+  StringRef ProgName;
+  if (invokedAsAlley(argv[0], RP)) {
+    // Fixup argv[0] to the allexe name without the allexe suffix.
+    ProgName = InputFilename;
+    if (sys::path::has_extension(InputFilename)) {
+      auto Ext = sys::path::extension(ProgName);
+      if (Ext == "allexe")
+        ProgName = ProgName.drop_back(Ext.size());
+    }
+  } else
+    ProgName = argv[0];
+
+  // errs() << "ProgName: " << ProgName << ", argv[0]: " << argv[0] << "\n";
   InputArgv.insert(InputArgv.begin(), ProgName);
 
   ExecutionYengine EY({*allexe, InputArgv, envp, LibNone, NoExec});
