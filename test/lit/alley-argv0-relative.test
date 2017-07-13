@@ -1,0 +1,14 @@
+// Test whether argv0 can be a relative, not absolute path
+// XFAIL: *
+// Currently fails, I'm not sure the relative path used to find
+// the allexe 'script' is preserved anywhere by the kernel
+// when it encounters a shebang.
+
+// Copy 'which' Input to temp dir, setting shebang to our alley
+// RUN: mkdir %t
+// RUN: allopt -i %p/Inputs/which -o %t/which cat
+
+// RUN: (PATH=%t which --help) | FileCheck %s
+
+// CHECK: Usage:
+// CHECK-NOT: /which
