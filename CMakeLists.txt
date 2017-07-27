@@ -105,6 +105,14 @@ install(DIRECTORY include/allvm ${ALLVM_INCLUDE_DIR}/allvm
 )
 ###
 
+# Fallback path to find resources
+# Workaround for when /proc/self/exe or similar can't be used,
+# should be removed once the argv[0]/shebang/execution env is cleaned up.
+set(ALLVM_DEFAULT_PREFIX ${CMAKE_INSTALL_PREFIX})
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/allvm/ResourcePathConfig.h.in
+  ${ALLVM_INCLUDE_DIR}/allvm/ResourcePathConfig.h
+)
+
 include(CheckFormat)
 include(Version)
 

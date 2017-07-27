@@ -92,6 +92,7 @@ int main(int argc, const char **argv, const char **envp) {
   }
 
   StringRef ProgName;
+  // XXX: $/bin/alley /bin2/alley /bin/ls ?
   if (invokedAsAlley(argv[0])) {
     // Fixup argv[0] to the allexe name without the allexe suffix.
     ProgName = InputFilename;

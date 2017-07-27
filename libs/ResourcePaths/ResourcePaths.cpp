@@ -1,4 +1,5 @@
 #include "allvm/ResourcePaths.h"
+#include "allvm/ResourcePathConfig.h"
 
 #include <llvm/Support/FileSystem.h>
 #include <llvm/Support/Path.h>
@@ -15,6 +16,8 @@ std::string getPrefixDir(const char *Argv0, void *Main) {
   auto EC = sys::fs::make_absolute(Executable);
   if (EC || !sys::fs::exists(Executable))
     Executable = sys::fs::getMainExecutable(Argv0, Main);
+  if (!sys::fs::exists(Executable))
+    return ALLVM_DEFAULT_PREFIX;
 
   assert(sys::fs::exists(Executable));
   assert(!Executable.empty());
