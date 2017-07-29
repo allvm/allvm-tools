@@ -221,6 +221,21 @@ int main(int argc, const char **argv) {
       ExitOnErr(Output->addModule(std::move(E.Main), E.MainName + ".bc"));
     }
 
+    // The code below does the trick *sometimes* but not if the allexes
+    // have dependencies on code that provide conflicting symbols
+    // (and even then might be wrong re:subtle linking behavior)
+    //
+    // Idea for handling situations like:
+    // X a b c
+    // Y a b d
+    // Group conflicts:
+    // (X c) a b
+    // (Y d) a b
+    // {(X c), (Y d) } a b
+    // XXX: works if X/Y are only bits needing c/d;
+    // won't work if a and b need one of c/d; at least not with
+    // the current approach below that internalizes X/Y.
+
     // Add supporting libs, don't add same lib twice
 
     errs() << "Adding libs...\n";
