@@ -13,7 +13,6 @@
 ; RUN: ln -s %t/mux2/mux %t/mux2/test
 ; RUN: ln -s %t/mux2/mux %t/mux2/test2
 
-; NYI
 ; RUN: alley %t/mux2/test |& FileCheck %s
 ; RUN: alley %t/mux2/test2 |& FileCheck %s
 
