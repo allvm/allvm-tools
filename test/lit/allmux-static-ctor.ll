@@ -14,7 +14,6 @@
 ; RUN: ln -s %t/mux2/mux %t/mux2/test2
 
 ; NYI
-; XFAIL: *
 ; RUN: alley %t/mux2/test |& FileCheck %s
 ; RUN: alley %t/mux2/test2 |& FileCheck %s
 
