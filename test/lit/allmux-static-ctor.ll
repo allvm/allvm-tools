@@ -1,6 +1,6 @@
 ; Check allmux'ing allexe's w/static constructors
 
-; RUN: rm -rf %t && mkdir -p %t/mux %t/mux2
+; RUN: rm -rf %t && mkdir -p %t/mux %t/mux2 %t/mux3
 ; RUN: bc2allvm %s -o %t/test
 ; RUN: alley %t/test |& FileCheck %s
 ; Single-allexe mux:
@@ -15,6 +15,14 @@
 
 ; RUN: alley %t/mux2/test |& FileCheck %s
 ; RUN: alley %t/mux2/test2 |& FileCheck %s
+
+; Test behavior affter alltogether/allready
+; RUN: alltogether %t/mux2/mux -o %t/mux3/mux
+; RUN: allready %t/mux3/mux
+; RUN: ln -s %t/mux3/mux %t/mux3/test
+; RUN: ln -s %t/mux3/mux %t/mux3/test2
+; RUN: alley -force-static %t/mux3/test |& FileCheck %s
+; RUN: alley -force-static %t/mux3/test2 |& FileCheck %s
 
 ; CHECK: Hi
 ; CHECK-NOT: Hi
