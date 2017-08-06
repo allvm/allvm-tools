@@ -179,6 +179,15 @@ void processGlobal(GlobalValue &GV) {
     GV.setLinkage(GlobalValue::InternalLinkage);
 }
 
+void replaceCtorsDtorsGV(GlobalVariable *GV, Module &M, StringRef Name) {
+  std::vector<Function *> CtorsDtors;
+  if (GV) {
+    CtorsDtors = parseGlobalCtorDtors(GV);
+    GV->eraseFromParent();
+  }
+  createCtorDtorFunc(CtorsDtors, M, Name);
+}
+
 } // end anonymous namespace
 
 int main(int argc, const char **argv) {
@@ -237,19 +246,12 @@ int main(int argc, const char **argv) {
         processGlobal(GA);
 
       // Grab ctors/dtors
-      std::vector<Function *> Ctors;
-      if (auto CtorsGV = ExitOnErr(findGlobalCtors(*E.Main))) {
-        Ctors = parseGlobalCtorDtors(CtorsGV);
-        CtorsGV->eraseFromParent();
-      }
-      createCtorDtorFunc(Ctors, *E.Main, E.getCtorsName());
 
-      std::vector<Function *> Dtors;
-      if (auto DtorsGV = ExitOnErr(findGlobalDtors(*E.Main))) {
-        Dtors = parseGlobalCtorDtors(DtorsGV);
-        DtorsGV->eraseFromParent();
-      }
-      createCtorDtorFunc(Dtors, *E.Main, E.getDtorsName());
+      auto CtorsGV = ExitOnErr(findGlobalCtors(*E.Main));
+      replaceCtorsDtorsGV(CtorsGV, *E.Main, E.getCtorsName());
+
+      auto DtorsGV = ExitOnErr(findGlobalDtors(*E.Main));
+      replaceCtorsDtorsGV(DtorsGV, *E.Main, E.getDtorsName());
 
       ExitOnErr(Output->addModule(std::move(E.Main), E.MainName + ".bc"));
     }
