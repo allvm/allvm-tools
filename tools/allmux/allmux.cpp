@@ -284,11 +284,11 @@ int main(int argc, const char **argv) {
 
           auto WarnFmtS = "WARNING: Support library '{0}' contains static {1} "
                           "which might not be handled correctly!\n";
-          if (auto CtorsGV = ExitOnErr(findGlobalCtors(*E.Main))) {
+          if (auto CtorsGV = ExitOnErr(findGlobalCtors(*LibMod))) {
             errs() << formatv(WarnFmtS, Name, "constructors");
             CtorsGV->dump();
           }
-          if (auto DtorsGV = ExitOnErr(findGlobalDtors(*E.Main))) {
+          if (auto DtorsGV = ExitOnErr(findGlobalDtors(*LibMod))) {
             errs() << formatv(WarnFmtS, Name, "destructors");
             DtorsGV->dump();
           }
