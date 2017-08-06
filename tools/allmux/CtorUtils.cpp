@@ -30,7 +30,7 @@ using namespace llvm;
 
 /// Given a llvm.global_ctors list that we can understand,
 /// return a list of the functions and null terminator as a vector.
-std::vector<Function *> parseGlobalCtors(GlobalVariable *GV) {
+std::vector<Function *> allvm::parseGlobalCtors(GlobalVariable *GV) {
   if (GV->getInitializer()->isNullValue())
     return std::vector<Function *>();
   ConstantArray *CA = cast<ConstantArray>(GV->getInitializer());
@@ -45,7 +45,7 @@ std::vector<Function *> parseGlobalCtors(GlobalVariable *GV) {
 
 /// Find the llvm.global_ctors list, verifying that all initializers have an
 /// init priority of 65535.
-GlobalVariable *findGlobalCtors(Module &M) {
+GlobalVariable *allvm::findGlobalCtors(Module &M) {
   GlobalVariable *GV = M.getGlobalVariable("llvm.global_ctors");
   if (!GV)
     return nullptr;

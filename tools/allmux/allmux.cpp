@@ -15,6 +15,8 @@
 #include "allvm/ModuleFlags.h"
 #include "allvm/ResourceAnchor.h"
 
+#include "CtorUtils.h"
+
 #include <llvm/ADT/DenseSet.h>
 #include <llvm/ADT/SmallVector.h>
 #include <llvm/ADT/StringSet.h>
