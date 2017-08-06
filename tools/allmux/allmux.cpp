@@ -48,9 +48,10 @@ cl::opt<std::string> OutputFilename("o", cl::desc("Override output filename"),
                                     cl::value_desc("filename"));
 cl::opt<bool> ForceOutput("f", cl::desc("Replace output allexe if it exists"),
                           cl::init(false));
-cl::opt<bool> NoInternalize("no-internalize",
-                            cl::desc("Don't internalize main modules."),
-                            cl::init(false));
+cl::opt<bool>
+    NoFullInternalize("no-full-internalize",
+                      cl::desc("Don't aggressively internalize main modules."),
+                      cl::init(true));
 
 allvm::ExitOnError ExitOnErr;
 
@@ -237,9 +238,9 @@ int main(int argc, const char **argv) {
       MainF->setName(E.MainName);
       MainF->setLinkage(GlobalValue::ExternalLinkage);
       MainF->setVisibility(GlobalValue::DefaultVisibility);
-      if (!NoInternalize) {
-        internalizeModule(*E.Main, [&MainF](auto &GV) { return &GV == MainF; });
+      internalizeModule(*E.Main, [&MainF](auto &GV) { return &GV == MainF; });
 
+      if (!NoFullInternalize) {
         // Don't export any definitions other than the renamed main
         for (auto &F : *E.Main)
           if (&F != MainF)
