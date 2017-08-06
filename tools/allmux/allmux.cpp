@@ -48,8 +48,9 @@ cl::opt<std::string> OutputFilename("o", cl::desc("Override output filename"),
                                     cl::value_desc("filename"));
 cl::opt<bool> ForceOutput("f", cl::desc("Replace output allexe if it exists"),
                           cl::init(false));
-cl::opt<bool> PreserveComdats("preserve-comdats", cl::init(true),
-    cl::desc("preserve comdats as-is, don't internalize them"));
+cl::opt<bool>
+    PreserveComdats("preserve-comdats", cl::init(true),
+                    cl::desc("preserve comdats as-is, don't internalize them"));
 
 allvm::ExitOnError ExitOnErr;
 
