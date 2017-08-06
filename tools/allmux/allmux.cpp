@@ -57,8 +57,8 @@ struct Entry {
   StringRef Filename;
   StringRef Base;
   std::string MainName;
-  llvm::Function *CtorsFn;
-  llvm::Function *DtorsFn;
+  std::string getCtorsName() const { return formatv("ctors_{0}", Base); };
+  std::string getDtorsName() const { return formatv("dtors_{0}", Base); };
 };
 
 Error verifyModule(Module &M) {
@@ -129,11 +129,9 @@ Expected<std::unique_ptr<Module>> genMain(ArrayRef<Entry> Es, LLVMContext &C,
       Args.push_back(&*AI);
     }
 
-    if (E.CtorsFn) {
-      auto *CtorsDecl = MuxMain->getOrInsertFunction(
-          E.CtorsFn->getName(), Builder.getVoidTy(), nullptr);
-      Builder.CreateCall(CtorsDecl);
-    }
+    auto *CtorsDecl = MuxMain->getOrInsertFunction(
+        E.getCtorsName(), Builder.getVoidTy(), nullptr);
+    Builder.CreateCall(CtorsDecl);
 
     auto *Call = Builder.CreateCall(RealMainDecl, Args);
 
@@ -142,11 +140,9 @@ Expected<std::unique_ptr<Module>> genMain(ArrayRef<Entry> Es, LLVMContext &C,
     // Idea: add a single llvm.global_dtors entry for the mux'd main
     // which invokes the dtorfn stored in a global variable we write
     // to once we know which program we're running.
-    if (E.DtorsFn) {
-      auto *DtorsDecl = MuxMain->getOrInsertFunction(
-          E.DtorsFn->getName(), Builder.getVoidTy(), nullptr);
-      Builder.CreateCall(DtorsDecl);
-    }
+    auto *DtorsDecl = MuxMain->getOrInsertFunction(
+        E.getDtorsName(), Builder.getVoidTy(), nullptr);
+    Builder.CreateCall(DtorsDecl);
 
     Value *Ret = Call;
     if (Call->getType()->isVoidTy())
@@ -207,8 +203,8 @@ int main(int argc, const char **argv) {
       errs() << formatv("error: Duplicate basename '{0}' encountered\n", Base);
       return -1;
     }
-    Entries.push_back({std::move(A), std::move(Main), I, Base,
-                       formatv("main_{0}", Base), nullptr, nullptr});
+    Entries.push_back(
+        {std::move(A), std::move(Main), I, Base, formatv("main_{0}", Base)});
   }
 
   {
@@ -241,18 +237,19 @@ int main(int argc, const char **argv) {
         processGlobal(GA);
 
       // Grab ctors/dtors
+      std::vector<Function *> Ctors;
       if (auto CtorsGV = ExitOnErr(findGlobalCtors(*E.Main))) {
-        auto Ctors = parseGlobalCtorDtors(CtorsGV);
-        E.CtorsFn =
-            createCtorDtorFunc(Ctors, *E.Main, formatv("ctors_{0}", E.Base));
+        Ctors = parseGlobalCtorDtors(CtorsGV);
         CtorsGV->eraseFromParent();
       }
+      createCtorDtorFunc(Ctors, *E.Main, E.getCtorsName());
+
+      std::vector<Function *> Dtors;
       if (auto DtorsGV = ExitOnErr(findGlobalDtors(*E.Main))) {
-        auto Dtors = parseGlobalCtorDtors(DtorsGV);
-        E.DtorsFn =
-            createCtorDtorFunc(Dtors, *E.Main, formatv("dtors_{0}", E.Base));
+        Dtors = parseGlobalCtorDtors(DtorsGV);
         DtorsGV->eraseFromParent();
       }
+      createCtorDtorFunc(Dtors, *E.Main, E.getDtorsName());
 
       ExitOnErr(Output->addModule(std::move(E.Main), E.MainName + ".bc"));
     }
