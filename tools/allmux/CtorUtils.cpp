@@ -28,25 +28,10 @@
 using namespace allvm;
 using namespace llvm;
 
-/// Given a llvm.global_ctors list that we can understand,
-/// return a list of the functions and null terminator as a vector.
-std::vector<Function *> allvm::parseGlobalCtors(GlobalVariable *GV) {
-  if (GV->getInitializer()->isNullValue())
-    return std::vector<Function *>();
-  ConstantArray *CA = cast<ConstantArray>(GV->getInitializer());
-  std::vector<Function *> Result;
-  Result.reserve(CA->getNumOperands());
-  for (auto &V : CA->operands()) {
-    ConstantStruct *CS = cast<ConstantStruct>(V);
-    Result.push_back(dyn_cast<Function>(CS->getOperand(1)));
-  }
-  return Result;
-}
 
-/// Find the llvm.global_ctors list, verifying that all initializers have an
-/// init priority of 65535.
-GlobalVariable *allvm::findGlobalCtors(Module &M) {
-  GlobalVariable *GV = M.getGlobalVariable("llvm.global_ctors");
+namespace {
+GlobalVariable *findGlobalCtorsDtors(Module &M, StringRef Name) {
+  GlobalVariable *GV = M.getGlobalVariable(Name);
   if (!GV)
     return nullptr;
 
@@ -77,4 +62,27 @@ GlobalVariable *allvm::findGlobalCtors(Module &M) {
   }
 
   return GV;
+}
+} // end anonymous namespace
+
+GlobalVariable *allvm::findGlobalCtors(Module &M) {
+  return findGlobalCtorsDtors(M,"llvm.global_ctors");
+}
+GlobalVariable *allvm::findGlobalDtors(Module &M) {
+  return findGlobalCtorsDtors(M,"llvm.global_dtors");
+}
+
+/// Given a llvm.global_ctors list that we can understand,
+/// return a list of the functions and null terminator as a vector.
+std::vector<Function *> allvm::parseGlobalCtorDtors(GlobalVariable *GV) {
+  if (GV->getInitializer()->isNullValue())
+    return std::vector<Function *>();
+  ConstantArray *CA = cast<ConstantArray>(GV->getInitializer());
+  std::vector<Function *> Result;
+  Result.reserve(CA->getNumOperands());
+  for (auto &V : CA->operands()) {
+    ConstantStruct *CS = cast<ConstantStruct>(V);
+    Result.push_back(dyn_cast<Function>(CS->getOperand(1)));
+  }
+  return Result;
 }

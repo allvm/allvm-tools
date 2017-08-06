@@ -29,7 +29,8 @@ class Module;
 namespace allvm {
 
 llvm::GlobalVariable *findGlobalCtors(llvm::Module &M);
-std::vector<llvm::Function *> parseGlobalCtors(llvm::GlobalVariable *GV);
+llvm::GlobalVariable *findGlobalDtors(llvm::Module &M);
+std::vector<llvm::Function *> parseGlobalCtorDtors(llvm::GlobalVariable *GV);
 
 } // end namespace allvm
 
