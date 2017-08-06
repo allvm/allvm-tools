@@ -57,8 +57,8 @@ struct Entry {
   StringRef Filename;
   StringRef Base;
   std::string MainName;
-  std::string getCtorsName() const { return formatv("ctors_{0}", Base); };
-  std::string getDtorsName() const { return formatv("dtors_{0}", Base); };
+  std::string getCtorsName() const { return formatv("ctors_{0}", Base); }
+  std::string getDtorsName() const { return formatv("dtors_{0}", Base); }
 };
 
 Error verifyModule(Module &M) {
