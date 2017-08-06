@@ -21,9 +21,9 @@
 #include <vector>
 
 namespace llvm {
-  class Function;
-  class GlobalVariable;
-  class Module;
+class Function;
+class GlobalVariable;
+class Module;
 } // end namespace llvm
 
 namespace allvm {
