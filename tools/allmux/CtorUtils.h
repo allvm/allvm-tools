@@ -20,6 +20,8 @@
 
 #include <vector>
 
+#include <llvm/ADT/ArrayRef.h>
+#include <llvm/ADT/Twine.h>
 #include <llvm/Support/Error.h>
 
 namespace llvm {
@@ -33,6 +35,8 @@ namespace allvm {
 llvm::Expected<llvm::GlobalVariable *> findGlobalCtors(llvm::Module &M);
 llvm::Expected<llvm::GlobalVariable *> findGlobalDtors(llvm::Module &M);
 std::vector<llvm::Function *> parseGlobalCtorDtors(llvm::GlobalVariable *GV);
+
+llvm::Function *createCtorDtorFunc(llvm::ArrayRef<llvm::Function *> Fns, llvm::Module &M, const llvm::Twine & Name);
 
 } // end namespace allvm
 

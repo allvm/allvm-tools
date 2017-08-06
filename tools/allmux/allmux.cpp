@@ -57,8 +57,8 @@ struct Entry {
   StringRef Filename;
   StringRef Base;
   std::string MainName;
-  std::string Ctor;
-  std::string Dtor;
+  llvm::Function *CtorsFn;
+  llvm::Function *DtorsFn;
 };
 
 Error verifyModule(Module &M) {
@@ -190,8 +190,7 @@ int main(int argc, const char **argv) {
       return -1;
     }
     Entries.push_back({std::move(A), std::move(Main), I, Base,
-                       formatv("main_{0}", Base), formatv("ctors_{0}", Base),
-                       formatv("dtors_{0}", Base)});
+                       formatv("main_{0}", Base), nullptr, nullptr});
   }
 
   {
@@ -224,12 +223,16 @@ int main(int argc, const char **argv) {
         processGlobal(GA);
 
       // Grab ctors/dtors
-      auto Ctors = ExitOnErr(findGlobalCtors(*E.Main));
-      auto Dtors = ExitOnErr(findGlobalDtors(*E.Main));
-      if (Ctors)
-        Ctors->dump();
-      if (Dtors)
-        Dtors->dump();
+      if (auto CtorsGV = ExitOnErr(findGlobalCtors(*E.Main))) {
+        auto Ctors = parseGlobalCtorDtors(CtorsGV);
+        E.CtorsFn = createCtorDtorFunc(Ctors, *E.Main, formatv("ctors_{0}", E.Base));
+        CtorsGV->eraseFromParent();
+      }
+      if (auto DtorsGV = ExitOnErr(findGlobalDtors(*E.Main))) {
+        auto Dtors = parseGlobalCtorDtors(DtorsGV);
+        E.DtorsFn = createCtorDtorFunc(Dtors, *E.Main, formatv("dtors_{0}", E.Base));
+        DtorsGV->eraseFromParent();
+      }
 
       ExitOnErr(Output->addModule(std::move(E.Main), E.MainName + ".bc"));
     }
@@ -259,6 +262,17 @@ int main(int argc, const char **argv) {
           auto LibMod = ExitOnErr(E.A->getModule(i, C));
           auto Name = E.A->getModuleName(i);
           ExitOnErr(LibMod->materializeAll());
+
+          auto WarnFmtS = "WARNING: Support library '{0}' contains static {1} which might not be handled correctly!\n";
+          if (auto CtorsGV = ExitOnErr(findGlobalCtors(*E.Main))) {
+            errs() << formatv(WarnFmtS, Name, "constructors");
+            CtorsGV->dump();
+          }
+          if (auto DtorsGV = ExitOnErr(findGlobalDtors(*E.Main))) {
+            errs() << formatv(WarnFmtS, Name, "destructors");
+            DtorsGV->dump();
+          }
+
           ExitOnErr(Output->addModule(std::move(LibMod), Name));
         }
     }
