@@ -129,7 +129,25 @@ Expected<std::unique_ptr<Module>> genMain(ArrayRef<Entry> Es, LLVMContext &C,
       Args.push_back(&*AI);
     }
 
+    if (E.CtorsFn) {
+      auto *CtorsDecl = MuxMain->getOrInsertFunction(
+          E.CtorsFn->getName(), Builder.getVoidTy(), nullptr);
+      Builder.CreateCall(CtorsDecl);
+    }
+
     auto *Call = Builder.CreateCall(RealMainDecl, Args);
+
+    // XXX: This only handles the cases where main() returns
+    // TODO: Handle this properly!
+    // Idea: add a single llvm.global_dtors entry for the mux'd main
+    // which invokes the dtorfn stored in a global variable we write
+    // to once we know which program we're running.
+    if (E.DtorsFn) {
+      auto *DtorsDecl = MuxMain->getOrInsertFunction(
+          E.DtorsFn->getName(), Builder.getVoidTy(), nullptr);
+      Builder.CreateCall(DtorsDecl);
+    }
+
     Value *Ret = Call;
     if (Call->getType()->isVoidTy())
       Ret = Constant::getNullValue(MainFnTy->getReturnType());
@@ -225,12 +243,14 @@ int main(int argc, const char **argv) {
       // Grab ctors/dtors
       if (auto CtorsGV = ExitOnErr(findGlobalCtors(*E.Main))) {
         auto Ctors = parseGlobalCtorDtors(CtorsGV);
-        E.CtorsFn = createCtorDtorFunc(Ctors, *E.Main, formatv("ctors_{0}", E.Base));
+        E.CtorsFn =
+            createCtorDtorFunc(Ctors, *E.Main, formatv("ctors_{0}", E.Base));
         CtorsGV->eraseFromParent();
       }
       if (auto DtorsGV = ExitOnErr(findGlobalDtors(*E.Main))) {
         auto Dtors = parseGlobalCtorDtors(DtorsGV);
-        E.DtorsFn = createCtorDtorFunc(Dtors, *E.Main, formatv("dtors_{0}", E.Base));
+        E.DtorsFn =
+            createCtorDtorFunc(Dtors, *E.Main, formatv("dtors_{0}", E.Base));
         DtorsGV->eraseFromParent();
       }
 
@@ -263,7 +283,8 @@ int main(int argc, const char **argv) {
           auto Name = E.A->getModuleName(i);
           ExitOnErr(LibMod->materializeAll());
 
-          auto WarnFmtS = "WARNING: Support library '{0}' contains static {1} which might not be handled correctly!\n";
+          auto WarnFmtS = "WARNING: Support library '{0}' contains static {1} "
+                          "which might not be handled correctly!\n";
           if (auto CtorsGV = ExitOnErr(findGlobalCtors(*E.Main))) {
             errs() << formatv(WarnFmtS, Name, "constructors");
             CtorsGV->dump();

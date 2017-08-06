@@ -23,8 +23,8 @@
 #include "llvm/IR/Instructions.h"
 #include "llvm/IR/Module.h"
 #include "llvm/Support/Debug.h"
-#include <llvm/IR/IRBuilder.h>
 #include "llvm/Support/raw_ostream.h"
+#include <llvm/IR/IRBuilder.h>
 #include <llvm/Support/Errc.h>
 
 using namespace allvm;
@@ -94,14 +94,16 @@ std::vector<Function *> allvm::parseGlobalCtorDtors(GlobalVariable *GV) {
   return Result;
 }
 
-Function *allvm::createCtorDtorFunc(ArrayRef<Function *> Fns, Module &M, const Twine &Name) {
+Function *allvm::createCtorDtorFunc(ArrayRef<Function *> Fns, Module &M,
+                                    const Twine &Name) {
   auto &C = M.getContext();
-  IRBuilder <> Builder(C);
+  IRBuilder<> Builder(C);
 
   // TODO: Better handle case where function with this name already exists;
   // just create the function as whatever and then call setName() or something?
   auto NameS = Name.str();
-  auto *F = cast<Function>(M.getOrInsertFunction(NameS, Builder.getVoidTy(), nullptr));
+  auto *F = cast<Function>(
+      M.getOrInsertFunction(NameS, Builder.getVoidTy(), nullptr));
 
   Builder.SetInsertPoint(BasicBlock::Create(C, "entry", F));
 
