@@ -8,6 +8,7 @@ set(LLVM_LINK_COMPONENTS
 
 add_llvm_tool(allmux
   allmux.cpp
+  CtorUtils.cpp
 )
 target_link_libraries(allmux liball Passes ResourcePaths)
 
