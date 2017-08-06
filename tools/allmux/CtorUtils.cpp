@@ -28,7 +28,6 @@
 using namespace allvm;
 using namespace llvm;
 
-
 namespace {
 GlobalVariable *findGlobalCtorsDtors(Module &M, StringRef Name) {
   GlobalVariable *GV = M.getGlobalVariable(Name);
@@ -66,10 +65,10 @@ GlobalVariable *findGlobalCtorsDtors(Module &M, StringRef Name) {
 } // end anonymous namespace
 
 GlobalVariable *allvm::findGlobalCtors(Module &M) {
-  return findGlobalCtorsDtors(M,"llvm.global_ctors");
+  return findGlobalCtorsDtors(M, "llvm.global_ctors");
 }
 GlobalVariable *allvm::findGlobalDtors(Module &M) {
-  return findGlobalCtorsDtors(M,"llvm.global_dtors");
+  return findGlobalCtorsDtors(M, "llvm.global_dtors");
 }
 
 /// Given a llvm.global_ctors list that we can understand,

@@ -189,9 +189,9 @@ int main(int argc, const char **argv) {
       errs() << formatv("error: Duplicate basename '{0}' encountered\n", Base);
       return -1;
     }
-    Entries.push_back(
-        {std::move(A), std::move(Main), I, Base, formatv("main_{0}", Base),
-        formatv("ctors_{0}", Base), formatv("dtors_{0}", Base)});
+    Entries.push_back({std::move(A), std::move(Main), I, Base,
+                       formatv("main_{0}", Base), formatv("ctors_{0}", Base),
+                       formatv("dtors_{0}", Base)});
   }
 
   {
@@ -226,8 +226,10 @@ int main(int argc, const char **argv) {
       // Grab ctors/dtors
       auto *Ctors = findGlobalCtors(*E.Main);
       auto *Dtors = findGlobalDtors(*E.Main);
-      if (Ctors) Ctors->dump();
-      if (Dtors) Dtors->dump();
+      if (Ctors)
+        Ctors->dump();
+      if (Dtors)
+        Dtors->dump();
 
       ExitOnErr(Output->addModule(std::move(E.Main), E.MainName + ".bc"));
     }
