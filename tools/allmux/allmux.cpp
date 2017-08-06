@@ -163,6 +163,10 @@ Expected<std::unique_ptr<Module>> genMain(ArrayRef<Entry> Es, LLVMContext &C,
   return std::move(MuxMain);
 }
 
+// TODO: Why don't we use LLVM's existing internalize?
+//
+// * Our approach (I think) is correct for pre-merge approach
+// * Internalize is probably more reasonable for lib-dedup approach
 void processGlobal(GlobalValue &GV) {
   // Don't internalize these symbols,
   // list taken from "AlwaysPreserved" StringSet in Internalize.cpp
