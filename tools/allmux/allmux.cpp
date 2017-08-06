@@ -48,9 +48,9 @@ cl::opt<std::string> OutputFilename("o", cl::desc("Override output filename"),
                                     cl::value_desc("filename"));
 cl::opt<bool> ForceOutput("f", cl::desc("Replace output allexe if it exists"),
                           cl::init(false));
-cl::opt<bool>
-    PreserveComdats("preserve-comdats", cl::init(true),
-                    cl::desc("preserve comdats as-is, don't internalize them"));
+cl::opt<bool> NoInternalize("no-internalize",
+                            cl::desc("Don't internalize main modules."),
+                            cl::init(false));
 
 allvm::ExitOnError ExitOnErr;
 
@@ -164,10 +164,6 @@ Expected<std::unique_ptr<Module>> genMain(ArrayRef<Entry> Es, LLVMContext &C,
   return std::move(MuxMain);
 }
 
-// TODO: Why don't we use LLVM's existing internalize?
-//
-// * Our approach (I think) is correct for pre-merge approach
-// * Internalize is probably more reasonable for lib-dedup approach
 void processGlobal(GlobalValue &GV) {
   // Don't internalize these symbols,
   // list taken from "AlwaysPreserved" StringSet in Internalize.cpp
@@ -180,9 +176,6 @@ void processGlobal(GlobalValue &GV) {
           .Default(false);
 
   if (AlwaysPreserved)
-    return;
-
-  if (PreserveComdats && GV.getComdat())
     return;
 
   if (!GV.isDeclaration())
@@ -244,16 +237,18 @@ int main(int argc, const char **argv) {
       MainF->setName(E.MainName);
       MainF->setLinkage(GlobalValue::ExternalLinkage);
       MainF->setVisibility(GlobalValue::DefaultVisibility);
-      internalizeModule(*E.Main, [&MainF](auto &GV) { return &GV == MainF; });
+      if (!NoInternalize) {
+        internalizeModule(*E.Main, [&MainF](auto &GV) { return &GV == MainF; });
 
-      // Don't export any definitions other than the renamed main
-      for (auto &F : *E.Main)
-        if (&F != MainF)
-          processGlobal(F);
-      for (auto &GV : E.Main->globals())
-        processGlobal(GV);
-      for (auto &GA : E.Main->aliases())
-        processGlobal(GA);
+        // Don't export any definitions other than the renamed main
+        for (auto &F : *E.Main)
+          if (&F != MainF)
+            processGlobal(F);
+        for (auto &GV : E.Main->globals())
+          processGlobal(GV);
+        for (auto &GA : E.Main->aliases())
+          processGlobal(GA);
+      }
 
       // Grab ctors/dtors
 
