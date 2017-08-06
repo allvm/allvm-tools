@@ -20,6 +20,8 @@
 
 #include <vector>
 
+#include <llvm/Support/Error.h>
+
 namespace llvm {
 class Function;
 class GlobalVariable;
@@ -28,8 +30,8 @@ class Module;
 
 namespace allvm {
 
-llvm::GlobalVariable *findGlobalCtors(llvm::Module &M);
-llvm::GlobalVariable *findGlobalDtors(llvm::Module &M);
+llvm::Expected<llvm::GlobalVariable *> findGlobalCtors(llvm::Module &M);
+llvm::Expected<llvm::GlobalVariable *> findGlobalDtors(llvm::Module &M);
 std::vector<llvm::Function *> parseGlobalCtorDtors(llvm::GlobalVariable *GV);
 
 } // end namespace allvm

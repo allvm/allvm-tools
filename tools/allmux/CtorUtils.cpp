@@ -24,12 +24,13 @@
 #include "llvm/IR/Module.h"
 #include "llvm/Support/Debug.h"
 #include "llvm/Support/raw_ostream.h"
+#include <llvm/Support/Errc.h>
 
 using namespace allvm;
 using namespace llvm;
 
 namespace {
-GlobalVariable *findGlobalCtorsDtors(Module &M, StringRef Name) {
+Expected<GlobalVariable *> findGlobalCtorsDtors(Module &M, StringRef Name) {
   GlobalVariable *GV = M.getGlobalVariable(Name);
   if (!GV)
     return nullptr;
@@ -37,7 +38,9 @@ GlobalVariable *findGlobalCtorsDtors(Module &M, StringRef Name) {
   // Verify that the initializer is simple enough for us to handle. We are
   // only allowed to optimize the initializer if it is unique.
   if (!GV->hasUniqueInitializer())
-    return nullptr;
+    return make_error<StringError>(
+        "static ctor/dtor array does not have unique initializer",
+        errc::invalid_argument);
 
   if (isa<ConstantAggregateZero>(GV->getInitializer()))
     return GV;
@@ -52,22 +55,26 @@ GlobalVariable *findGlobalCtorsDtors(Module &M, StringRef Name) {
 
     // Must have a function or null ptr.
     if (!isa<Function>(CS->getOperand(1)))
-      return nullptr;
+      return make_error<StringError>("static ctor/dtor initializer has invalid "
+                                     "value where function pointer should be",
+                                     errc::invalid_argument);
 
     // Init priority must be standard.
     ConstantInt *CI = cast<ConstantInt>(CS->getOperand(0));
     if (CI->getZExtValue() != 65535)
-      return nullptr;
+      return make_error<StringError>(
+          "static ctor/dtor initializer has unsupported priority value",
+          errc::invalid_argument);
   }
 
   return GV;
 }
 } // end anonymous namespace
 
-GlobalVariable *allvm::findGlobalCtors(Module &M) {
+Expected<GlobalVariable *> allvm::findGlobalCtors(Module &M) {
   return findGlobalCtorsDtors(M, "llvm.global_ctors");
 }
-GlobalVariable *allvm::findGlobalDtors(Module &M) {
+Expected<GlobalVariable *> allvm::findGlobalDtors(Module &M) {
   return findGlobalCtorsDtors(M, "llvm.global_dtors");
 }
 

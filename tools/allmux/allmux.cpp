@@ -224,8 +224,8 @@ int main(int argc, const char **argv) {
         processGlobal(GA);
 
       // Grab ctors/dtors
-      auto *Ctors = findGlobalCtors(*E.Main);
-      auto *Dtors = findGlobalDtors(*E.Main);
+      auto Ctors = ExitOnErr(findGlobalCtors(*E.Main));
+      auto Dtors = ExitOnErr(findGlobalDtors(*E.Main));
       if (Ctors)
         Ctors->dump();
       if (Dtors)
