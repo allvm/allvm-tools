@@ -55,10 +55,10 @@ Expected<GlobalVariable *> findGlobalCtorsDtors(Module &M, StringRef Name) {
       continue;
 
     // Must have a function or null ptr.
-    if (!isa<Function>(CS->getOperand(1)))
-      return make_error<StringError>("static ctor/dtor initializer has invalid "
-                                     "value where function pointer should be",
-                                     errc::invalid_argument);
+    if (!isa<Function>(CS->getOperand(1)->stripPointerCasts()))
+      return make_error<StringError>(
+          "static ctor/dtor initializer has invalid value where function pointer should be",
+          errc::invalid_argument);
 
     // Init priority must be standard.
     ConstantInt *CI = cast<ConstantInt>(CS->getOperand(0));
@@ -81,20 +81,20 @@ Expected<GlobalVariable *> allvm::findGlobalDtors(Module &M) {
 
 /// Given a llvm.global_ctors list that we can understand,
 /// return a list of the functions and null terminator as a vector.
-std::vector<Function *> allvm::parseGlobalCtorDtors(GlobalVariable *GV) {
+std::vector<Constant *> allvm::parseGlobalCtorDtors(GlobalVariable *GV) {
   if (GV->getInitializer()->isNullValue())
-    return std::vector<Function *>();
+    return {};
   ConstantArray *CA = cast<ConstantArray>(GV->getInitializer());
-  std::vector<Function *> Result;
+  std::vector<Constant *> Result;
   Result.reserve(CA->getNumOperands());
   for (auto &V : CA->operands()) {
     ConstantStruct *CS = cast<ConstantStruct>(V);
-    Result.push_back(dyn_cast<Function>(CS->getOperand(1)));
+    Result.push_back(CS->getOperand(1));
   }
   return Result;
 }
 
-Function *allvm::createCtorDtorFunc(ArrayRef<Function *> Fns, Module &M,
+Function *allvm::createCtorDtorFunc(ArrayRef<Constant*> Fns, Module &M,
                                     const Twine &Name) {
   auto &C = M.getContext();
   IRBuilder<> Builder(C);
