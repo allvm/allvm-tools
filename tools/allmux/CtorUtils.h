@@ -35,9 +35,9 @@ namespace allvm {
 
 llvm::Expected<llvm::GlobalVariable *> findGlobalCtors(llvm::Module &M);
 llvm::Expected<llvm::GlobalVariable *> findGlobalDtors(llvm::Module &M);
-std::vector<llvm::Constant* > parseGlobalCtorDtors(llvm::GlobalVariable *GV);
+std::vector<llvm::Constant *> parseGlobalCtorDtors(llvm::GlobalVariable *GV);
 
-llvm::Function *createCtorDtorFunc(llvm::ArrayRef<llvm::Constant*> Fns,
+llvm::Function *createCtorDtorFunc(llvm::ArrayRef<llvm::Constant *> Fns,
                                    llvm::Module &M, const llvm::Twine &Name);
 
 } // end namespace allvm

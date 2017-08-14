@@ -183,7 +183,7 @@ void processGlobal(GlobalValue &GV) {
 }
 
 void replaceCtorsDtorsGV(GlobalVariable *GV, Module &M, StringRef Name) {
-  std::vector<Constant*> CtorsDtors;
+  std::vector<Constant *> CtorsDtors;
   if (GV) {
     CtorsDtors = parseGlobalCtorDtors(GV);
     GV->eraseFromParent();

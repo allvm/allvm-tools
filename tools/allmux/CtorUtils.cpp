@@ -56,9 +56,9 @@ Expected<GlobalVariable *> findGlobalCtorsDtors(Module &M, StringRef Name) {
 
     // Must have a function or null ptr.
     if (!isa<Function>(CS->getOperand(1)->stripPointerCasts()))
-      return make_error<StringError>(
-          "static ctor/dtor initializer has invalid value where function pointer should be",
-          errc::invalid_argument);
+      return make_error<StringError>("static ctor/dtor initializer has invalid "
+                                     "value where function pointer should be",
+                                     errc::invalid_argument);
 
     // Init priority must be standard.
     ConstantInt *CI = cast<ConstantInt>(CS->getOperand(0));
@@ -94,7 +94,7 @@ std::vector<Constant *> allvm::parseGlobalCtorDtors(GlobalVariable *GV) {
   return Result;
 }
 
-Function *allvm::createCtorDtorFunc(ArrayRef<Constant*> Fns, Module &M,
+Function *allvm::createCtorDtorFunc(ArrayRef<Constant *> Fns, Module &M,
                                     const Twine &Name) {
   auto &C = M.getContext();
   IRBuilder<> Builder(C);
