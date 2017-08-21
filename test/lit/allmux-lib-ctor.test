@@ -14,3 +14,11 @@ CHECKB: init B
 CHECKB: main B
 CHECKB: B()
 CHECKB: end main B
+
+RUN: rm -rf %t && mkdir -p %t
+RUN: allmux %p/Inputs/lib_ctorA %p/Inputs/lib_ctorB -o %t/mux
+RUN: ln -s %t/mux %t/lib_ctorA
+RUN: ln -s %t/mux %t/lib_ctorB
+
+RUN: alley %t/lib_ctorA |& FileCheck %s -check-prefix=CHECKA -implicit-check-not=B
+RUN: alley %t/lib_ctorB |& FileCheck %s -check-prefix=CHECKB -implicit-check-not=A
