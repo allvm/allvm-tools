@@ -8,7 +8,7 @@ config.test_format = lit.formats.ShTest(True)
 config.test_source_root = "@CMAKE_SOURCE_DIR@/test"
 config.test_exec_root = "@CMAKE_BINARY_DIR@/test"
 config.suffixes = ['.ll', '.c', '.cpp', '.test']
-config.excludes = [ "Inputs" ]
+config.excludes = [ "Inputs" "source" ]
 
 curpath = os.environ.get('PATH', '')
 
