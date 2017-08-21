@@ -139,9 +139,9 @@ Expected<std::unique_ptr<Module>> genMain(ArrayRef<Entry> Es, LLVMContext &C,
       Args.push_back(&*AI);
     }
 
-    auto callCtorDtor = [&](auto Name) {
+    auto callCtorDtor = [&](auto FName) {
       auto *Decl = MuxMain->getOrInsertFunction(
-          Name, Builder.getVoidTy(), nullptr);
+          FName, Builder.getVoidTy(), nullptr);
       Builder.CreateCall(Decl);
     };
 
