@@ -132,9 +132,14 @@ Expected<std::unique_ptr<Module>> genMain(ArrayRef<Entry> Es, LLVMContext &C,
       Args.push_back(&*AI);
     }
 
-    auto *CtorsDecl = MuxMain->getOrInsertFunction(
-        E.getCtorsName(), Builder.getVoidTy(), nullptr);
-    Builder.CreateCall(CtorsDecl);
+    auto callCtorDtor = [&](auto Name) {
+      auto *Decl = MuxMain->getOrInsertFunction(
+          Name, Builder.getVoidTy(), nullptr);
+      Builder.CreateCall(Decl);
+    };
+
+    callCtorDtor(E.getCtorsName());
+
 
     auto *Call = Builder.CreateCall(RealMainDecl, Args);
 
@@ -143,9 +148,7 @@ Expected<std::unique_ptr<Module>> genMain(ArrayRef<Entry> Es, LLVMContext &C,
     // Idea: add a single llvm.global_dtors entry for the mux'd main
     // which invokes the dtorfn stored in a global variable we write
     // to once we know which program we're running.
-    auto *DtorsDecl = MuxMain->getOrInsertFunction(
-        E.getDtorsName(), Builder.getVoidTy(), nullptr);
-    Builder.CreateCall(DtorsDecl);
+    callCtorDtor(E.getDtorsName());
 
     Value *Ret = Call;
     if (Call->getType()->isVoidTy())
