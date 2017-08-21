@@ -64,6 +64,13 @@ struct Entry {
   std::string getDtorsName() const { return formatv("dtors_{0}", Base); }
 };
 
+std::string getLibCtorsName(Allexe&A, size_t i) {
+  return formatv("ctors_${0}", A.getModuleCRC(i));
+}
+std::string getLibDtorsName(Allexe&A, size_t i) {
+  return formatv("dtors_${0}", A.getModuleCRC(i));
+}
+
 Error verifyModule(Module &M) {
   std::string err;
   raw_string_ostream OS(err);
@@ -138,6 +145,9 @@ Expected<std::unique_ptr<Module>> genMain(ArrayRef<Entry> Es, LLVMContext &C,
       Builder.CreateCall(Decl);
     };
 
+    for (size_t i = E.A->getNumModules() - 1; i >= 1; --i)
+      callCtorDtor(getLibCtorsName(*E.A, i));
+
     callCtorDtor(E.getCtorsName());
 
 
@@ -149,6 +159,9 @@ Expected<std::unique_ptr<Module>> genMain(ArrayRef<Entry> Es, LLVMContext &C,
     // which invokes the dtorfn stored in a global variable we write
     // to once we know which program we're running.
     callCtorDtor(E.getDtorsName());
+
+    for (size_t i = 1, e = E.A->getNumModules(); i < e; ++i)
+      callCtorDtor(getLibDtorsName(*E.A, i));
 
     Value *Ret = Call;
     if (Call->getType()->isVoidTy())
@@ -192,13 +205,6 @@ void replaceCtorsDtorsGV(GlobalVariable *GV, Module &M, StringRef Name) {
     GV->eraseFromParent();
   }
   createCtorDtorFunc(CtorsDtors, M, Name);
-}
-
-std::string getLibCtorsName(Allexe&A, size_t i) {
-  return formatv("ctors_${0}", A.getModuleCRC(i));
-}
-std::string getLibDtorsName(Allexe&A, size_t i) {
-  return formatv("dtors_${0}", A.getModuleCRC(i));
 }
 
 } // end anonymous namespace
