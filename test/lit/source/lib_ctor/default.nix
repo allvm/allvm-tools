@@ -1,3 +1,7 @@
 with import <allvm> {};
 
-import ./build.nix { stdenv = wllvmStdenv; }
+let
+  AB = import ./build.nix { stdenv = wllvmStdenv; };
+  AB-allexe = pkgToAllexe "AB" AB;
+in
+  AB-allexe
