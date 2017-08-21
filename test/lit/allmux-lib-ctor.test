@@ -1,0 +1,16 @@
+Check handling of static constructors in libs
+
+First check alley handles them
+
+RUN: alley %p/Inputs/lib_ctorA |& FileCheck %s -check-prefix=CHECKA -implicit-check-not=B
+RUN: alley %p/Inputs/lib_ctorB |& FileCheck %s -check-prefix=CHECKB -implicit-check-not=A
+
+CHECKA: init A
+CHECKA: main A
+CHECKA: A()
+CHECKA: end main A
+
+CHECKB: init B
+CHECKB: main B
+CHECKB: B()
+CHECKB: end main B
