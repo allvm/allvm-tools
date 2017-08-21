@@ -64,10 +64,10 @@ struct Entry {
   std::string getDtorsName() const { return formatv("dtors_{0}", Base); }
 };
 
-std::string getLibCtorsName(Allexe&A, size_t i) {
+std::string getLibCtorsName(Allexe &A, size_t i) {
   return formatv("ctors_${0}", A.getModuleCRC(i));
 }
-std::string getLibDtorsName(Allexe&A, size_t i) {
+std::string getLibDtorsName(Allexe &A, size_t i) {
   return formatv("dtors_${0}", A.getModuleCRC(i));
 }
 
@@ -140,8 +140,8 @@ Expected<std::unique_ptr<Module>> genMain(ArrayRef<Entry> Es, LLVMContext &C,
     }
 
     auto callCtorDtor = [&](auto FName) {
-      auto *Decl = MuxMain->getOrInsertFunction(
-          FName, Builder.getVoidTy(), nullptr);
+      auto *Decl =
+          MuxMain->getOrInsertFunction(FName, Builder.getVoidTy(), nullptr);
       Builder.CreateCall(Decl);
     };
 
@@ -149,7 +149,6 @@ Expected<std::unique_ptr<Module>> genMain(ArrayRef<Entry> Es, LLVMContext &C,
       callCtorDtor(getLibCtorsName(*E.A, i));
 
     callCtorDtor(E.getCtorsName());
-
 
     auto *Call = Builder.CreateCall(RealMainDecl, Args);
 
