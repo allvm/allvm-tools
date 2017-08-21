@@ -1,5 +1,5 @@
 
-all: A B
+default: create_allexes
 
 libA.so:
 libB.so:
@@ -10,3 +10,12 @@ A:
 B:
 %: main%.c lib%.so
 	cc $^ -o $@ -L. -l$* -Wl,-rpath,.
+
+.PHONY: default create_allexes clean
+
+create_allexes: A B
+
+
+
+clean:
+	-rm -f A B libA.so libB.so
