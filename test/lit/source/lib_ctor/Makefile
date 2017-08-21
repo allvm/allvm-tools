@@ -1,21 +1,21 @@
 
-default: create_allexes
+default: A B
 
 libA.so:
 libB.so:
 %.so: %.c
-	cc $^ -o $@ -shared -fPIC -Wl,-soname,$@
+	$(CC) $^ -o $@ -shared -fPIC -Wl,-soname,$@
 
 A:
 B:
 %: main%.c lib%.so
-	cc $^ -o $@ -L. -l$* -Wl,-rpath,.
+	$(CC) $^ -o $@ -L. -l$* -Wl,-rpath,$(DESTDIR)/lib
 
-.PHONY: default create_allexes clean
-
-create_allexes: A B
-
-
+.PHONY: default clean
 
 clean:
 	-rm -f A B libA.so libB.so
+
+install: default
+	install -Dm755 A B -t $(DESTDIR)/bin/
+	install -Dm755 lib{A,B}.so -t $(DESTDIR)/lib
