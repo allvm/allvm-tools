@@ -191,6 +191,13 @@ void replaceCtorsDtorsGV(GlobalVariable *GV, Module &M, StringRef Name) {
   createCtorDtorFunc(CtorsDtors, M, Name);
 }
 
+std::string getLibCtorsName(Allexe&A, size_t i) {
+  return formatv("ctors_${0}", A.getModuleCRC(i));
+}
+std::string getLibDtorsName(Allexe&A, size_t i) {
+  return formatv("dtors_${0}", A.getModuleCRC(i));
+}
+
 } // end anonymous namespace
 
 int main(int argc, const char **argv) {
@@ -287,16 +294,11 @@ int main(int argc, const char **argv) {
           auto Name = E.A->getModuleName(i);
           ExitOnErr(LibMod->materializeAll());
 
-          auto WarnFmtS = "WARNING: Support library '{0}' contains static {1} "
-                          "which might not be handled correctly!\n";
-          if (auto CtorsGV = ExitOnErr(findGlobalCtors(*LibMod))) {
-            errs() << formatv(WarnFmtS, Name, "constructors");
-            CtorsGV->dump();
-          }
-          if (auto DtorsGV = ExitOnErr(findGlobalDtors(*LibMod))) {
-            errs() << formatv(WarnFmtS, Name, "destructors");
-            DtorsGV->dump();
-          }
+          auto CtorsGV = ExitOnErr(findGlobalCtors(*LibMod));
+          replaceCtorsDtorsGV(CtorsGV, *LibMod, getLibCtorsName(*E.A, i));
+
+          auto DtorsGV = ExitOnErr(findGlobalDtors(*LibMod));
+          replaceCtorsDtorsGV(DtorsGV, *LibMod, getLibDtorsName(*E.A, i));
 
           ExitOnErr(Output->addModule(std::move(LibMod), Name));
         }
