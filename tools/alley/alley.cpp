@@ -35,7 +35,7 @@ cl::opt<std::string> Linker("linker",
                                 ,
                             cl::init("ld")
 #endif
-                                );
+);
 
 cl::opt<std::string> InputFilename(cl::Positional, cl::Required,
                                    cl::desc("<input allvm file>"));
