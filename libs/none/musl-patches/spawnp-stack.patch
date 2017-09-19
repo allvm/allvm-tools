@@ -17,7 +17,7 @@ index ea5d2998..63fa62d0 100644
  {
  	pid_t pid;
 -	char stack[1024];
-+	char stack[8192];
++	char stack[1024+PATH_MAX];
  	int ec=0, cs;
  	struct args args;
  
