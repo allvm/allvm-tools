@@ -268,8 +268,9 @@ std::string CompilationOptions::serializeCompilationOptions() const {
   // Serialize OLvl
   buffer += std::to_string(OLvl);
   // Serialize TargetOptions
+  errs() << "Using incomplete serialization of compilation options, FIXME!\n";
   buffer += std::to_string(TOptions.PrintMachineCode);
-  buffer += std::to_string(TOptions.LessPreciseFPMADOption);
+  // buffer += std::to_string(TOptions.LessPreciseFPMADOption);
   buffer += std::to_string(TOptions.UnsafeFPMath);
   buffer += std::to_string(TOptions.NoInfsFPMath);
   buffer += std::to_string(TOptions.NoNaNsFPMath);
@@ -282,7 +283,7 @@ std::string CompilationOptions::serializeCompilationOptions() const {
   buffer += std::to_string(TOptions.EnableFastISel);
   buffer += std::to_string(TOptions.UseInitArray);
   buffer += std::to_string(TOptions.DisableIntegratedAS);
-  buffer += std::to_string(TOptions.CompressDebugSections);
+  buffer += std::to_string(static_cast<int>(TOptions.CompressDebugSections));
   buffer += std::to_string(TOptions.RelaxELFRelocations);
   buffer += std::to_string(TOptions.FunctionSections);
   buffer += std::to_string(TOptions.DataSections);
