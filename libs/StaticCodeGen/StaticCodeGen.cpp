@@ -67,29 +67,25 @@ static inline void setFunctionAttributes(StringRef CPU, StringRef Features,
                                          Module &M) {
   for (auto &F : M) {
     auto &Ctx = F.getContext();
-    AttributeSet Attrs = F.getAttributes(), NewAttrs;
+    AttributeList Attrs = F.getAttributes();
+    AttrBuilder NewAttrs;
 
     if (!CPU.empty())
-      NewAttrs = NewAttrs.addAttribute(Ctx, AttributeSet::FunctionIndex,
-                                       "target-cpu", CPU);
+      NewAttrs.addAttribute( "target-cpu", CPU);
 
     if (!Features.empty())
-      NewAttrs = NewAttrs.addAttribute(Ctx, AttributeSet::FunctionIndex,
-                                       "target-features", Features);
+      NewAttrs.addAttribute("target-features", Features);
 
     if (DisableFPElim.hasValue())
-      NewAttrs = NewAttrs.addAttribute(
-          Ctx, AttributeSet::FunctionIndex, "no-frame-pointer-elim",
+      NewAttrs.addAttribute("no-frame-pointer-elim",
           DisableFPElim.getValue() ? "true" : "false");
 
     if (DisableTailCalls.hasValue())
-      NewAttrs = NewAttrs.addAttribute(
-          Ctx, AttributeSet::FunctionIndex, "disable-tail-calls",
+      NewAttrs.addAttribute("disable-tail-calls",
           toStringRef(DisableTailCalls.getValue()));
 
     if (StackRealign)
-      NewAttrs = NewAttrs.addAttribute(Ctx, AttributeSet::FunctionIndex,
-                                       "stackrealign");
+      NewAttrs.addAttribute("stackrealign");
 
     if (TrapFuncName.hasValue())
       for (auto &B : F)
@@ -98,13 +94,13 @@ static inline void setFunctionAttributes(StringRef CPU, StringRef Features,
             if (const auto *Callee = Call->getCalledFunction())
               if (Callee->getIntrinsicID() == Intrinsic::debugtrap ||
                   Callee->getIntrinsicID() == Intrinsic::trap)
-                Call->addAttribute(AttributeSet::FunctionIndex,
+                Call->addAttribute(AttributeList::FunctionIndex,
                                    Attribute::get(Ctx, "trap-func-name",
                                                   TrapFuncName.getValue()));
 
     // Let NewAttrs override Attrs.
-    NewAttrs = Attrs.addAttributes(Ctx, AttributeSet::FunctionIndex, NewAttrs);
-    F.setAttributes(NewAttrs);
+    F.setAttributes(
+        Attrs.addAttributes(Ctx, AttributeList::FunctionIndex, NewAttrs));
   }
 }
 
