@@ -71,18 +71,18 @@ static inline void setFunctionAttributes(StringRef CPU, StringRef Features,
     AttrBuilder NewAttrs;
 
     if (!CPU.empty())
-      NewAttrs.addAttribute( "target-cpu", CPU);
+      NewAttrs.addAttribute("target-cpu", CPU);
 
     if (!Features.empty())
       NewAttrs.addAttribute("target-features", Features);
 
     if (DisableFPElim.hasValue())
       NewAttrs.addAttribute("no-frame-pointer-elim",
-          DisableFPElim.getValue() ? "true" : "false");
+                            DisableFPElim.getValue() ? "true" : "false");
 
     if (DisableTailCalls.hasValue())
       NewAttrs.addAttribute("disable-tail-calls",
-          toStringRef(DisableTailCalls.getValue()));
+                            toStringRef(DisableTailCalls.getValue()));
 
     if (StackRealign)
       NewAttrs.addAttribute("stackrealign");
