@@ -53,7 +53,7 @@ else()
 endif()
 
 add_custom_command(OUTPUT ${MUSL}/lib/libc.a
-  COMMAND ${MAKECMD} -C ${MUSL}
+  COMMAND hardeningDisable=stackprotector ${MAKECMD} -C ${MUSL}
   DEPENDS ${MUSL}/config.mak
   COMMENT "Building ${MUSL}..."
 )
