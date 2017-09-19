@@ -2,7 +2,7 @@
 ; __asm__ __volatile__ ("" ::: "memory")
 ; Which can be replaced with C11 'atomic_signal_fence(memory_order_acq_rel)'
 ; In LLVM IR that becomes (at least in my sample program)
-; 'fence singlethread acq_rel'
+; 'fence syncscope("singlethread") acq_rel'
 
 ; https://en.wikipedia.org/wiki/Memory_ordering#Compile-time_memory_barrier_implementation
 ; http://en.cppreference.com/w/c/atomic/atomic_signal_fence
@@ -15,7 +15,7 @@
 ; RUN: allopt -analyze -i %t llvm-dis |& FileCheck %s
 
 ; CHECK-NOT: call {{.*}} asm
-; CHECK: fence singlethread acq_rel
+; CHECK: fence syncscope("singlethread") acq_rel
 ; CHECK-NOT: call {{.*}} asm
 
 ; ModuleID = 'barrier.c'
