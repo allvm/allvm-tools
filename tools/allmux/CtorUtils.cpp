@@ -103,7 +103,7 @@ Function *allvm::createCtorDtorFunc(ArrayRef<Constant *> Fns, Module &M,
   // just create the function as whatever and then call setName() or something?
   auto NameS = Name.str();
   auto *F = cast<Function>(
-      M.getOrInsertFunction(NameS, Builder.getVoidTy(), nullptr));
+      M.getOrInsertFunction(NameS, Builder.getVoidTy()));
 
   Builder.SetInsertPoint(BasicBlock::Create(C, "entry", F));
 
