@@ -68,7 +68,7 @@ std::string getModName(Allexe &A, size_t i) {
   auto CRC = formatv("{0:X-}", A.getModuleCRC(i)).str();
   StringRef Name = A.getModuleName(i);
   if (sys::path::has_filename(Name))
-    return formatv("{0}-{1}", CRC.str(), sys::path::filename(Name));
+    return formatv("{0}-{1}", CRC, sys::path::filename(Name));
   return CRC;
 }
 
