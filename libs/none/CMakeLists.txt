@@ -9,7 +9,7 @@ set(MUSL_PATCHES
   musl-patches/0005-Another-weak_alias-victim-destructors-for-stdio-and-.patch
   ## musl-patches/0006-configure-improve-tryflag-to-reject-ignored-opt-argu.patch
   ## musl-patches/0007-Partially-revert-remove-potentially-PIC-incompatible.patch
-  musl-patches/0008-kludge-around-_DYNAMIC-and-our-bad-weak-symbol-handl.patch
+  ## musl-patches/0008-kludge-around-_DYNAMIC-and-our-bad-weak-symbol-handl.patch
   musl-patches/spawnp-stack.patch
 )
 
@@ -61,7 +61,7 @@ add_custom_target(musl DEPENDS ${MUSL}/lib/libc.a)
 set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "${MUSL}")
 
 # Compile our little assembly bits into a library, then merge in musl's libc.a.
-add_library(none STATIC UnwindRegistersRestore.S UnwindRegistersSave.S dso_handle.S)
+add_library(none STATIC UnwindRegistersRestore.S UnwindRegistersSave.S dso_handle.S dynamic.S)
 install(TARGETS none DESTINATION lib)
 set_output_directory(none BINARY_DIR ${LLVM_RUNTIME_OUTPUT_INTDIR} LIBRARY_DIR ${LLVM_LIBRARY_OUTPUT_INTDIR})
 add_dependencies(none musl)
