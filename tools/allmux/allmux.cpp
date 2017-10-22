@@ -147,28 +147,34 @@ Expected<std::unique_ptr<Module>> genMain(ArrayRef<Entry> Es, LLVMContext &C,
       Args.push_back(&*AI);
     }
 
-    auto callCtorDtor = [&](auto FName) {
-      auto *Decl =
-          MuxMain->getOrInsertFunction(FName, Builder.getVoidTy(), nullptr);
-      Builder.CreateCall(Decl);
+    auto *AtExitArgTy = FunctionType::get(Builder.getVoidTy(), false);
+    // int atexit(void (*function)(void));
+    auto *AtExitFnTy = FunctionType::get(Builder.getInt32Ty(),
+                                         {AtExitArgTy->getPointerTo()}, false);
+    auto *AtExit = MuxMain->getOrInsertFunction("atexit", AtExitFnTy);
+    assert(AtExit);
+
+    auto getCtorDtorFn = [&](auto FName) {
+      return MuxMain->getOrInsertFunction(FName, Builder.getVoidTy(), nullptr);
+    };
+    auto callCtor = [&](auto FName) {
+      Builder.CreateCall(getCtorDtorFn(FName));
+    };
+    auto registerDtor = [&](auto FName) {
+      auto *Dtor = getCtorDtorFn(FName);
+      // TODO: Check return value?
+      Builder.CreateCall(AtExit, {Dtor});
     };
 
-    for (size_t i = E.A->getNumModules() - 1; i >= 1; --i)
-      callCtorDtor(getLibCtorsName(*E.A, i));
+    for (size_t i = E.A->getNumModules() - 1; i >= 1; --i) {
+      callCtor(getLibCtorsName(*E.A, i));
+      registerDtor(getLibDtorsName(*E.A, i));
+    }
 
-    callCtorDtor(E.getCtorsName());
+    callCtor(E.getCtorsName());
+    registerDtor(E.getDtorsName());
 
     auto *Call = Builder.CreateCall(RealMainDecl, Args);
-
-    // XXX: This only handles the cases where main() returns
-    // TODO: Handle this properly!
-    // Idea: add a single llvm.global_dtors entry for the mux'd main
-    // which invokes the dtorfn stored in a global variable we write
-    // to once we know which program we're running.
-    callCtorDtor(E.getDtorsName());
-
-    for (size_t i = 1, e = E.A->getNumModules(); i < e; ++i)
-      callCtorDtor(getLibDtorsName(*E.A, i));
 
     Value *Ret = Call;
     if (Call->getType()->isVoidTy())
