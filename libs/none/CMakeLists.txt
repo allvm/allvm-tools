@@ -10,7 +10,6 @@ set(MUSL_PATCHES
   ## musl-patches/0006-configure-improve-tryflag-to-reject-ignored-opt-argu.patch
   ## musl-patches/0007-Partially-revert-remove-potentially-PIC-incompatible.patch
   ## musl-patches/0008-kludge-around-_DYNAMIC-and-our-bad-weak-symbol-handl.patch
-  musl-patches/spawnp-stack.patch
 )
 
 set(MUSL_CFLAGS_EXTRA "")
