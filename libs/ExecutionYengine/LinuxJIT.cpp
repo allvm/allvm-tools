@@ -16,9 +16,10 @@ static const size_t INIT_STACK_MAX = 16384;
 
 namespace {
 
-int cxa_thread_atexit_dummy(void (*dtor)(void *) LLVM_ATTRIBUTE_UNUSED,
-                            void *obj LLVM_ATTRIBUTE_UNUSED,
-                            void *dso_symbol LLVM_ATTRIBUTE_UNUSED) {
+[[noreturn]] int
+cxa_thread_atexit_dummy(void (*dtor)(void *) LLVM_ATTRIBUTE_UNUSED,
+                        void *obj LLVM_ATTRIBUTE_UNUSED,
+                        void *dso_symbol LLVM_ATTRIBUTE_UNUSED) {
   // Probably not great to use errs() here...
   assert(0 && "program called cxa_thread_atexit, not yet supported!");
   abort();
