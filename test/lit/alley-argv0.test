@@ -5,16 +5,16 @@
 // RUN: mkdir %t
 // RUN: allopt -i %p/Inputs/which -o %t/which cat
 // RUN: ALLVM_CACHE_DIR=%t-cache %t/which --help |& FileCheck %s -check-prefix=WHICH
-// RUN: ALLVM_CACHE_DIR=%t-cache (exec %t/which --help) |& FileCheck %s -check-prefix=WHICH
+// RUN: (ALLVM_CACHE_DIR=%t-cache exec %t/which --help) |& FileCheck %s -check-prefix=WHICH
 
 // WHICH: Usage:
 // WHICH: /which
 
 // exec'ing an allexe with custom argv0 directly doesn't work :(
-// RUNX: (exec -a %t/whoch %t/which --help) |& FileCheck %s -check-prefix=WHOCH
+// RUNX: (ALLVM_CACHE_DIR=%t-cache exec -a %t/whoch %t/which --help) |& FileCheck %s -check-prefix=WHOCH
 
 // But exec'ing alley with a custom argv0 does the job, as a workaround.
-// RUN: ALLVM_CACHE_DIR=%t-cache (exec -a %t/whoch alley %t/which --help) |& FileCheck %s -check-prefix=WHOCH
+// RUN: (ALLVM_CACHE_DIR=%t-cache exec -a %t/whoch alley %t/which --help) |& FileCheck %s -check-prefix=WHOCH
 
 // WHOCH: Usage:
 // WHOCH-SAME: /whoch
