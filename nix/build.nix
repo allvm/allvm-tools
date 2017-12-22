@@ -20,6 +20,9 @@ let
       (type == "directory" && (lib.hasPrefix "build" baseName ||
                                lib.hasPrefix "install" baseName))
   );
+  # Use "fetchGit" if it is present (1.12)
+  fetchSrc = path: if (builtins ? fetchGit) then builtins.fetchGit path else builtins.filterSource sourceFilter path;
+  src = fetchSrc ./..;
 
   tex = texlive.combined.scheme-medium;
 in
@@ -28,7 +31,7 @@ stdenv.mkDerivation {
   name = "allvm-tools-git-${gitshort}";
   version = gitshort;
 
-  src = builtins.filterSource sourceFilter ./..;
+  inherit src;
 
   nativeBuildInputs = [ cmake git python2 ] ++ lib.optionals buildDocs [ pandoc tex ];
   buildInputs = [ llvm lld zlib ];
