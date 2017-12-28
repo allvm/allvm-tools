@@ -1,5 +1,7 @@
 include(pandocology)
 
+add_custom_target(docs DEPENDS allvm-format)
+
 add_document(
   TARGET
     allvm-format
