@@ -11,7 +11,6 @@ add_document(
     ALLVMFormat-TODO.md
   PANDOC_DIRECTIVES
     -t latex
-    --smart
     --tab-stop=2
     --number-sections
     -V documentclass:scrartcl
