@@ -23,7 +23,6 @@ add_document(
     -V classoption:twocolumn
     -V title:"ALLVM Package Format Design and Specification"
     -V subtitle:"Version: ${GITVERSION}"
-  NO_EXPORT_PRODUCT
 )
 
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/ALLVMFormat.pdf DESTINATION share/doc/allvm)
+install(FILES ${CMAKE_BINARY_DIR}/product/ALLVMFormat.pdf DESTINATION share/doc/allvm)
