@@ -395,7 +395,7 @@ function(add_document)
     if (NOT ${ADD_DOCUMENT_NO_EXPORT_PRODUCT})
         add_custom_command(
             OUTPUT ${native_dest_output_file}
-            DEPENDS ${build_sources} ${build_resources} ${ADD_DOCUMENT_DEPENDS}
+            DEPENDS ${output_file}
             COMMAND ${CMAKE_COMMAND} -E copy_if_different ${native_output_file} ${native_dest_output_file}
             )
         add_to_make_clean(${product_directory}/${output_file})
