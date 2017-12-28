@@ -1,7 +1,10 @@
 include(pandocology)
 
 add_document(
-  ALLVMFormat.pdf
+  TARGET
+    allvm-format
+  OUTPUT_FILE
+    ALLVMFormat.pdf
   SOURCES
     ALLVMFormat-Overview.md
     ALLVMFormat-Design.md
