@@ -46,9 +46,9 @@ add_custom_command(OUTPUT ${MUSL}/config.mak
 # Kludge to handle parallelism when using make,
 # without breaking compat when using other generators (like ninja)
 if ("${CMAKE_GENERATOR}" STREQUAL "Unix Makefiles")
-  set(MAKECMD $(MAKE))
+  set(MAKECMD $(MAKE) AR=${CMAKE_AR} RANLIB=${CMAKE_RANLIB})
 else()
-  set(MAKECMD make -j8)
+  set(MAKECMD make -j8 AR=${CMAKE_AR} RANLIB=${CMAKE_RANLIB})
 endif()
 
 add_custom_command(OUTPUT ${MUSL}/lib/libc.a
@@ -67,7 +67,7 @@ add_dependencies(none musl)
 # http://stackoverflow.com/questions/3821916/how-to-merge-two-ar-static-libraries-into-one
 configure_file(merge.ar.in merge.ar)
 add_custom_command(TARGET none POST_BUILD
-  COMMAND ar -M <merge.ar
+  COMMAND ${CMAKE_AR} -M <merge.ar
   COMMAND mv libnone.a.merged ${LLVM_LIBRARY_OUTPUT_INTDIR}/libnone.a
   DEPENDS merge.ar
 )
