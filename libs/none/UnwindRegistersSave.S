@@ -235,6 +235,9 @@ DEFINE_LIBUNWIND_FUNCTION(unw_getcontext)
 #
 # Just trap for the time being.
 DEFINE_LIBUNWIND_FUNCTION(unw_getcontext)
+# Wrong solution, but does the trick for now
+# http://llvm.1065342.n5.nabble.com/llvm-dev-libunwind-Mips-Problem-using-gas-to-assemble-UnwindRegistersSave-S-tp86515.html
+ .set mips32r2
   teq $0, $0
 
 #elif defined(__powerpc64__)
