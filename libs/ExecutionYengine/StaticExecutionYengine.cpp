@@ -10,6 +10,7 @@
 #include <llvm/Support/CommandLine.h>
 #include <llvm/Support/Debug.h>
 #include <llvm/Support/Errc.h>
+#include <llvm/Support/FormatVariadic.h>
 
 #include <fcntl.h>
 #include <iostream>
@@ -22,6 +23,39 @@
 
 using namespace allvm;
 using namespace llvm;
+
+namespace allvm {
+#ifndef USE_QEMU_FEXECVE_WORKAROUND
+using ::fexecve;
+#else
+// cache intentionally only gives a RO fd for us to execute,
+// ensuring our usage isn't reliant on implementation or
+// actually having a corresponding file on disk.
+//
+// As a kludge workaround for use with QEMU user-mode emulation
+// attempt to break through this abstraction under the asssumption
+// the FD we have is actually backed on disk, and execute
+// that file directly instead.
+//
+// fexecve() doesn't work with transparent user-mode emulation
+// because the FD is CLOEXEC (as it "must" be, if you think about it)
+// which results in the fd being closed before it can be handed
+// to the appropriate "interpreter".
+//
+// Related: https://lkml.org/lkml/2015/1/9/676
+int fexecve(int fd, char *const argv[], char *const envp[]) {
+  char Buffer[PATH_MAX];
+  std::string procfdname = formatv("/proc/self/fd/{0}", fd).str();
+  ssize_t c = ::readlink(procfdname.c_str(), Buffer, sizeof(Buffer));
+  if (c < 0) {
+    perror("qemu fexecve workaround, readlink");
+    abort();
+  }
+  Buffer[c] = 0;
+  return execve(Buffer, argv, envp);
+}
+#endif
+} // end namespace allvm
 
 /****************************************************************
  * Output:      Uses the StaticBinaryCache to look up and execute the native
@@ -79,10 +113,10 @@ Error ExecutionYengine::tryStaticExec(StringRef Linker LLVM_ATTRIBUTE_UNUSED,
     exit(0); // TODO: returning here would be nice
   }
 
-  // Almost ready to launch this sucker
+  // Almost ready to launch this
   DEBUG(dbgs() << "fexecve: " << execFD << ": " << argv[0] << "\n");
-  fexecve(execFD, const_cast<char **>(argv.data()),
-          const_cast<char **>(Info.envp));
+  allvm::fexecve(execFD, const_cast<char **>(argv.data()),
+                 const_cast<char **>(Info.envp));
 
   perror("fexecve failed!"); // fexecve never returns if successful!
   // XXX: FIXME
