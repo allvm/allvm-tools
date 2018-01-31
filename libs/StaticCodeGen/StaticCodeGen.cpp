@@ -28,6 +28,27 @@ using namespace allvm;
 using namespace llvm;
 using namespace object;
 
+namespace {
+struct LLCDiagnosticHandler : public DiagnosticHandler {
+  bool *HasError;
+  LLCDiagnosticHandler(bool *HasErrorPtr) : HasError(HasErrorPtr) {}
+  bool handleDiagnostics(const DiagnosticInfo &DI) override {
+    if (DI.getSeverity() == DS_Error)
+      *HasError = true;
+
+    if (auto *Remark = dyn_cast<DiagnosticInfoOptimizationBase>(&DI))
+      if (!Remark->isEnabled())
+        return true;
+
+    DiagnosticPrinterRawOStream DP(errs());
+    errs() << LLVMContext::getDiagnosticMessagePrefix(DI.getSeverity()) << ": ";
+    DI.print(DP);
+    errs() << "\n";
+    return true;
+  }
+};
+} // end anonymous namespace
+
 static inline std::string getCPUStr(StringRef MCPU) {
   // If user asked for the 'native' CPU, autodetect here. If autodection fails,
   // this will set the CPU to an empty string which tells the target to
@@ -180,34 +201,14 @@ static Error compileModule(std::unique_ptr<Module> &M, raw_pwrite_stream &OS,
   // Run passes to do compilation.
   PM.run(*M);
 
-  auto HasError = *static_cast<bool *>(Context.getDiagnosticContext());
-  // TODO: Produce better error message?
-  if (HasError) {
+  auto HasError =
+    ((const LLCDiagnosticHandler *)(Context.getDiagHandlerPtr()))->HasError;
+  if (*HasError)
     return makeStaticCodeGenError("unknown error compiling to object file");
-  }
 
   return Error::success();
 }
 
-
-struct LLCDiagnosticHandler : public DiagnosticHandler {
-  bool *HasError;
-  LLCDiagnosticHandler(bool *HasErrorPtr) : HasError(HasErrorPtr) {}
-  bool handleDiagnostics(const DiagnosticInfo &DI) override {
-    if (DI.getSeverity() == DS_Error)
-      *HasError = true;
-
-    if (auto *Remark = dyn_cast<DiagnosticInfoOptimizationBase>(&DI))
-      if (!Remark->isEnabled())
-        return true;
-
-    DiagnosticPrinterRawOStream DP(errs());
-    errs() << LLVMContext::getDiagnosticMessagePrefix(DI.getSeverity()) << ": ";
-    DI.print(DP);
-    errs() << "\n";
-    return true;
-  }
-};
 
 namespace allvm {
 
