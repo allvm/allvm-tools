@@ -9,7 +9,7 @@
 //===----------------------------------------------------------------------===//
 #include "allvm/GitVersion.h"
 
-#include <lld/Driver/Driver.h>
+#include <lld/Common/Driver.h>
 
 #include <llvm/Support/PrettyStackTrace.h>
 #include <llvm/Support/Signals.h>
