@@ -16,7 +16,8 @@
 #include "allvm/ResourceAnchor.h"
 #include "allvm/ToolCommon.h"
 
-#include <llvm/CodeGen/CommandFlags.h>
+// XXX: Revisit this!
+//#include <llvm/CodeGen/CommandFlags.h>
 #include <llvm/ExecutionEngine/MCJIT.h>
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Module.h>
