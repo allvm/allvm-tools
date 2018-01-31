@@ -26,14 +26,7 @@ set(ALLVM_TEST_PARAMS
 set(LIT_REPORT ${CMAKE_CURRENT_BINARY_DIR}/report.xml)
 set(ALLVM_TEST_EXTRA_ARGS -sv --xunit-xml-output=${LIT_REPORT})
 
-# try to find 'lit'
-find_program(LIT_COMMAND llvm-lit)
-if (EXISTS ${LLVM_INSTALL_PREFIX}/lit/lit.py)
-  set(LIT_COMMAND ${LLVM_INSTALL_PREFIX}/lit/lit.py)
-endif()
-if (NOT LIT_COMMAND)
-  set(LIT_COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/utils/lit/lit.py)
-endif()
+set(LLVM_EXTERNAL_LIT ${CMAKE_SOURCE_DIR}/utils/lit/lit.py)
 
 # Check we have FileCheck utility, as indicator of the LLVM utilities.
 find_program(FILECHECK_PATH FileCheck HINTS ${LLVM_TOOLS_BINARY_DIR})
@@ -56,5 +49,3 @@ add_lit_testsuites(ALLVM ${CMAKE_CURRENT_SOURCE_DIR}
   PARAMS ${ALLVM_TEST_PARAMS}
   DEPENDS ${ALLVM_TEST_DEPENDS}
 )
-
-message(STATUS "Using lit command: ${LIT_COMMAND}")
