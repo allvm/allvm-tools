@@ -72,6 +72,13 @@ if (USE_CLANG_WERROR_FLAGS)
   list(APPEND LLVM_DEFINITIONS ${WARNING_FLAGS} -Werror)
 endif()
 
+option(USE_QEMU_FEXECVE_WORKAROUND "Try to avoid using fexecve() as workaround for use with qemu user emulation. YMMV." OFF)
+mark_as_advanced(USE_QEMU_FEXECVE_WORKAROUND)
+if (USE_QEMU_FEXECVE_WORKAROUND)
+  message(WARNING "Enabling unsupported fexecve() workaround...")
+  add_definitions(-DUSE_QEMU_FEXECVE_WORKAROUND)
+endif()
+
 find_library(LLD_AVAILABLE_AS_LIB lldELF)
 if ( LLD_AVAILABLE_AS_LIB )
   add_definitions(-DALLVM_alld_available)
