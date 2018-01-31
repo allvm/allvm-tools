@@ -153,7 +153,7 @@ int main(int argc, const char *argv[]) {
       outs().write(OutData->getBufferStart(), OutData->getBufferSize());
     }
   } else {
-    tool_output_file out(OutputFilename, EC, sys::fs::F_None);
+    ToolOutputFile out(OutputFilename, EC, sys::fs::F_None);
     ExitOnErr(errorCodeToError(EC));
 
     auto OutData = ExitOnErr(errorOrToExpected(MemoryBuffer::getFile(TempOut)));

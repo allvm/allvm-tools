@@ -83,9 +83,9 @@ static std::string getDefaultSuffix(OutputKind K) {
 
 static Error writeAsSingleBC(const WLLVMFile &File, StringRef Filename) {
   // Initialize output file, error early if unavailable
-  std::unique_ptr<tool_output_file> Out;
+  std::unique_ptr<ToolOutputFile> Out;
   std::error_code EC;
-  Out.reset(new tool_output_file(Filename, EC, sys::fs::F_None));
+  Out.reset(new ToolOutputFile(Filename, EC, sys::fs::F_None));
   if (EC)
     return make_error<StringError>(
         "error opening output file '" + Filename + "'", EC);
