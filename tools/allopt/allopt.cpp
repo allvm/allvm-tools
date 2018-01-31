@@ -60,7 +60,7 @@ Error runPipeline(StringRef Input, StringRef Output) {
   // Empty environment
   const char *env[] = {nullptr};
 
-  const StringRef *redirects[] = {&Input, &Output, nullptr};
+  Optional<StringRef> redirects[3] = {Input, Output, None};
 
   // XXX: Make these cl::opt's?
   unsigned secondsToWait = 0;
