@@ -10,7 +10,7 @@ namespace allvm {
 __attribute__((constructor)) void setVersionPrinter(void);
 void setVersionPrinter() {
   llvm::cl::AddExtraVersionPrinter(
-      []() { llvm::errs() << "ALLVM Tools: git-@GITVERSION@\n"; });
+      [](llvm::raw_ostream &OS) { OS << "ALLVM Tools: git-@GITVERSION@\n"; });
 }
 
 } // end namespace allvm
