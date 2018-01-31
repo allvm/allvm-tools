@@ -202,13 +202,12 @@ static Error compileModule(std::unique_ptr<Module> &M, raw_pwrite_stream &OS,
   PM.run(*M);
 
   auto HasError =
-    ((const LLCDiagnosticHandler *)(Context.getDiagHandlerPtr()))->HasError;
+      ((const LLCDiagnosticHandler *)(Context.getDiagHandlerPtr()))->HasError;
   if (*HasError)
     return makeStaticCodeGenError("unknown error compiling to object file");
 
   return Error::success();
 }
-
 
 namespace allvm {
 
