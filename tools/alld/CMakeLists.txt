@@ -2,7 +2,7 @@ add_llvm_tool(alld
   alld.cpp
 )
 
-target_link_libraries(alld PRIVATE ResourcePaths lldELF lldConfig lldCore)
+target_link_libraries(alld ResourcePaths lldELF lldConfig lldCore)
 
 llvm_config(alld
 # These are taken directly from lld/ELF/CMakeLists.txt:

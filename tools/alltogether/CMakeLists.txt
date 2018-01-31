@@ -11,6 +11,6 @@ set(LLVM_LINK_COMPONENTS
 add_llvm_tool(alltogether
   alltogether.cpp
 )
-target_link_libraries(alltogether PRIVATE liball ResourcePaths)
+target_link_libraries(alltogether liball ResourcePaths)
 
 add_definitions(${LLVM_DEFINITIONS})

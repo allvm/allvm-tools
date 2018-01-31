@@ -10,6 +10,6 @@ set(LLVM_LINK_COMPONENTS
 add_llvm_tool(wllvm-dump
   wllvm-dump.cpp
 )
-target_link_libraries(wllvm-dump PRIVATE wllvm)
+target_link_libraries(wllvm-dump wllvm)
 
 add_definitions(${LLVM_DEFINITIONS})
