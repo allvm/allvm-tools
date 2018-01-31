@@ -189,20 +189,25 @@ static Error compileModule(std::unique_ptr<Module> &M, raw_pwrite_stream &OS,
   return Error::success();
 }
 
-static void DiagnosticHandler(const DiagnosticInfo &DI, void *Context) {
-  bool *HasError = static_cast<bool *>(Context);
-  if (DI.getSeverity() == DS_Error)
-    *HasError = true;
 
-  if (auto *Remark = dyn_cast<DiagnosticInfoOptimizationBase>(&DI))
-    if (!Remark->isEnabled())
-      return;
+struct LLCDiagnosticHandler : public DiagnosticHandler {
+  bool *HasError;
+  LLCDiagnosticHandler(bool *HasErrorPtr) : HasError(HasErrorPtr) {}
+  bool handleDiagnostics(const DiagnosticInfo &DI) override {
+    if (DI.getSeverity() == DS_Error)
+      *HasError = true;
 
-  DiagnosticPrinterRawOStream DP(errs());
-  errs() << LLVMContext::getDiagnosticMessagePrefix(DI.getSeverity()) << ": ";
-  DI.print(DP);
-  errs() << "\n";
-}
+    if (auto *Remark = dyn_cast<DiagnosticInfoOptimizationBase>(&DI))
+      if (!Remark->isEnabled())
+        return true;
+
+    DiagnosticPrinterRawOStream DP(errs());
+    errs() << LLVMContext::getDiagnosticMessagePrefix(DI.getSeverity()) << ": ";
+    DI.print(DP);
+    errs() << "\n";
+    return true;
+  }
+};
 
 namespace allvm {
 
@@ -213,7 +218,8 @@ Error compileAllexe(Allexe &Input, raw_pwrite_stream &OS,
 
   // Set a diagnostic handler that doesn't exit on the first error.
   bool HasError = false;
-  Context.setDiagnosticHandler(DiagnosticHandler, &HasError);
+  Context.setDiagnosticHandler(
+      llvm::make_unique<LLCDiagnosticHandler>(&HasError));
 
   // Get module to be compiled.
   auto ExpM = Input.getModule(0, Context);
@@ -229,7 +235,7 @@ Error compileAllexe(Allexe &Input, raw_pwrite_stream &OS,
 
 // Initialize compilation flags to the llc default values.
 CompilationOptions::CompilationOptions()
-    : CMModel(CodeModel::Default), RelocModel(None), OLvl(CodeGenOpt::Default),
+    : CMModel(CodeModel::Small), RelocModel(None), OLvl(CodeGenOpt::Default),
       NoVerify(false), DisableSimplifyLibCalls(false), DisableFPElim(None),
       DisableTailCalls(None), StackRealign(false), TrapFuncName(None) {
 
@@ -353,7 +359,7 @@ compileAllexe(Allexe &Input, StringRef Filename,
     // Open the output file.
     std::error_code EC;
     sys::fs::OpenFlags OpenFlags = sys::fs::F_None;
-    auto FDOut = llvm::make_unique<tool_output_file>(Filename, EC, OpenFlags);
+    auto FDOut = llvm::make_unique<ToolOutputFile>(Filename, EC, OpenFlags);
     if (EC) {
       return makeStaticCodeGenError("error opening compilation output", EC);
     }
