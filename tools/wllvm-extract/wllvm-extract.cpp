@@ -133,10 +133,8 @@ static Error writeAsBitcodeArchive(const WLLVMFile &File, StringRef Filename) {
         Twine(unique_id++) + "-" + sys::path::filename(BCFilename));
     Members.push_back(std::move(*Member));
   }
-  return
-      writeArchive(Filename, Members, true /* writeSymTab */, Archive::K_GNU,
-                   true /* deterministic */, false /* thin */);
-
+  return writeArchive(Filename, Members, true /* writeSymTab */, Archive::K_GNU,
+                      true /* deterministic */, false /* thin */);
 }
 
 static Error writeAsAllexe(const WLLVMFile &File, StringRef Filename,
