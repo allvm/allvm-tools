@@ -15,7 +15,7 @@ set(LLVM_LINK_COMPONENTS
   TransformUtils
 )
 
-add_llvm_library(Cache
+add_allvm_library(Cache
   JITCache.cpp
   StaticBinaryCache.cpp
   LINK_LIBS

@@ -113,8 +113,10 @@ install(DIRECTORY include/allvm ${ALLVM_INCLUDE_DIR}/allvm
 ###
 
 include(CheckFormat)
+include(Package)
 include(Version)
 
 add_subdirectory (libs)
 add_subdirectory (tools)
 add_subdirectory (test)
+

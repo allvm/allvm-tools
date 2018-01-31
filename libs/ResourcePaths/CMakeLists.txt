@@ -3,7 +3,7 @@ set(LLVM_LINK_COMPONENTS
   Support
 )
 
-add_llvm_library(ResourcePaths
+add_allvm_library(ResourcePaths
   ResourcePaths.cpp
 )
 

@@ -3,7 +3,7 @@ set(LLVM_LINK_COMPONENTS
   Core
 )
 
-add_llvm_library(Passes
+add_allvm_library(Passes
   DeInlineAsm.cpp
 )
 
