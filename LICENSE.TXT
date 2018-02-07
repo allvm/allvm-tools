@@ -61,8 +61,7 @@ licenses, and/or restrictions:
 
 Program             Directory
 -------             ---------
-Google Test         llvm/utils/unittest/googletest
-OpenBSD regex       llvm/lib/Support/{reg*, COPYRIGHT.regex}
-pyyaml tests        llvm/test/YAMLParser/{*.data, LICENSE.TXT}
-ARM contributions   llvm/lib/Target/ARM/LICENSE.TXT
-md5 contributions   llvm/lib/Support/MD5.cpp llvm/include/llvm/Support/MD5.h
+libunwind           libs/none/unwind
+libzip              libs/archive-rw
+llvm-lit            utils/lit
+musl                libs/none/musl
