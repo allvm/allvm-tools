@@ -1,19 +1,19 @@
 ==============================================================================
-LLVM Release License
+ALLVM Release License
 ==============================================================================
 University of Illinois/NCSA
 Open Source License
 
-Copyright (c) 2003-2017 University of Illinois at Urbana-Champaign.
+Copyright (c) 2003-2018 University of Illinois at Urbana-Champaign.
 All rights reserved.
 
 Developed by:
 
-    LLVM Team
+    ALLVM Team
 
     University of Illinois at Urbana-Champaign
 
-    http://llvm.org
+    http://allvm.org
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal with
@@ -29,7 +29,7 @@ so, subject to the following conditions:
       this list of conditions and the following disclaimers in the
       documentation and/or other materials provided with the distribution.
 
-    * Neither the names of the LLVM Team, University of Illinois at
+    * Neither the names of the ALLVM Team, University of Illinois at
       Urbana-Champaign, nor the names of its contributors may be used to
       endorse or promote products derived from this Software without specific
       prior written permission.
@@ -43,16 +43,16 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH THE
 SOFTWARE.
 
 ==============================================================================
-Copyrights and Licenses for Third Party Software Distributed with LLVM:
+Copyrights and Licenses for Third Party Software Distributed with ALLVM:
 ==============================================================================
-The LLVM software contains code written by third parties.  Such software will
+The ALLVM software contains code written by third parties.  Such software will
 have its own individual LICENSE.TXT file in the directory in which it appears.
 This file will describe the copyrights, license, and restrictions which apply
 to that code.
 
 The disclaimer of warranty in the University of Illinois Open Source License
-applies to all code in the LLVM Distribution, and nothing in any of the
-other licenses gives permission to use the names of the LLVM Team or the
+applies to all code in the ALLVM Distribution, and nothing in any of the
+other licenses gives permission to use the names of the ALLVM Team or the
 University of Illinois to endorse or promote products derived from this
 Software.
 
