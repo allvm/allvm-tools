@@ -119,13 +119,7 @@ You only need to set `-D LLVM_DIR=...` when cmake has trouble finding your LLVM 
 
 ## Troubleshooting
 
-See the [issues page](https://gitlab.engr.illinois.edu/llvm/allvm/issues) for known problems or to report a new one.
-
-The following issue is believed to be fixed regardless of whether allvm is built with GCC or Clang.
-However it frequently crops up again.
-If you get these errors in the latest version of ALLVM please add a comment to the issue.
-
-* [Errors in RuntimeDyldELF.cpp when running alley](#1)
+See the [issues page](https://github.com/allvm/allvm-tools/issues) for known problems or to report a new one.
 
 
 ## Coding Style
