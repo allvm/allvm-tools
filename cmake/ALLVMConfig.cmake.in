@@ -1,0 +1,11 @@
+set(ALLVM_VERSION 0.1) # "@ALLVM_VERSION")
+
+@PACKAGE_INIT@
+
+set_and_check(ALLVM_INCLUDE_DIR "@PACKAGE_ALLVM_INCLUDE_INSTALL_DIR@")
+set_and_check(ALLVM_LIB_DIR "@PACKAGE_ALLVM_LIB_INSTALL_DIR@")
+set_and_check(ALLVM_PREFIX "@PACKAGE_ALLVM_PREFIX@")
+
+# Relative include
+get_filename_component(SELF_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+include(${SELF_DIR}/ALLVMTargets.cmake)

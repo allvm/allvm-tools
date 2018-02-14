@@ -1,0 +1,57 @@
+This file is a partial list of people who have contributed to the ALLVM
+project.  If you have contributed a patch or made some other contribution to
+ALLVM, please submit a patch to this file to add yourself, and it will be
+done!
+
+The list is sorted by surname and formatted to allow easy grepping and
+beautification by scripts.  The fields are: name (N), email (E), web-address
+(W), PGP key ID and fingerprint (P), description (D), snail-mail address
+(S), and (I) IRC handle.
+
+N: Vikram Adve
+E: vadve@illinois.edu
+W: http://vadve.cs.illinois.edu
+I: vadve
+D: Provider of much wisdom, and motivator for ALLVM.
+
+N: Sean Bartell
+E: yotann@yotann.org
+I: smbarte2
+D: CMake port, hands-on testing and feedback.
+
+N: Yishen Chen
+E: ychen306@illinois.edu
+D: Creator of liball and all-info.
+
+N: Joshua Cranmer
+E: Pidgeot18@gmail.com
+W: http://quetzalcoatal.blogspot.com
+I: jcranmer
+D: Co-founder, early architect and implementation. Creator of DeInlineAsm.
+D: Salutatory confusion master, encyclopædic knowledge about everything.  Meow.
+
+N: Sandeep Dasgupta
+E: sdasgup3@illinois.edu
+W: http://web.engr.illinois.edu/~sdasgup3
+I: sandeep10
+I: Guest2877
+D: Code caching.
+
+N: Will Dietz
+E: w@wdtz.org
+W: https://wdtz.org
+I: dtzWill
+D: Co-founder, primary architect.
+D: Nix evangelist. Meow.
+
+N: Theodoros Kasampalis
+E: kasampa2@illinois.edu
+I: theo25
+D: Static code generation and linking (alld).
+
+N: Richard Wei
+E: rxrwei@gmail.com
+W: http://rxwei.me
+I: rxwei
+D: Logos, bc2allvm fixes.
+D: Meow.

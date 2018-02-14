@@ -12,7 +12,7 @@ assert useClangWerrorFlags -> stdenv.cc.isClang;
 
 let
   inherit (stdenv) lib;
-  gitrev = lib.commitIdFromGitRepo ../.git;
+  gitrev = if (builtins.pathExists ../.git) then lib.commitIdFromGitRepo ../.git else "0000000000000000000000000000000000000000";
   gitshort = builtins.substring 0 7 gitrev;
 
   sourceFilter = name: type: let baseName = baseNameOf (toString name); in

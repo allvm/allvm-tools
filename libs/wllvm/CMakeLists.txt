@@ -6,7 +6,7 @@ set(LLVM_LINK_COMPONENTS
   Linker
 )
 
-add_llvm_library(wllvm
+add_allvm_library(wllvm
   WLLVMFile.cpp
   WLLVMLink.cpp
 )
