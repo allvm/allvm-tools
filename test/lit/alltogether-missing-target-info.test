@@ -1,0 +1,5 @@
+// XFAIL: *
+// #1
+
+// RUN: alltogether %p/Inputs/missing-target-info -o %t
+
