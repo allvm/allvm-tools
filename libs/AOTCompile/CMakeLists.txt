@@ -14,7 +14,7 @@ set(LLVM_LINK_COMPONENTS
   TransformUtils
 )
 
-add_llvm_library(AOTCompile
+add_allvm_library(AOTCompile
   AOTCompile.cpp
   LINK_LIBS Cache StaticCodeGen
 )

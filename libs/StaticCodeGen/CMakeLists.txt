@@ -14,7 +14,7 @@ set(LLVM_LINK_COMPONENTS
   TransformUtils
 )
 
-add_llvm_library(StaticCodeGen
+add_allvm_library(StaticCodeGen
   StaticCodeGen.cpp
   ALLVMLinker.cpp
   LINK_LIBS liball

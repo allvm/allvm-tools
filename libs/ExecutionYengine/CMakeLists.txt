@@ -15,7 +15,7 @@ set(LLVM_LINK_COMPONENTS
   TransformUtils
 )
 
-add_llvm_library(ExecutionYengine
+add_allvm_library(ExecutionYengine
   JITExecutionYengine.cpp
   LinuxJIT.cpp # select this based on platform
   StaticExecutionYengine.cpp
