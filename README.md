@@ -8,6 +8,11 @@
 
 **Website**: http://allvm.org
 
+## Introduction to ALLVM
+
+**FEAST'17 Keynote**: [Slides (pdf)](https://tc.gtisc.gatech.edu/feast17/papers/allvm.pdf) [Program (with talk abstract)](https://tc.gtisc.gatech.edu/feast17/program.html)
+
+
 ## Nix Quickstart
 
 ### Note
