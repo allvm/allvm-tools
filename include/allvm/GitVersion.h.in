@@ -16,8 +16,8 @@ __attribute__((constructor)) void setVersionPrinter(void);
 void setVersionPrinter() {
   llvm::cl::SetVersionPrinter([]() {
     llvm::raw_ostream &OS = llvm::outs();
-    OS << "ALLVM Tools (http://allvm.org): version @GITVERSION@\n";
-    OS << "  Using LLVM " << LLVM_VERSION_STRING << "\n";
+    OS << "ALLVM Tools (http://allvm.org) @GITVERSION@\n";
+    OS << "  LLVM version " << LLVM_VERSION_STRING << "\n";
 
     // Following is mostly from lib/Support/CommandLine.cpp
     OS << "  ";
