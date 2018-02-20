@@ -10,9 +10,9 @@
 
 #include "allvm/Allexe.h"
 #include "allvm/DeInlineAsm.h"
-#include "allvm/ToolCommon.h"
 #include "allvm/ModuleFlags.h"
 #include "allvm/ResourceAnchor.h"
+#include "allvm/ToolCommon.h"
 #include "allvm/WLLVMFile.h"
 
 #include <llvm/Bitcode/BitcodeWriter.h>
@@ -50,8 +50,7 @@ cl::opt<std::string> InputFilename(cl::Positional, cl::Required,
                                    AT.getCat());
 
 cl::opt<std::string> OutputFilename("o", cl::desc("Override output filename"),
-                                    cl::value_desc("filename"),
-                                    AT.getCat());
+                                    cl::value_desc("filename"), AT.getCat());
 
 cl::opt<bool> StripDebug("strip-debug",
                          cl::desc("Strip debugging information from bitcode"),

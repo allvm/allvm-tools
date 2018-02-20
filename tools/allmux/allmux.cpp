@@ -11,9 +11,9 @@
 #include "allvm/Allexe.h"
 #include "allvm/DeInlineAsm.h"
 #include "allvm/ExitOnError.h"
-#include "allvm/ToolCommon.h"
 #include "allvm/ModuleFlags.h"
 #include "allvm/ResourceAnchor.h"
+#include "allvm/ToolCommon.h"
 
 #include "CtorUtils.h"
 
@@ -43,11 +43,9 @@ namespace {
 ALLVMTool AT("allmux");
 // TODO: "two-or-more"
 cl::list<std::string> InputFiles(cl::Positional, cl::OneOrMore,
-                                 cl::desc("<input allexes>"),
-                                 AT.getCat());
+                                 cl::desc("<input allexes>"), AT.getCat());
 cl::opt<std::string> OutputFilename("o", cl::desc("Override output filename"),
-                                    cl::value_desc("filename"),
-                                    AT.getCat());
+                                    cl::value_desc("filename"), AT.getCat());
 cl::opt<bool> ForceOutput("f", cl::desc("Replace output allexe if it exists"),
                           cl::init(false), AT.getCat());
 cl::opt<bool> NoInternalize("no-internalize",

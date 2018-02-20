@@ -3,8 +3,8 @@
 #include "allvm/ALLVMLinker.h"
 #include "allvm/AOTCompile.h"
 #include "allvm/ExitOnError.h"
-#include "allvm/ToolCommon.h"
 #include "allvm/ResourceAnchor.h"
+#include "allvm/ToolCommon.h"
 
 #include <llvm/CodeGen/CommandFlags.h>
 #include <llvm/ExecutionEngine/MCJIT.h>
@@ -26,11 +26,10 @@ using namespace llvm;
 namespace {
 ALLVMTool AT("alley", "allvm runtime executor");
 cl::opt<std::string> LibNone("libnone", cl::desc("Path of libnone.a"),
-      AT.getCat());
-
-cl::opt<std::string> CrtBits("crtbits",
-                             cl::desc("Path to the crt* object files"),
                              AT.getCat());
+
+cl::opt<std::string>
+    CrtBits("crtbits", cl::desc("Path to the crt* object files"), AT.getCat());
 
 cl::opt<std::string> Linker("linker",
                             cl::desc("Linker to use for static compilation"),
@@ -40,8 +39,7 @@ cl::opt<std::string> Linker("linker",
                             AT.getCat());
 
 cl::opt<std::string> InputFilename(cl::Positional, cl::Required,
-                                   cl::desc("<input allvm file>"),
-                                   AT.getCat());
+                                   cl::desc("<input allvm file>"), AT.getCat());
 
 cl::list<std::string> InputArgv(cl::ConsumeAfter,
                                 cl::desc("<program arguments>..."),

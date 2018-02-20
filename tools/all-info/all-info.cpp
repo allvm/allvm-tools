@@ -1,7 +1,7 @@
 #include "allvm/Allexe.h"
 #include "allvm/ExitOnError.h"
-#include "allvm/ToolCommon.h"
 #include "allvm/ResourceAnchor.h"
+#include "allvm/ToolCommon.h"
 
 #include <llvm/Support/CommandLine.h>
 #include <llvm/Support/PrettyStackTrace.h>
@@ -13,9 +13,8 @@ using namespace allvm;
 
 namespace {
 ALLVMTool AT("all-info");
-cl::opt<std::string> InputFilename(cl::Positional,
-                                   cl::desc("<input Allexe file>"),
-                                   AT.getCat());
+cl::opt<std::string>
+    InputFilename(cl::Positional, cl::desc("<input Allexe file>"), AT.getCat());
 allvm::ExitOnError ExitOnErr;
 
 std::string crcToHex(uint32_t crc) {

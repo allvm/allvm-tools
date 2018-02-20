@@ -11,8 +11,8 @@
 #include "allvm/Allexe.h"
 #include "allvm/ExitOnError.h"
 #include "allvm/FileRemoverPlus.h"
-#include "allvm/ToolCommon.h"
 #include "allvm/ResourceAnchor.h"
+#include "allvm/ToolCommon.h"
 
 #include <llvm/ADT/SmallString.h>
 #include <llvm/CodeGen/CommandFlags.h>
@@ -41,12 +41,10 @@ ALLVMTool AT("alltogether");
 cl::opt<bool> Overwrite("f", cl::desc("overwrite existing alltogether'd file"),
                         cl::init(false), AT.getCat());
 cl::opt<std::string> InputFilename(cl::Positional, cl::Required,
-                                   cl::desc("<input allvm file>"),
-                                   AT.getCat());
+                                   cl::desc("<input allvm file>"), AT.getCat());
 
 cl::opt<std::string> OutputFilename("o", cl::desc("Override output filename"),
-                                    cl::value_desc("filename"),
-                                    AT.getCat());
+                                    cl::value_desc("filename"), AT.getCat());
 
 cl::opt<bool> DisableOpt("disable-opt",
                          cl::desc("Disable optimizations, only link"),
@@ -54,7 +52,7 @@ cl::opt<bool> DisableOpt("disable-opt",
 
 cl::opt<bool> Quiet("quiet", cl::desc("Don't print informational messages"));
 cl::alias QuietA("q", cl::desc("Alias for -quiet"), cl::aliasopt(Quiet),
-    AT.getCat());
+                 AT.getCat());
 
 cl::opt<bool>
     NoInternalizeHidden("no-internalize-hidden",
