@@ -20,10 +20,8 @@ class ALLVMTool {
   llvm::cl::OptionCategory ALLVMOptCat{CatName};
 
   auto getVersionPrinter() {
-    static std::string CapturedName = Name;
-    return []() {
-      llvm::raw_ostream &OS = llvm::outs();
-      OS << CapturedName << " (ALLVM Tools) " << allvm::getALLVMVersion()
+    return [Name = this->Name](auto &OS) {
+      OS << Name << " (ALLVM Tools) " << allvm::getALLVMVersion()
          << "\n";
       OS << "  ALLVM Project (http://allvm.org)\n";
       OS << "  LLVM version " << LLVM_VERSION_STRING << "\n";
