@@ -21,8 +21,7 @@ class ALLVMTool {
 
   auto getVersionPrinter() {
     return [Name = this->Name](auto &OS) {
-      OS << Name << " (ALLVM Tools) " << allvm::getALLVMVersion()
-         << "\n";
+      OS << Name << " (ALLVM Tools) " << allvm::getALLVMVersion() << "\n";
       OS << "  ALLVM Project (http://allvm.org)\n";
       OS << "  LLVM version " << LLVM_VERSION_STRING << "\n";
 
@@ -42,7 +41,6 @@ class ALLVMTool {
       OS << ".\n"
          << "  Default target: " << llvm::sys::getDefaultTargetTriple() << '\n'
          << "  Host CPU: " << CPU << '\n';
-
     };
   }
 
