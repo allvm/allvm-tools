@@ -9,5 +9,5 @@ RUN: allopt --version|& FileCheck %s
 RUN: allmux --version|& FileCheck %s
 
 CHECK: ALLVM Tools
-CHECK: git
+CHECK: version
 CHECK-NOT: NOTFOUND
