@@ -60,8 +60,6 @@ public:
   }
 
   auto getCat() { return llvm::cl::cat(ALLVMOptCat); }
-  const auto &getName() { return Name; }
-  const auto &getOverview() { return Overview; }
 };
 
 } // end anonymous namespace
