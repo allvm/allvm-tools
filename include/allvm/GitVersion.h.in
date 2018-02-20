@@ -7,7 +7,7 @@
 
 namespace allvm {
 
-inline llvm::StringRef getALLVMVersion() { return "@GITVERSION@"; };
+inline llvm::StringRef getALLVMVersion() { return "@GITVERSION@"; }
 
 } // end namespace allvm
 
