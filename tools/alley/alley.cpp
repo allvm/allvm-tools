@@ -24,34 +24,39 @@ using namespace allvm;
 using namespace llvm;
 
 namespace {
-cl::opt<std::string> LibNone("libnone", cl::desc("Path of libnone.a"));
+cl::OptionCategory AlleyOptCat("alley options");
+cl::opt<std::string> LibNone("libnone", cl::desc("Path of libnone.a"),
+                             cl::cat(AlleyOptCat));
 
 cl::opt<std::string> CrtBits("crtbits",
-                             cl::desc("Path to the crt* object files"));
+                             cl::desc("Path to the crt* object files"),
+                             cl::cat(AlleyOptCat));
 
 cl::opt<std::string> Linker("linker",
-                            cl::desc("Linker to use for static compilation")
+                            cl::desc("Linker to use for static compilation"),
 #ifndef ALLVM_alld_available
-                                ,
-                            cl::init("ld")
+                            cl::init("ld"),
 #endif
-                                );
+                            cl::cat(AlleyOptCat));
 
 cl::opt<std::string> InputFilename(cl::Positional, cl::Required,
-                                   cl::desc("<input allvm file>"));
+                                   cl::desc("<input allvm file>"),
+                                   cl::cat(AlleyOptCat));
 
 cl::list<std::string> InputArgv(cl::ConsumeAfter,
-                                cl::desc("<program arguments>..."));
+                                cl::desc("<program arguments>..."),
+                                cl::cat(AlleyOptCat));
 
 // TODO: Enable forcing use of the JIT even when we have a static version cached
 // cl::opt<bool> ForceJIT("force-jit", cl::init(false),
 //                              cl::desc("Force using the JIT"));
 
 cl::opt<bool> ForceStatic("force-static", cl::init(false),
-                          cl::desc("Force using static code path"));
+                          cl::desc("Force using static code path"),
+                          cl::cat(AlleyOptCat));
 
 cl::opt<bool> NoExec("noexec", cl::desc("Don't actually execute the program"),
-                     cl::init(false), cl::Hidden);
+                     cl::init(false), cl::Hidden, cl::cat(AlleyOptCat));
 
 allvm::ExitOnError ExitOnErr;
 
@@ -69,6 +74,7 @@ int main(int argc, const char **argv, const char **envp) {
   LibNone.setInitialValue(RP.LibNonePath);
   CrtBits.setInitialValue(RP.CrtBitsPath);
 
+  cl::HideUnrelatedOptions(AlleyOptCat);
   cl::ParseCommandLineOptions(argc, argv, "allvm runtime executor");
   ExitOnErr.setBanner(std::string(argv[0]) + ": ");
 

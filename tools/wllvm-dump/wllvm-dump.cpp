@@ -19,14 +19,18 @@
 using namespace allvm;
 using namespace llvm;
 
-static cl::opt<std::string>
+namespace {
+cl::OptionCategory WllvmDumpOptCat("wllvm-dump options");
+cl::opt<std::string>
     InputFilename(cl::Positional, cl::Required,
-                  cl::desc("<input file built with wllvm>"));
+                  cl::desc("<input file built with wllvm>"), cl::cat(WllvmDumpOptCat));
+} // end anonymous namespace
 
 int main(int argc, const char **argv) {
   sys::PrintStackTraceOnErrorSignal(argv[0]);
   PrettyStackTraceProgram X(argc, argv);
   llvm_shutdown_obj Y; // Call llvm_shutdown() on exit.
+  cl::HideUnrelatedOptions(WllvmDumpOptCat);
   cl::ParseCommandLineOptions(argc, argv);
 
   // Open the specified file

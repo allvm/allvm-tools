@@ -37,25 +37,26 @@ using namespace allvm;
 using namespace llvm;
 
 namespace {
+cl::OptionCategory AlltogetherOptCat("alltogether options");
 cl::opt<bool> Overwrite("f", cl::desc("overwrite existing alltogether'd file"),
-                        cl::init(false));
+                        cl::init(false), cl::cat(AlltogetherOptCat));
 cl::opt<std::string> InputFilename(cl::Positional, cl::Required,
-                                   cl::desc("<input allvm file>"));
+                                   cl::desc("<input allvm file>"), cl::cat(AlltogetherOptCat));
 
 cl::opt<std::string> OutputFilename("o", cl::desc("Override output filename"),
-                                    cl::value_desc("filename"));
+                                    cl::value_desc("filename"), cl::cat(AlltogetherOptCat));
 
 cl::opt<bool> DisableOpt("disable-opt",
                          cl::desc("Disable optimizations, only link"),
-                         cl::init(false));
+                         cl::init(false), cl::cat(AlltogetherOptCat));
 
 cl::opt<bool> Quiet("quiet", cl::desc("Don't print informational messages"));
-cl::alias QuietA("q", cl::desc("Alias for -quiet"), cl::aliasopt(Quiet));
+cl::alias QuietA("q", cl::desc("Alias for -quiet"), cl::aliasopt(Quiet), cl::cat(AlltogetherOptCat));
 
 cl::opt<bool>
     NoInternalizeHidden("no-internalize-hidden",
                         cl::desc("Don't internalize hidden variables."),
-                        cl::init(false));
+                        cl::init(false), cl::cat(AlltogetherOptCat));
 
 inline void info(const Twine &Message) {
   if (!Quiet) {
@@ -77,6 +78,8 @@ int main(int argc, const char **argv) {
   sys::PrintStackTraceOnErrorSignal(argv[0]);
   PrettyStackTraceProgram X(argc, argv);
   llvm_shutdown_obj Y; // Call llvm_shutdown() on exit.
+
+  cl::HideUnrelatedOptions(AlltogetherOptCat);
   cl::ParseCommandLineOptions(argc, argv);
   ExitOnErr.setBanner(std::string(argv[0]) + ": ");
 

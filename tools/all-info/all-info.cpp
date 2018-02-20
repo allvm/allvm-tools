@@ -12,8 +12,10 @@ using namespace llvm;
 using namespace allvm;
 
 namespace {
+cl::OptionCategory AllInfoOptCat("all-info options");
 cl::opt<std::string> InputFilename(cl::Positional,
-                                   cl::desc("<input Allexe file>"));
+                                   cl::desc("<input Allexe file>"),
+                                   cl::cat(AllInfoOptCat));
 allvm::ExitOnError ExitOnErr;
 
 std::string crcToHex(uint32_t crc) {
@@ -30,6 +32,7 @@ int main(int argc, const char **argv) {
   PrettyStackTraceProgram X(argc, argv);
   llvm_shutdown_obj Y; // Call llvm_shutdown() on exit.
 
+  cl::HideUnrelatedOptions(AllInfoOptCat);
   cl::ParseCommandLineOptions(argc, argv);
 
   ResourcePaths RP = ResourcePaths::getAnchored(argv[0]);

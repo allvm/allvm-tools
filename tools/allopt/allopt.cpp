@@ -31,19 +31,20 @@ using namespace allvm;
 using namespace llvm;
 
 namespace {
+cl::OptionCategory AllOptOptCat("allopt options");
 cl::opt<std::string> InputFilename("i", cl::init("-"),
-                                   cl::desc("<input allexe>"));
+                                   cl::desc("<input allexe>"), cl::cat(AllOptOptCat));
 cl::opt<std::string> OutputFilename("o", cl::init("-"),
-                                    cl::desc("<output allexe>"));
+                                    cl::desc("<output allexe>"), cl::cat(AllOptOptCat));
 cl::opt<bool> ForceOutput("f", cl::desc("Replace output allexe if it exists"),
-                          cl::init(false));
+                          cl::init(false), cl::cat(AllOptOptCat));
 cl::opt<bool>
     AnalyzeOnly("analyze",
                 cl::desc("don't expect bitcode as output of pipeline"),
-                cl::init(false));
+                cl::init(false), cl::cat(AllOptOptCat));
 cl::opt<std::string> Pipeline(cl::Positional, cl::Required,
-                              cl::desc("<pipeline command>"));
-cl::list<std::string> Args(cl::ConsumeAfter, cl::desc("<pipeline arguments>"));
+                              cl::desc("<pipeline command>"), cl::cat(AllOptOptCat));
+cl::list<std::string> Args(cl::ConsumeAfter, cl::desc("<pipeline arguments>"), cl::cat(AllOptOptCat));
 
 allvm::ExitOnError ExitOnErr;
 
@@ -84,6 +85,7 @@ int main(int argc, const char *argv[]) {
 
   ResourcePaths RP = ResourcePaths::getAnchored(argv[0]);
 
+  cl::HideUnrelatedOptions(AllOptOptCat);
   cl::ParseCommandLineOptions(argc, argv);
   ExitOnErr.setBanner(std::string(argv[0]) + ": ");
 
