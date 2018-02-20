@@ -2,7 +2,11 @@
 { stdenv
 , cmake, git, python2
 , llvm, clang, lld, zlib
-, buildDocs ? true, pandoc, texlive
+# Only try to build docs on x86/x86_64,
+# to avoid haskell dependency elsewhere
+# Not only is it rather heavy but not always supported
+, buildDocs ? stdenv.hostPlatform.isX86 or false
+, pandoc, texlive
 , useClangWerrorFlags ? stdenv.cc.isClang
 }:
 
