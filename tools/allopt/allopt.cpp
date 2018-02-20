@@ -32,7 +32,6 @@ using namespace llvm;
 
 namespace {
 ALLVMTool AT("allopt");
-cl::OptionCategory AllOptOptCat("allopt options");
 cl::opt<std::string> InputFilename("i", cl::init("-"),
                                    cl::desc("<input allexe>"), AT.getCat());
 cl::opt<std::string> OutputFilename("o", cl::init("-"),
