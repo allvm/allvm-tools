@@ -33,7 +33,7 @@ stdenv.mkDerivation {
   nativeBuildInputs = [ cmake git python2 ] ++ lib.optionals buildDocs [ pandoc tex ];
   buildInputs = [ llvm lld zlib ];
 
-  outputs = [ "out" "dev" ];
+  outputs = [ "out" "dev" ] ++ stdenv.lib.optional buildDocs "doc";
 
   doCheck = true;
 
