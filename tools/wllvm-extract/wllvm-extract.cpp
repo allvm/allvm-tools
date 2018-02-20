@@ -10,7 +10,7 @@
 
 #include "allvm/Allexe.h"
 #include "allvm/DeInlineAsm.h"
-#include "allvm/GitVersion.h"
+#include "allvm/ToolCommon.h"
 #include "allvm/ModuleFlags.h"
 #include "allvm/ResourceAnchor.h"
 #include "allvm/WLLVMFile.h"
@@ -32,12 +32,13 @@ using namespace allvm;
 using namespace llvm;
 
 namespace {
+ALLVMTool AT("wllvm-extract");
+
 enum class OutputKind { SingleBitcode, BitcodeArchive, Allexe };
 
-cl::OptionCategory WllvmExtractOptCat("wllvm-extract options");
 cl::opt<OutputKind> EmitOutputKind(
     "output-kind", cl::desc("Choose output kind"),
-    cl::init(OutputKind::SingleBitcode), cl::cat(WllvmExtractOptCat),
+    cl::init(OutputKind::SingleBitcode), AT.getCat(),
     cl::values(clEnumValN(OutputKind::SingleBitcode, "single-bc",
                           "Single bitcode file"),
                clEnumValN(OutputKind::BitcodeArchive, "archive",
@@ -46,22 +47,22 @@ cl::opt<OutputKind> EmitOutputKind(
 
 cl::opt<std::string> InputFilename(cl::Positional, cl::Required,
                                    cl::desc("<input file built with wllvm>"),
-                                   cl::cat(WllvmExtractOptCat));
+                                   AT.getCat());
 
 cl::opt<std::string> OutputFilename("o", cl::desc("Override output filename"),
                                     cl::value_desc("filename"),
-                                    cl::cat(WllvmExtractOptCat));
+                                    AT.getCat());
 
 cl::opt<bool> StripDebug("strip-debug",
                          cl::desc("Strip debugging information from bitcode"),
-                         cl::init(false), cl::cat(WllvmExtractOptCat));
+                         cl::init(false), AT.getCat());
 
 cl::opt<bool> PreserveAsm("preserve-asm",
                           cl::desc("Don't attempt to replace inline ASM code"),
-                          cl::init(false), cl::cat(WllvmExtractOptCat));
+                          cl::init(false), AT.getCat());
 
 cl::opt<bool> ForceOutput("f", cl::desc("Replace output allexe if it exists"),
-                          cl::init(false), cl::cat(WllvmExtractOptCat));
+                          cl::init(false), AT.getCat());
 
 void runDeInlineAsm(Module &M) {
   ModulePassManager MPM;
@@ -183,8 +184,7 @@ int main(int argc, const char **argv) {
   sys::PrintStackTraceOnErrorSignal(argv[0]);
   PrettyStackTraceProgram X(argc, argv);
   llvm_shutdown_obj Y; // Call llvm_shutdown() on exit.
-  cl::HideUnrelatedOptions(WllvmExtractOptCat);
-  cl::ParseCommandLineOptions(argc, argv);
+  AT.parseCLOpts(argc, argv);
 
   // Open the specified file
   auto WLLVMFile = WLLVMFile::open(InputFilename);

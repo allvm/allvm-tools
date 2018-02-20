@@ -11,7 +11,7 @@
 #include "allvm/Allexe.h"
 #include "allvm/DeInlineAsm.h"
 #include "allvm/ExitOnError.h"
-#include "allvm/GitVersion.h"
+#include "allvm/ToolCommon.h"
 #include "allvm/ModuleFlags.h"
 #include "allvm/ResourceAnchor.h"
 
@@ -32,24 +32,24 @@ using namespace allvm;
 using namespace llvm;
 
 namespace {
-cl::OptionCategory BC2AllvmOptCat("bc2allvm options");
+ALLVMTool AT("bc2allvm");
 cl::opt<std::string> MainFile(cl::Positional, cl::Required,
                               cl::desc("<main LLVM bitcode file (or ll)>"),
-                              cl::cat(BC2AllvmOptCat));
+                              AT.getCat());
 cl::list<std::string>
     InputFiles(cl::Positional, cl::ZeroOrMore,
                cl::desc("<input LLVM bitcode file (or ll)>..."),
-               cl::cat(BC2AllvmOptCat));
+               AT.getCat());
 
 cl::opt<std::string> OutputFilename("o", cl::desc("Override output filename"),
                                     cl::value_desc("filename"),
-                                    cl::cat(BC2AllvmOptCat));
+                                    AT.getCat());
 cl::opt<bool> ForceOutput("f", cl::desc("Replace output allexe if it exists"),
-                          cl::init(false), cl::cat(BC2AllvmOptCat));
+                          cl::init(false), AT.getCat());
 
 cl::opt<bool> PreserveAsm("preserve-asm",
                           cl::desc("Don't attempt to replace inline ASM code"),
-                          cl::init(false), cl::cat(BC2AllvmOptCat));
+                          cl::init(false), AT.getCat());
 
 allvm::ExitOnError ExitOnErr;
 
@@ -62,8 +62,7 @@ int main(int argc, const char **argv) {
 
   ResourcePaths RP = ResourcePaths::getAnchored(argv[0]);
 
-  cl::HideUnrelatedOptions(BC2AllvmOptCat);
-  cl::ParseCommandLineOptions(argc, argv);
+  AT.parseCLOpts(argc, argv);
   ExitOnErr.setBanner(std::string(argv[0]) + ": ");
 
   // Figure out where we're writing the output

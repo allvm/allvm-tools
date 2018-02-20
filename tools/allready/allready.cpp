@@ -13,7 +13,7 @@
 #include "allvm/ALLVMLinker.h"
 #include "allvm/AOTCompile.h"
 #include "allvm/ExitOnError.h"
-#include "allvm/GitVersion.h"
+#include "allvm/ToolCommon.h"
 #include "allvm/ResourceAnchor.h"
 
 #include <llvm/CodeGen/CommandFlags.h>
@@ -33,24 +33,23 @@ using namespace allvm;
 using namespace llvm;
 
 namespace {
-cl::OptionCategory AllreadyOptCat("allready options");
-cl::opt<std::string> LibNone("libnone", cl::desc("Path of libnone.a"),
-                             cl::cat(AllreadyOptCat));
+ALLVMTool AT("allready", "static codegen -> cache");
+cl::opt<std::string> LibNone("libnone", cl::desc("Path of libnone.a"), AT.getCat());
 
 cl::opt<std::string> CrtBits("crtbits",
                              cl::desc("Path to the crt* object files"),
-                             cl::cat(AllreadyOptCat));
+                             AT.getCat());
 
 cl::opt<std::string> Linker("linker",
                             cl::desc("Linker to use for static compilation"),
 #ifndef ALLVM_alld_available
                             cl::init("ld"),
 #endif
-                            cl::cat(AllreadyOptCat));
+                            AT.getCat());
 
 cl::opt<std::string> InputFilename(cl::Positional, cl::Required,
                                    cl::desc("<input allvm file>"),
-                                   cl::cat(AllreadyOptCat));
+                                   AT.getCat());
 
 allvm::ExitOnError ExitOnErr;
 } // end anonymous namespace
@@ -66,8 +65,7 @@ int main(int argc, const char **argv) {
   LibNone.setInitialValue(RP.LibNonePath);
   CrtBits.setInitialValue(RP.CrtBitsPath);
 
-  cl::HideUnrelatedOptions(AllreadyOptCat);
-  cl::ParseCommandLineOptions(argc, argv, "allready static codegen -> cache");
+  AT.parseCLOpts(argc, argv);
 
   ExitOnErr.setBanner(std::string(argv[0]) + ": ");
 

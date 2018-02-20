@@ -11,7 +11,7 @@
 #include "allvm/Allexe.h"
 #include "allvm/DeInlineAsm.h"
 #include "allvm/ExitOnError.h"
-#include "allvm/GitVersion.h"
+#include "allvm/ToolCommon.h"
 #include "allvm/ModuleFlags.h"
 #include "allvm/ResourceAnchor.h"
 
@@ -40,20 +40,19 @@ using namespace allvm;
 using namespace llvm;
 
 namespace {
-
-cl::OptionCategory AllmuxOptCat("allmux options");
+ALLVMTool AT("allmux");
 // TODO: "two-or-more"
 cl::list<std::string> InputFiles(cl::Positional, cl::OneOrMore,
                                  cl::desc("<input allexes>"),
-                                 cl::cat(AllmuxOptCat));
+                                 AT.getCat());
 cl::opt<std::string> OutputFilename("o", cl::desc("Override output filename"),
                                     cl::value_desc("filename"),
-                                    cl::cat(AllmuxOptCat));
+                                    AT.getCat());
 cl::opt<bool> ForceOutput("f", cl::desc("Replace output allexe if it exists"),
-                          cl::init(false), cl::cat(AllmuxOptCat));
+                          cl::init(false), AT.getCat());
 cl::opt<bool> NoInternalize("no-internalize",
                             cl::desc("Don't internalize main modules."),
-                            cl::init(false), cl::cat(AllmuxOptCat));
+                            cl::init(false), AT.getCat());
 
 allvm::ExitOnError ExitOnErr;
 
@@ -232,8 +231,7 @@ int main(int argc, const char **argv) {
 
   ResourcePaths RP = ResourcePaths::getAnchored(argv[0]);
 
-  cl::HideUnrelatedOptions(AllmuxOptCat);
-  cl::ParseCommandLineOptions(argc, argv);
+  AT.parseCLOpts(argc, argv);
   ExitOnErr.setBanner(std::string(argv[0]) + ": ");
 
   LLVMContext C;

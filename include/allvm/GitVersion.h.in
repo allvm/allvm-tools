@@ -2,42 +2,12 @@
 #define ALLVM_VERSION_H
 
 #include <llvm/ADT/StringRef.h>
-#include <llvm/Config/llvm-config.h>
-#include <llvm/Support/CommandLine.h>
-#include <llvm/Support/Debug.h>
-#include <llvm/Support/Host.h>
-#include <llvm/Support/raw_ostream.h>
 
 #include <string>
 
 namespace allvm {
 
-void setVersionPrinter(llvm::StringRef argv0) {
-  static std::string name = argv0;
-  llvm::cl::SetVersionPrinter([]() {
-    llvm::raw_ostream &OS = llvm::outs();
-    OS << name << "(ALLVM Tools) @GITVERSION@\n";
-    OS << "  ALLVM Tools (http://allvm.org) version @GITVERSION@\n";
-    OS << "  LLVM version " << LLVM_VERSION_STRING << "\n";
-
-    // Following is mostly from lib/Support/CommandLine.cpp
-    OS << "  ";
-#ifndef __OPTIMIZE__
-    OS << "DEBUG build";
-#else
-    OS << "Optimized build";
-#endif
-#ifndef NDEBUG
-    OS << " with assertions";
-#endif
-    std::string CPU = llvm::sys::getHostCPUName();
-    if (CPU == "generic")
-      CPU = "(unknown)";
-    OS << ".\n"
-       << "  Default target: " << llvm::sys::getDefaultTargetTriple() << '\n'
-       << "  Host CPU: " << CPU << '\n';
-  });
-}
+inline llvm::StringRef getALLVMVersion() { return "@GITVERSION@"; };
 
 } // end namespace allvm
 

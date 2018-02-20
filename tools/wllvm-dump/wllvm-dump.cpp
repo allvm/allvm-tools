@@ -8,7 +8,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "allvm/GitVersion.h"
+#include "allvm/ToolCommon.h"
 #include "allvm/WLLVMFile.h"
 
 #include <llvm/Support/CommandLine.h>
@@ -20,18 +20,17 @@ using namespace allvm;
 using namespace llvm;
 
 namespace {
-cl::OptionCategory WllvmDumpOptCat("wllvm-dump options");
+ALLVMTool AT("wllvm-dump");
 cl::opt<std::string> InputFilename(cl::Positional, cl::Required,
                                    cl::desc("<input file built with wllvm>"),
-                                   cl::cat(WllvmDumpOptCat));
+                                   AT.getCat());
 } // end anonymous namespace
 
 int main(int argc, const char **argv) {
   sys::PrintStackTraceOnErrorSignal(argv[0]);
   PrettyStackTraceProgram X(argc, argv);
   llvm_shutdown_obj Y; // Call llvm_shutdown() on exit.
-  cl::HideUnrelatedOptions(WllvmDumpOptCat);
-  cl::ParseCommandLineOptions(argc, argv);
+  AT.parseCLOpts(argc, argv);
 
   // Open the specified file
   auto Input = WLLVMFile::open(InputFilename);
