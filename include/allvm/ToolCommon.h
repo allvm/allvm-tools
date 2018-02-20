@@ -46,12 +46,11 @@ class ALLVMTool {
 
 public:
   ALLVMTool(llvm::StringRef _Name, llvm::StringRef _Overview = "")
-      : Name(_Name), Overview(_Overview) {
-    llvm::cl::SetVersionPrinter(getVersionPrinter());
-  }
+      : Name(_Name), Overview(_Overview) {}
 
   bool parseCLOpts(int argc, const char *const *argv) {
     llvm::cl::HideUnrelatedOptions(ALLVMOptCat);
+    llvm::cl::SetVersionPrinter(getVersionPrinter());
     return llvm::cl::ParseCommandLineOptions(argc, argv, Overview);
   }
 
