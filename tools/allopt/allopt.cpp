@@ -9,8 +9,8 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "allvm/GitVersion.h"
 #include "allvm/ResourceAnchor.h"
+#include "allvm/ToolCommon.h"
 
 #include "allvm/Allexe.h"
 #include "allvm/ExitOnError.h"
@@ -31,19 +31,22 @@ using namespace allvm;
 using namespace llvm;
 
 namespace {
+ALLVMTool AT("allopt");
+cl::OptionCategory AllOptOptCat("allopt options");
 cl::opt<std::string> InputFilename("i", cl::init("-"),
-                                   cl::desc("<input allexe>"));
+                                   cl::desc("<input allexe>"), AT.getCat());
 cl::opt<std::string> OutputFilename("o", cl::init("-"),
-                                    cl::desc("<output allexe>"));
+                                    cl::desc("<output allexe>"), AT.getCat());
 cl::opt<bool> ForceOutput("f", cl::desc("Replace output allexe if it exists"),
-                          cl::init(false));
+                          cl::init(false), AT.getCat());
 cl::opt<bool>
     AnalyzeOnly("analyze",
                 cl::desc("don't expect bitcode as output of pipeline"),
-                cl::init(false));
+                cl::init(false), AT.getCat());
 cl::opt<std::string> Pipeline(cl::Positional, cl::Required,
-                              cl::desc("<pipeline command>"));
-cl::list<std::string> Args(cl::ConsumeAfter, cl::desc("<pipeline arguments>"));
+                              cl::desc("<pipeline command>"), AT.getCat());
+cl::list<std::string> Args(cl::ConsumeAfter, cl::desc("<pipeline arguments>"),
+                           AT.getCat());
 
 allvm::ExitOnError ExitOnErr;
 
@@ -84,7 +87,7 @@ int main(int argc, const char *argv[]) {
 
   ResourcePaths RP = ResourcePaths::getAnchored(argv[0]);
 
-  cl::ParseCommandLineOptions(argc, argv);
+  AT.parseCLOpts(argc, argv);
   ExitOnErr.setBanner(std::string(argv[0]) + ": ");
 
   // Create temporary files for bitcode input and output

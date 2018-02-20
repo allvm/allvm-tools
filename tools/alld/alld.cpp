@@ -7,14 +7,12 @@
 // Linker wrapper for lld.
 //
 //===----------------------------------------------------------------------===//
-#include "allvm/GitVersion.h"
-
 #include <lld/Driver/Driver.h>
 
+#include <llvm/Support/ManagedStatic.h>
 #include <llvm/Support/PrettyStackTrace.h>
 #include <llvm/Support/Signals.h>
 
-using namespace allvm;
 using namespace llvm;
 
 int main(int Argc, const char **Argv) {
