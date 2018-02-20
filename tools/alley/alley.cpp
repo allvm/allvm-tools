@@ -3,8 +3,8 @@
 #include "allvm/ALLVMLinker.h"
 #include "allvm/AOTCompile.h"
 #include "allvm/ExitOnError.h"
-#include "allvm/GitVersion.h"
 #include "allvm/ResourceAnchor.h"
+#include "allvm/ToolCommon.h"
 
 #include <llvm/CodeGen/CommandFlags.h>
 #include <llvm/ExecutionEngine/MCJIT.h>
@@ -24,34 +24,37 @@ using namespace allvm;
 using namespace llvm;
 
 namespace {
-cl::opt<std::string> LibNone("libnone", cl::desc("Path of libnone.a"));
+ALLVMTool AT("alley", "allvm runtime executor");
+cl::opt<std::string> LibNone("libnone", cl::desc("Path of libnone.a"),
+                             AT.getCat());
 
-cl::opt<std::string> CrtBits("crtbits",
-                             cl::desc("Path to the crt* object files"));
+cl::opt<std::string>
+    CrtBits("crtbits", cl::desc("Path to the crt* object files"), AT.getCat());
 
 cl::opt<std::string> Linker("linker",
-                            cl::desc("Linker to use for static compilation")
+                            cl::desc("Linker to use for static compilation"),
 #ifndef ALLVM_alld_available
-                                ,
-                            cl::init("ld")
+                            cl::init("ld"),
 #endif
-);
+                            AT.getCat());
 
 cl::opt<std::string> InputFilename(cl::Positional, cl::Required,
-                                   cl::desc("<input allvm file>"));
+                                   cl::desc("<input allvm file>"), AT.getCat());
 
 cl::list<std::string> InputArgv(cl::ConsumeAfter,
-                                cl::desc("<program arguments>..."));
+                                cl::desc("<program arguments>..."),
+                                AT.getCat());
 
 // TODO: Enable forcing use of the JIT even when we have a static version cached
 // cl::opt<bool> ForceJIT("force-jit", cl::init(false),
 //                              cl::desc("Force using the JIT"));
 
 cl::opt<bool> ForceStatic("force-static", cl::init(false),
-                          cl::desc("Force using static code path"));
+                          cl::desc("Force using static code path"),
+                          AT.getCat());
 
 cl::opt<bool> NoExec("noexec", cl::desc("Don't actually execute the program"),
-                     cl::init(false), cl::Hidden);
+                     cl::init(false), cl::Hidden, AT.getCat());
 
 allvm::ExitOnError ExitOnErr;
 
@@ -69,7 +72,7 @@ int main(int argc, const char **argv, const char **envp) {
   LibNone.setInitialValue(RP.LibNonePath);
   CrtBits.setInitialValue(RP.CrtBitsPath);
 
-  cl::ParseCommandLineOptions(argc, argv, "allvm runtime executor");
+  AT.parseCLOpts(argc, argv);
   ExitOnErr.setBanner(std::string(argv[0]) + ": ");
 
   auto allexe = ExitOnErr(Allexe::openForReading(InputFilename, RP));

@@ -6,7 +6,8 @@ RUN: wllvm-dump --version|& FileCheck %s
 RUN: wllvm-extract --version|& FileCheck %s
 RUN: all-info --version|& FileCheck %s
 RUN: allopt --version|& FileCheck %s
+RUN: allmux --version|& FileCheck %s
 
 CHECK: ALLVM Tools
-CHECK: git
+CHECK: LLVM version
 CHECK-NOT: NOTFOUND
