@@ -1,7 +1,7 @@
 #include "allvm/Allexe.h"
 #include "allvm/ExitOnError.h"
-#include "allvm/GitVersion.h"
 #include "allvm/ResourceAnchor.h"
+#include "allvm/ToolCommon.h"
 
 #include <llvm/Support/CommandLine.h>
 #include <llvm/Support/PrettyStackTrace.h>
@@ -12,8 +12,9 @@ using namespace llvm;
 using namespace allvm;
 
 namespace {
-cl::opt<std::string> InputFilename(cl::Positional,
-                                   cl::desc("<input Allexe file>"));
+ALLVMTool AT("all-info");
+cl::opt<std::string>
+    InputFilename(cl::Positional, cl::desc("<input Allexe file>"), AT.getCat());
 allvm::ExitOnError ExitOnErr;
 
 std::string crcToHex(uint32_t crc) {
@@ -30,7 +31,7 @@ int main(int argc, const char **argv) {
   PrettyStackTraceProgram X(argc, argv);
   llvm_shutdown_obj Y; // Call llvm_shutdown() on exit.
 
-  cl::ParseCommandLineOptions(argc, argv);
+  AT.parseCLOpts(argc, argv);
 
   ResourcePaths RP = ResourcePaths::getAnchored(argv[0]);
   auto Input = ExitOnErr(Allexe::openForReading(InputFilename, RP));

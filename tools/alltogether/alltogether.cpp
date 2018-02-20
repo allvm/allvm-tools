@@ -11,8 +11,8 @@
 #include "allvm/Allexe.h"
 #include "allvm/ExitOnError.h"
 #include "allvm/FileRemoverPlus.h"
-#include "allvm/GitVersion.h"
 #include "allvm/ResourceAnchor.h"
+#include "allvm/ToolCommon.h"
 
 // XXX: Revisit this!
 #include <llvm/CodeGen/CommandFlags.def>
@@ -39,25 +39,27 @@ using namespace allvm;
 using namespace llvm;
 
 namespace {
+ALLVMTool AT("alltogether");
 cl::opt<bool> Overwrite("f", cl::desc("overwrite existing alltogether'd file"),
-                        cl::init(false));
+                        cl::init(false), AT.getCat());
 cl::opt<std::string> InputFilename(cl::Positional, cl::Required,
-                                   cl::desc("<input allvm file>"));
+                                   cl::desc("<input allvm file>"), AT.getCat());
 
 cl::opt<std::string> OutputFilename("o", cl::desc("Override output filename"),
-                                    cl::value_desc("filename"));
+                                    cl::value_desc("filename"), AT.getCat());
 
 cl::opt<bool> DisableOpt("disable-opt",
                          cl::desc("Disable optimizations, only link"),
-                         cl::init(false));
+                         cl::init(false), AT.getCat());
 
 cl::opt<bool> Quiet("quiet", cl::desc("Don't print informational messages"));
-cl::alias QuietA("q", cl::desc("Alias for -quiet"), cl::aliasopt(Quiet));
+cl::alias QuietA("q", cl::desc("Alias for -quiet"), cl::aliasopt(Quiet),
+                 AT.getCat());
 
 cl::opt<bool>
     NoInternalizeHidden("no-internalize-hidden",
                         cl::desc("Don't internalize hidden variables."),
-                        cl::init(false));
+                        cl::init(false), AT.getCat());
 
 inline void info(const Twine &Message) {
   if (!Quiet) {
@@ -79,7 +81,8 @@ int main(int argc, const char **argv) {
   sys::PrintStackTraceOnErrorSignal(argv[0]);
   PrettyStackTraceProgram X(argc, argv);
   llvm_shutdown_obj Y; // Call llvm_shutdown() on exit.
-  cl::ParseCommandLineOptions(argc, argv);
+
+  AT.parseCLOpts(argc, argv);
   ExitOnErr.setBanner(std::string(argv[0]) + ": ");
 
   // Initialize the configured targets

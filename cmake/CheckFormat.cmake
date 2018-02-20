@@ -1,7 +1,7 @@
 # format checking
 # (based on polly's format checking)
 # Build list of all clang-format'able files
-file(GLOB_RECURSE files include/*.h tools/*.h tools/*.c tools/*.cpp libs/*.h libs/*.c libs/*.cpp)
+file(GLOB_RECURSE files include/*.h include/*.h.in tools/*.h tools/*.c tools/*.cpp libs/*.h libs/*.c libs/*.cpp)
 # But skip files that we didn't write ourselves
 file(GLOB_RECURSE archive_files libs/archive-rw/*.c libs/archive-rw/*.h)
 file(GLOB_RECURSE musl_files libs/none/musl-*/*)
