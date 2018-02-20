@@ -56,9 +56,5 @@ stdenv.mkDerivation {
     make check-format -j1
   '';
 
-  postBuild = ''
-    paxmark m bin/alley
-  '';
-
   enableParallelBuilding = true;
 }
