@@ -34,13 +34,16 @@ using namespace llvm;
 namespace {
 cl::OptionCategory BC2AllvmOptCat("bc2allvm options");
 cl::opt<std::string> MainFile(cl::Positional, cl::Required,
-                              cl::desc("<main LLVM bitcode file (or ll)>"), cl::cat(BC2AllvmOptCat));
+                              cl::desc("<main LLVM bitcode file (or ll)>"),
+                              cl::cat(BC2AllvmOptCat));
 cl::list<std::string>
     InputFiles(cl::Positional, cl::ZeroOrMore,
-               cl::desc("<input LLVM bitcode file (or ll)>..."), cl::cat(BC2AllvmOptCat));
+               cl::desc("<input LLVM bitcode file (or ll)>..."),
+               cl::cat(BC2AllvmOptCat));
 
 cl::opt<std::string> OutputFilename("o", cl::desc("Override output filename"),
-                                    cl::value_desc("filename"), cl::cat(BC2AllvmOptCat));
+                                    cl::value_desc("filename"),
+                                    cl::cat(BC2AllvmOptCat));
 cl::opt<bool> ForceOutput("f", cl::desc("Replace output allexe if it exists"),
                           cl::init(false), cl::cat(BC2AllvmOptCat));
 

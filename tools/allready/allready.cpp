@@ -34,21 +34,23 @@ using namespace llvm;
 
 namespace {
 cl::OptionCategory AllreadyOptCat("allready options");
-cl::opt<std::string> LibNone("libnone", cl::desc("Path of libnone.a"), cl::cat(AllreadyOptCat));
+cl::opt<std::string> LibNone("libnone", cl::desc("Path of libnone.a"),
+                             cl::cat(AllreadyOptCat));
 
 cl::opt<std::string> CrtBits("crtbits",
-                             cl::desc("Path to the crt* object files"), cl::cat(AllreadyOptCat));
+                             cl::desc("Path to the crt* object files"),
+                             cl::cat(AllreadyOptCat));
 
 cl::opt<std::string> Linker("linker",
                             cl::desc("Linker to use for static compilation"),
 #ifndef ALLVM_alld_available
                             cl::init("ld"),
 #endif
-                            cl::cat(AllreadyOptCat)
-                                );
+                            cl::cat(AllreadyOptCat));
 
 cl::opt<std::string> InputFilename(cl::Positional, cl::Required,
-                                   cl::desc("<input allvm file>"), cl::cat(AllreadyOptCat));
+                                   cl::desc("<input allvm file>"),
+                                   cl::cat(AllreadyOptCat));
 
 allvm::ExitOnError ExitOnErr;
 } // end anonymous namespace

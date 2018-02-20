@@ -21,9 +21,9 @@ using namespace llvm;
 
 namespace {
 cl::OptionCategory WllvmDumpOptCat("wllvm-dump options");
-cl::opt<std::string>
-    InputFilename(cl::Positional, cl::Required,
-                  cl::desc("<input file built with wllvm>"), cl::cat(WllvmDumpOptCat));
+cl::opt<std::string> InputFilename(cl::Positional, cl::Required,
+                                   cl::desc("<input file built with wllvm>"),
+                                   cl::cat(WllvmDumpOptCat));
 } // end anonymous namespace
 
 int main(int argc, const char **argv) {

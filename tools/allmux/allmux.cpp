@@ -44,9 +44,11 @@ namespace {
 cl::OptionCategory AllmuxOptCat("allmux options");
 // TODO: "two-or-more"
 cl::list<std::string> InputFiles(cl::Positional, cl::OneOrMore,
-                                 cl::desc("<input allexes>"), cl::cat(AllmuxOptCat));
+                                 cl::desc("<input allexes>"),
+                                 cl::cat(AllmuxOptCat));
 cl::opt<std::string> OutputFilename("o", cl::desc("Override output filename"),
-                                    cl::value_desc("filename"), cl::cat(AllmuxOptCat));
+                                    cl::value_desc("filename"),
+                                    cl::cat(AllmuxOptCat));
 cl::opt<bool> ForceOutput("f", cl::desc("Replace output allexe if it exists"),
                           cl::init(false), cl::cat(AllmuxOptCat));
 cl::opt<bool> NoInternalize("no-internalize",

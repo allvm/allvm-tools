@@ -41,17 +41,20 @@ cl::OptionCategory AlltogetherOptCat("alltogether options");
 cl::opt<bool> Overwrite("f", cl::desc("overwrite existing alltogether'd file"),
                         cl::init(false), cl::cat(AlltogetherOptCat));
 cl::opt<std::string> InputFilename(cl::Positional, cl::Required,
-                                   cl::desc("<input allvm file>"), cl::cat(AlltogetherOptCat));
+                                   cl::desc("<input allvm file>"),
+                                   cl::cat(AlltogetherOptCat));
 
 cl::opt<std::string> OutputFilename("o", cl::desc("Override output filename"),
-                                    cl::value_desc("filename"), cl::cat(AlltogetherOptCat));
+                                    cl::value_desc("filename"),
+                                    cl::cat(AlltogetherOptCat));
 
 cl::opt<bool> DisableOpt("disable-opt",
                          cl::desc("Disable optimizations, only link"),
                          cl::init(false), cl::cat(AlltogetherOptCat));
 
 cl::opt<bool> Quiet("quiet", cl::desc("Don't print informational messages"));
-cl::alias QuietA("q", cl::desc("Alias for -quiet"), cl::aliasopt(Quiet), cl::cat(AlltogetherOptCat));
+cl::alias QuietA("q", cl::desc("Alias for -quiet"), cl::aliasopt(Quiet),
+                 cl::cat(AlltogetherOptCat));
 
 cl::opt<bool>
     NoInternalizeHidden("no-internalize-hidden",

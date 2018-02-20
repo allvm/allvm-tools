@@ -54,17 +54,14 @@ cl::opt<std::string> OutputFilename("o", cl::desc("Override output filename"),
 
 cl::opt<bool> StripDebug("strip-debug",
                          cl::desc("Strip debugging information from bitcode"),
-                         cl::init(false),
-                         cl::cat(WllvmExtractOptCat));
+                         cl::init(false), cl::cat(WllvmExtractOptCat));
 
 cl::opt<bool> PreserveAsm("preserve-asm",
                           cl::desc("Don't attempt to replace inline ASM code"),
-                          cl::init(false),
-                          cl::cat(WllvmExtractOptCat));
+                          cl::init(false), cl::cat(WllvmExtractOptCat));
 
 cl::opt<bool> ForceOutput("f", cl::desc("Replace output allexe if it exists"),
-                          cl::init(false),
-                          cl::cat(WllvmExtractOptCat));
+                          cl::init(false), cl::cat(WllvmExtractOptCat));
 
 void runDeInlineAsm(Module &M) {
   ModulePassManager MPM;
