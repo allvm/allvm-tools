@@ -2,7 +2,15 @@
 { stdenv
 , cmake, git, python2
 , llvm, clang, lld, zlib
-, buildDocs ? true, pandoc, texlive
+# Only try to build docs on x86/x86_64,
+# to avoid haskell dependency elsewhere
+# Not only is it rather heavy but not always supported
+, buildDocs ? stdenv.hostPlatform.isX86 or false
+# Whoops, our tests attempt to execute x86_64 allexe's,
+# which of course doesn't work on other platforms.
+# Only run tests on x86 (and non-cross, handled by default automagic)
+, doCheck ? stdenv.hostPlatform.isX86 or false
+, pandoc, texlive
 , useClangWerrorFlags ? stdenv.cc.isClang
 }:
 
@@ -35,7 +43,7 @@ stdenv.mkDerivation {
 
   outputs = [ "out" /* "dev" */ ] ++ stdenv.lib.optional buildDocs "doc";
 
-  doCheck = true;
+  inherit doCheck;
 
   cmakeFlags = [
     "-DBUILD_DOCS=${if buildDocs then "ON" else "OFF"}"
