@@ -38,6 +38,8 @@ stdenv.mkDerivation {
 
   src = builtins.filterSource sourceFilter ./..;
 
+  hardeningDisable = [ "all" ];
+
   nativeBuildInputs = [ cmake git python2 ] ++ lib.optionals buildDocs [ pandoc tex ];
   buildInputs = [ llvm lld zlib ];
 
