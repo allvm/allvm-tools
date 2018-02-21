@@ -64,9 +64,14 @@ bool invokedAsAlley(StringRef Argv0) { return Argv0.endswith("alley"); }
 
 int main(int argc, const char **argv, const char **envp) {
   // Link in necessary libraries
-  InitializeNativeTarget();
-  InitializeNativeTargetAsmPrinter();
-  InitializeNativeTargetAsmParser();
+  InitializeAllTargetInfos();
+  InitializeAllTargets();
+  InitializeAllTargetMCs();
+  InitializeAllAsmParsers();
+  InitializeAllAsmPrinters();
+  //InitializeNativeTarget();
+  //InitializeNativeTargetAsmPrinter();
+  //InitializeNativeTargetAsmParser();
 
   ResourcePaths RP = ResourcePaths::getAnchored(argv[0]);
   LibNone.setInitialValue(RP.LibNonePath);
