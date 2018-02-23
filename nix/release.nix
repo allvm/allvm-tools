@@ -44,9 +44,14 @@ let
   pkgsFun = nixpkgsArgs: import nixpkgs ({ inherit overlays; } // nixpkgsArgs);
   getALLVMPkgs = nixpkgsArgs: (pkgsFun nixpkgsArgs).allvm-tools-variants;
 
+  # This is a lame way of generating the musl equivalent of the current system
+  lib = import (nixpkgs + "/lib");
+  gnuToMuslKludgery = builtins.replaceStrings [ "gnu" ] [ "musl" ];
+  defaultHostConfig = (pkgsFun {}).hostPlatform.config;
+  muslHostConfig = gnuToMuslKludgery defaultHostConfig;
 in {
   default = getALLVMPkgs {};
   musl = getALLVMPkgs {
-    localSystem = { config = "x86_64-unknown-linux-musl"; };
+    localSystem = { config = muslHostConfig; };
   };
 }
