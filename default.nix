@@ -1,12 +1,6 @@
-{ nixpkgs ? import ./nix/fetch-nixpkgs.nix }:
+{ nixpkgs ? import ./nix/fetch-nixpkgs.nix }@args:
 
-with import nixpkgs {};
-{
-  allvm-tools-gcc = callPackage ./nix/build.nix {
-    inherit (llvmPackages_4) llvm clang lld;
-  };
-
-  allvm-tools-clang = callPackage ./nix/build.nix {
-    inherit (llvmPackages_4) stdenv llvm clang lld;
-  };
-}
+let
+  release = import ./nix/release.nix args;
+in
+  release.allvm-tools
