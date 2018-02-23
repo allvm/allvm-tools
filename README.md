@@ -18,15 +18,12 @@ Everyone is welcome to join!
 **FEAST'17 Keynote**: [Slides (pdf)](https://tc.gtisc.gatech.edu/feast17/papers/allvm.pdf) [Program (with talk abstract)](https://tc.gtisc.gatech.edu/feast17/program.html)
 
 
-## Nix Quickstart
+## Quickstart
 
-### Note
+### Nix
 
-Using Nix (without allvm-nixpkgs) does not build the tools the same way they're used
-for experiments, for example a musl-based toolchain is not used.
-
-For many purposes however that doesn't matter,
-and for development it's likely easier to use the in-tree expressions.
+Install [Nix](https://nixos.org/nix).
+Nix 2.0 or later is recommended.
 
 ### Installation
 
