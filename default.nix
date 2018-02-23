@@ -2,5 +2,6 @@
 
 let
   release = import ./nix/release.nix args;
-in
-  release.musl.allvm-tools-clang4
+in {
+  inherit (release.musl) allvm-tools-clang4;
+}
