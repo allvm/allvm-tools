@@ -23,7 +23,7 @@ public:
                             llvm::StringRef execFilePath);
 
   static std::string generateName(llvm::StringRef Name, uint32_t crc,
-                                  const CompilationOptions *Options = NULL);
+                                  const CompilationOptions *Options = nullptr);
 
 private:
   std::string CacheDir;

@@ -110,7 +110,7 @@ bool StaticBinaryCache::getCacheFilename(StringRef ModID,
 
 std::string StaticBinaryCache::generateName(StringRef Name, uint32_t crc,
                                             const CompilationOptions *Options) {
-  if (NULL != Options) {
+  if (nullptr != Options) {
     std::string buffer = Options->serializeCompilationOptions();
     size_t size = buffer.length();
     auto *raw_bytes = reinterpret_cast<const Bytef *>(buffer.data());
