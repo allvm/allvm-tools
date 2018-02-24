@@ -39,7 +39,8 @@ let
   # Create the stack of overlays:
   overlays = [ overlay ]
     ++ (map overlayForLLVMV [ "4" "5" ])
-    ++ (map overlayForGCCV [ "5" "6" "7" ]);
+    # ++ (map overlayForGCCV [ "5" "6" "7" ])
+    ;
 
   # Import the package set using our stack of overlays,
   # pull out the allvm-tools-variant attribute set
