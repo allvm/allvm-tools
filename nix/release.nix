@@ -14,15 +14,17 @@ let
 
   # overlay "generators":
   # They gather new variants in "allvm-tools-variants" which is probably not the best
+  # TODO: build llvmPackages using same stdenv's or it'll rarely work (linking, ABI)
   overlayForLLVMV = llvmVersion:
     self: super: {
       allvm-tools-variants = (super.allvm-tools-variants or {}) // {
         "allvm-tools-clang${llvmVersion}" = super.allvm-tools.override {
           stdenv = self."llvmPackages_${llvmVersion}".stdenv;
         };
-        "allvm-tools-clang${llvmVersion}-libcxx" = super.allvm-tools.override {
-          stdenv = self."llvmPackages_${llvmVersion}".libcxxStdenv;
-        };
+        # XXX: Definitely can't switch to libc++ "just" for this
+        #"allvm-tools-clang${llvmVersion}-libcxx" = super.allvm-tools.override {
+        #  stdenv = self."llvmPackages_${llvmVersion}".libcxxStdenv;
+        #};
       };
     };
   overlayForGCCV = gccVersion:
