@@ -1,6 +1,6 @@
 let
   default = import ./default.nix {};
-  tools = default.allvm-tools-clang;
+  tools = default.allvm-tools;
 
   format-shell = target: tools.overrideAttrs(o: {
 
