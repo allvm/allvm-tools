@@ -7,7 +7,7 @@
 // Linker wrapper for lld.
 //
 //===----------------------------------------------------------------------===//
-#include <lld/Driver/Driver.h>
+#include <lld/Common/Driver.h>
 
 #include <llvm/Support/ManagedStatic.h>
 #include <llvm/Support/PrettyStackTrace.h>
