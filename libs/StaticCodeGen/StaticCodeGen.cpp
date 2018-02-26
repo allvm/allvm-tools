@@ -267,13 +267,13 @@ std::string CompilationOptions::serializeCompilationOptions() const {
   }
   // Serialize OLvl
   buffer += std::to_string(OLvl);
-// Serialize TargetOptions
 #ifdef __x86_64__
   errs() << "Using incomplete serialization of compilation options, FIXME!\n";
 #else
 #warning                                                                       \
     "Unable to emit runtime warning that serialization of compilation options is incomplete!"
 #endif
+  // Serialize TargetOptions
   buffer += std::to_string(TOptions.PrintMachineCode);
   // buffer += std::to_string(TOptions.LessPreciseFPMADOption);
   buffer += std::to_string(TOptions.UnsafeFPMath);
