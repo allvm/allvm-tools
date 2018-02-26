@@ -5,11 +5,11 @@
 # Only try to build docs on x86/x86_64,
 # to avoid haskell dependency elsewhere
 # Not only is it rather heavy but not always supported
-, buildDocs ? stdenv.hostPlatform.isX86 or false
+, buildDocs ? stdenv.hostPlatform.isx86 && !stdenv.hostPlatform.isMusl
 # Whoops, our tests attempt to execute x86_64 allexe's,
 # which of course doesn't work on other platforms.
 # Only run tests on x86 (and non-cross, handled by default automagic)
-, doCheck ? stdenv.hostPlatform.isX86 or false
+, doCheck ? stdenv.hostPlatform.isx86
 , pandoc, texlive
 , useClangWerrorFlags ? stdenv.cc.isClang
 }:
