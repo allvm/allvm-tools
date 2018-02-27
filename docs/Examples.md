@@ -108,7 +108,8 @@ and running it again and you'll notice it starts much faster.
 You can inspect this allexe with the `all-info` tool (using prebuilt version here for convenience):
 
 ```console
-$ allvm-run /nix/store/3niq9g1pba5hb452wh9rqcyxp480x8sr-allvm-tools-git-5f7ad6e -c all-info /nix/store/k131gci7nr2f80daim20zbilc1x6s6fy-bash-interactive-4.4-p12-wllvm-allexe/bin/bash
+$ allvm-run /nix/store/3niq9g1pba5hb452wh9rqcyxp480x8sr-allvm-tools-git-5f7ad6e \
+  -c all-info /nix/store/k131gci7nr2f80daim20zbilc1x6s6fy-bash-interactive-4.4-p12-wllvm-allexe/bin/bash
 Modules:
 	main.bc (17240804)
 	/nix/store/v3bvn8ga5j0jx8scykb1bllkgvb3ckai-ncurses-6.0-20180106-wllvm/lib/libncursesw.so.6.0.bc (DDA54A1E)
@@ -178,7 +179,8 @@ a few of which we list below.
 
 List all of the included binaries with:
 ```console
-$ allvm-run /nix/store/0rs61708farxdknpb6v5cfz2jkb1imm4-memcacheds-allready -c ls /nix/store/0rs61708farxdknpb6v5cfz2jkb1imm4-memcacheds-allready/bin
+$ allvm-run /nix/store/0rs61708farxdknpb6v5cfz2jkb1imm4-memcacheds-allready \
+  -c ls /nix/store/0rs61708farxdknpb6v5cfz2jkb1imm4-memcacheds-allready/bin
 ```
 
 All of which execute from the same binary.  To enter a shell with all on your PATH, run:
