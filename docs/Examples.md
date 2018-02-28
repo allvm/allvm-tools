@@ -78,7 +78,7 @@ need to be addressed-- or another solution found.
 
 The following examples assume aliases such as:
 ```console
-$ alias allvm-run-base='nix run --store $HOME/allvm-store --option binary-caches "https://cache.nixos.org https://cache.allvm.org" --option trusted-binary-caches "gravity.cs.illinois.edu-1:yymmNS/WMf0iTj2NnD0nrVV8cBOXM9ivAkEdO1Lro3U= cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY=""'
+$ alias allvm-run-base='nix run --store $HOME/allvm-store --option binary-caches "https://cache.nixos.org https://cache.allvm.org" --option trusted-binary-caches "gravity.cs.illinois.edu-1:yymmNS/WMf0iTj2NnD0nrVV8cBOXM9ivAkEdO1Lro3U= cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="'
 $ alias allvm-run='allvm-run-base /nix/store/k131gci7nr2f80daim20zbilc1x6s6fy-bash-interactive-4.4-p12-wllvm-allexe/bin/bash /nix/store/pd1ikvjzh43cgb372bz86msqmlmd70pj-coreutils-8.29-wllvm-allexe'
 ```
 
@@ -162,6 +162,10 @@ $ allvm-run /nix/store/0dn6pknqvkny98sbja2fxdwkgqqmlbxk-xterm-331-wllvm-allexe -
 
 This will take a while to compile, but eventually an xterm should appear!
 Running it in the future will be quick, try it and see!
+
+## Binutils
+
+/nix/store/n3vn9rc13qra4jgrvrr6srzldd2vmv5j-binutils-2.28.1-native-wllvm-allexe
 
 ## Additional Allexe Paths
 
