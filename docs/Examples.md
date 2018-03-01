@@ -192,6 +192,16 @@ a few of which we list below.
 
 
 ## Multiplexed Collections
+
+### Common Path
+
+Mux'd: /nix/store/9spbpi5y8ily82qq2dmbq3if7r0q0nkh-common-path-mux
+AOT: /nix/store/kszg4sc2q3qfwmzfblp7q30vclh2s1i2-common-path-allready
+
+### Editors
+
+AOT: /nix/store/ajvs697s6i59am6fm4lbsfpc7hqajz7a-editors-allready
+
 ### 40 Memcacheds in 1
 
 
