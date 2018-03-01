@@ -167,6 +167,13 @@ Running it in the future will be quick, try it and see!
 
 /nix/store/n3vn9rc13qra4jgrvrr6srzldd2vmv5j-binutils-2.28.1-native-wllvm-allexe
 
+## Termite (terminal emulator)
+
+Normal: /nix/store/xx6mjc5c878lw24wqx820m4j5wicpg8q-termite-13-wllvm-allexe
+
+Merged: /nix/store/2ajs7b4ni9kzrxyv3jrrnqz4gqrqnbjn-termite-13-wllvm-allexe
+
+
 ## Additional Allexe Paths
 
 We have thousands of packages built into allexes,
