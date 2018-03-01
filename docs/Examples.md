@@ -175,6 +175,13 @@ a few of which we list below.
 | Name | Path | Notes |
 |----|----|----|
 | 2048 | /nix/store/mzjfldvv0v7knhgb6yyhnpdfzkb0mk1v-2048-in-terminal-2017-11-29-wllvm-allexe | |
+| apache httpd | /nix/store/1r86ny0lcfv8kzzrcpylbj90ikwlrvnp-apache-httpd-2.4.29-wllvm-allexe/bin/httpd | |
+| git | /nix/store/f3wqx0hz0qd1kyjna8xrb6kb3ab2vgqj-git-minimal-2.16.2-wllvm-allexe | |
+| haproxy | /nix/store/g6vix9mvfrpnl1prz98r78qndjmal9z9-haproxy-1.7.9-wllvm-allexe | |
+| openssh | /nix/store/4x1zkgnc3sh8fqn7vhiv42qvf2a8zn3r-openssh-7.6p1-wllvm-allexe | |
+| rdesktop | /nix/store/6n3w8ivj620nm8f9sdwyqz8s91207bk6-rdesktop-1.8.3-wllvm-allexe | |
+| svn | /nix/store/2i6rv5w50gjzyadihii111zcs484rm6z-subversion-client-1.9.6-wllvm-allexe/ | |
+| zsh | /nix/store/r13rw8rgqah5467mvbwj2x9wgksr7jy2-zsh-5.4.2-wllvm-allexe | |
 
 
 ## Multiplexed Collections
