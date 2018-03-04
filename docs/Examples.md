@@ -79,7 +79,7 @@ need to be addressed-- or another solution found.
 The following examples assume aliases such as:
 ```console
 $ alias allvm-run-base='nix run --store $HOME/allvm-store --option binary-caches "https://cache.nixos.org https://cache.allvm.org" --option trusted-binary-caches "gravity.cs.illinois.edu-1:yymmNS/WMf0iTj2NnD0nrVV8cBOXM9ivAkEdO1Lro3U= cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="'
-$ alias allvm-run='allvm-run-base /nix/store/k131gci7nr2f80daim20zbilc1x6s6fy-bash-interactive-4.4-p12-wllvm-allexe/bin/bash /nix/store/pd1ikvjzh43cgb372bz86msqmlmd70pj-coreutils-8.29-wllvm-allexe'
+$ alias allvm-run='allvm-run-base /nix/store/d2r8lw84vyqy49jnnkj54jxkwpgjpm62-coreutils-8.29-wllvm-allexe /nix/store/lbs09kqw0hr8w72fz1yz7aw6xmalbmvq-bash-interactive-4.4-p19-wllvm-allexe'
 ```
 
 The first simply saves us a bunch of typing when invoking `nix run`,
@@ -108,11 +108,11 @@ and running it again and you'll notice it starts much faster.
 You can inspect this allexe with the `all-info` tool (using prebuilt version here for convenience):
 
 ```console
-$ allvm-run /nix/store/3niq9g1pba5hb452wh9rqcyxp480x8sr-allvm-tools-git-5f7ad6e \
-  -c all-info /nix/store/k131gci7nr2f80daim20zbilc1x6s6fy-bash-interactive-4.4-p12-wllvm-allexe/bin/bash
+$ allvm-run /nix/store/yjw4dr0gnbjp4x8r4vmzrgam1pbcpj89-allvm-tools-bins \
+  -c all-info /nix/store/lbs09kqw0hr8w72fz1yz7aw6xmalbmvq-bash-interactive-4.4-p19-wllvm-allexe/bin/bash
 Modules:
-	main.bc (17240804)
-	/nix/store/v3bvn8ga5j0jx8scykb1bllkgvb3ckai-ncurses-6.0-20180106-wllvm/lib/libncursesw.so.6.0.bc (DDA54A1E)
+	main.bc (26340766)
+	/nix/store/y8ygb7cidz9q8p3x19ly3678k96sbg4v-ncurses-6.0-20180106-wllvm/lib/libncursesw.so.6.0.bc (7215270B)
 ```
 
 Try running various coreutils programs such as `du`, `ls`, `tail`, and `whoami`. Each are compiled on-demand into the cache, notice they execute faster after first use.
@@ -123,8 +123,8 @@ The default xterm allexe can be obtained and inspected with:
 ```
 $ allvm-run \
 	/nix/store/kl3jiag59rdfrj4p5p0zpcg7cjs73vqw-xterm-331-wllvm-allexe \
-	/nix/store/3niq9g1pba5hb452wh9rqcyxp480x8sr-allvm-tools-git-5f7ad6e \
-$ all-info /nix/store/kl3jiag59rdfrj4p5p0zpcg7cjs73vqw-xterm-331-wllvm-allexe/.xterm-wrapped
+	/nix/store/yjw4dr0gnbjp4x8r4vmzrgam1pbcpj89-allvm-tools-bins
+$ all-info /nix/store/kl3jiag59rdfrj4p5p0zpcg7cjs73vqw-xterm-331-wllvm-allexe/bin/.xterm-wrapped
 Modules:
 	main.bc (3A001D08)
 	/nix/store/nnqv6sq1av5cl81rdjs97q4sr7b4hays-libX11-1.6.5-wllvm/lib/libX11.so.6.3.0.bc (289832E1)
