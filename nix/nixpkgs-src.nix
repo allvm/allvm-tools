@@ -1,7 +1,7 @@
 {
   owner  = "NixOS";
   repo = "nixpkgs";
-  rev = "b778e99fc38ccaacb4b6d05db9533f46f0e0f891";
-  sha256 = "183d94lxf439mpami0ycry500364wdwlrywx7f94yhn33ilqnxij";
+  rev = "42c33ce12f59d36d11d3d5cb74aca460168fc737";
+  sha256 = "10vlz9zhbhx2xgy0xnc5fafnbn1fp6rvhlb0cf13ly860zwdq88f";
 }
 
