@@ -78,7 +78,7 @@ need to be addressed-- or another solution found.
 
 The following examples assume aliases such as:
 ```console
-$ alias allvm-run-base='nix run --store $HOME/allvm-store --option binary-caches "https://cache.nixos.org https://cache.allvm.org" --option trusted-binary-caches "gravity.cs.illinois.edu-1:yymmNS/WMf0iTj2NnD0nrVV8cBOXM9ivAkEdO1Lro3U= cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="'
+$ alias allvm-run-base='nix run --store $HOME/allvm-store --option binary-caches "https://cache.nixos.org https://cache.allvm.org" --option trusted-public-keys "gravity.cs.illinois.edu-1:yymmNS/WMf0iTj2NnD0nrVV8cBOXM9ivAkEdO1Lro3U= cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="'
 $ alias allvm-run='allvm-run-base /nix/store/d2r8lw84vyqy49jnnkj54jxkwpgjpm62-coreutils-8.29-wllvm-allexe /nix/store/lbs09kqw0hr8w72fz1yz7aw6xmalbmvq-bash-interactive-4.4-p19-wllvm-allexe'
 ```
 
