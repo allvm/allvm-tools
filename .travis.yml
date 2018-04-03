@@ -10,7 +10,7 @@ sudo: required
 # Experiment with cache
 cache:
   directories:
-    - /nix
+    - /nix-cache
 
 before_cache:
   - rm -rf /nix-cache
