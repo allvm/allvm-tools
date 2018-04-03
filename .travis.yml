@@ -10,8 +10,8 @@ sudo: required
 # Experiment with cache
 cache:
   directories:
-    - /nix-cache
+    - $HOME/nix-cache
 
 before_cache:
   - rm -rf /nix-cache
-  - nix copy --all --to file:///nix-cache
+  - nix copy --all --to file://$HOME/nix-cache
