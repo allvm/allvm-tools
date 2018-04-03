@@ -6,12 +6,3 @@ before_install:
 
 # Force VM instead of container, so that sandbox works
 sudo: required
-
-# Experiment with cache
-cache:
-  directories:
-    - $HOME/nix-cache
-
-before_cache:
-  - rm -rf /nix-cache
-  - nix copy --all --to file://$HOME/nix-cache
