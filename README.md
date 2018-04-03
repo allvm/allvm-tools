@@ -1,5 +1,7 @@
 # ALLVM
 
+[![Build Status](https://travis-ci.org/allvm/allvm-tools.svg?branch=master)](https://travis-ci.org/allvm/allvm-tools)
+
 ## Contact
 
 **Mailing List**: https://lists.cs.illinois.edu/lists/info/allvm-dev
