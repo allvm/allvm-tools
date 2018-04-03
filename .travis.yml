@@ -1,5 +1,8 @@
 language: nix
-script: ./.travis/ci.sh
+
+before_install:
+  - ./.travis/configure-nix.sh
+  - ./.travis/install-new-nix.sh
 
 # Force VM instead of container, so that sandbox works
 sudo: required
