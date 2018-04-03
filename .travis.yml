@@ -14,4 +14,4 @@ cache:
 
 before_cache:
   - rm -rf /nix-cache
-  - nix copy --all file:///nix-cache
+  - nix copy --all --to file:///nix-cache
