@@ -3,3 +3,12 @@ script: ./.travis/ci.sh
 
 # Force VM instead of container, so that sandbox works
 sudo: required
+
+# Experiment with cache
+cache:
+  directories:
+    - /nix
+
+before_cache:
+  - rm -rf /nix-cache
+  - nix copy --all file:///nix-cache
