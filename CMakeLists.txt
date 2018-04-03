@@ -88,6 +88,14 @@ else()
 "The internal linker (alld) will not be built.")
 endif()
 
+
+option(USE_GOLD_LINKER_IF_AVAILABLE ON)
+if(USE_GOLD_LINKER_IF_AVAILABLE)
+  check_cxx_compiler_flag("-fuse-ld=gold" CXX_SUPPORTS_GOLD)
+  append_if(CXX_SUPPORTS_GOLD "-fuse-ld=gold"
+    CMAKE_EXE_LINKER_FLAGS CMAKE_MODULE_LINKER_FLAGS CMAKE_SHARED_LINKER_FLAGS)
+endif()
+
 # Put libs and bins in expected place.
 # XXX: We don't setup CMAKE_CFG_INTDIR to distinguish Release/Debug/etc.
 set(LLVM_RUNTIME_OUTPUT_INTDIR
