@@ -1,0 +1,5 @@
+language: nix
+script: ./.travis/ci.sh
+
+# Force VM instead of container, so that sandbox works
+sudo: required
