@@ -113,7 +113,7 @@ int main(int argc, const char **argv, const char **envp) {
   // TODO: Don't encode ["modules == 1" <--> static] logic everywhere
   if (allexe->getNumModules() == 1)
     ExitOnErr(EY.tryStaticExec(Linker, Options));
-  
+
   errs() << "Execution\n";
   int orcExec = 1;
 

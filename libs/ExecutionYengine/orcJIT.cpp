@@ -1,17 +1,16 @@
 #include "orcJIT.h"
 
 #include <llvm/ExecutionEngine/Orc/OrcABISupport.h>
-#include <llvm/Support/Debug.h>
 #include <llvm/IR/Module.h>
 #include <llvm/Object/Archive.h>
+#include <llvm/Support/Debug.h>
 #include <llvm/Support/Errc.h>
 #include <llvm/Support/raw_ostream.h>
 
-
 #include <cstdio>
-#include <system_error>
 #include <elf.h>
 #include <sys/types.h>
+#include <system_error>
 #include <unistd.h>
 
 using namespace llvm;
@@ -25,15 +24,15 @@ static PtrTy fromTargetAddress(JITTargetAddress Addr) {
 }
 
 Error llvm::orc::runOrcJIT(std::vector<std::unique_ptr<Module>> Ms,
-                         //const std::vector<std::string> &Args,
-                         allvm::ExecutionYengine::ExecutionInfo &Info) {
+                           // const std::vector<std::string> &Args,
+                           allvm::ExecutionYengine::ExecutionInfo &Info) {
 
   // Grab a target machine and try to build a factory function for the
   // target-specific Orc callback manager.
   EngineBuilder EB;
   auto TM = std::unique_ptr<TargetMachine>(EB.selectTarget());
   Triple T(TM->getTargetTriple());
-  auto CompileCallbackMgr = orc::createLocalCompileCallbackManager(T, 0); 
+  auto CompileCallbackMgr = orc::createLocalCompileCallbackManager(T, 0);
 
   // If we couldn't build the factory function then there must not be a callback
   // manager for this target. Bail out.
@@ -54,7 +53,8 @@ Error llvm::orc::runOrcJIT(std::vector<std::unique_ptr<Module>> Ms,
 
   const DataLayout DL(TM->createDataLayout());
 
-  OrcJIT J(std::move(TM), std::move(CompileCallbackMgr), IndirectStubsMgrBuilder);
+  OrcJIT J(std::move(TM), std::move(CompileCallbackMgr),
+           IndirectStubsMgrBuilder);
 
   auto BinaryOrErr = object::createBinary(Info.LibNone);
   if (!BinaryOrErr)
@@ -119,28 +119,23 @@ Error llvm::orc::runOrcJIT(std::vector<std::unique_ptr<Module>> Ms,
   assert(!Info.Args.empty());
   int argc = static_cast<int>(Info.Args.size());
 
- 
-
-  //typedef int (*mainty)(int, char **, char **);
-  //typedef int (*startty)(mainty, int, char **);
-
-  
+  // typedef int (*mainty)(int, char **, char **);
+  // typedef int (*startty)(mainty, int, char **);
 
   std::vector<const char *> ArgV;
   for (auto &Arg : Info.Args)
     ArgV.push_back(Arg.c_str());
 
-   if (Info.NoExec) {
+  if (Info.NoExec) {
     errs() << "'noexec' option set, skipping execution...\n";
-//    errs() << "hello2\n";
+    //    errs() << "hello2\n";
     return Error::success();
   }
 
-   errs() << "hellso\n";
-
+  errs() << "hellso\n";
 
   for (auto &M : Ms) {
-    //M->setDataLayout(DL);
+    // M->setDataLayout(DL);
     J.addModule(std::move(M));
   }
 
@@ -157,17 +152,17 @@ Error llvm::orc::runOrcJIT(std::vector<std::unique_ptr<Module>> Ms,
 
   auto Main = fromTargetAddress<MainFnPtr>(MainSym.getAddress());
   auto Start = fromTargetAddress<StartFnPtr>(StartSym.getAddress());
-//  return Main(static_cast<int>(ArgV.size()), ArgV.data());
+  //  return Main(static_cast<int>(ArgV.size()), ArgV.data());
 
   Start(Main, static_cast<int>(argc), argv_ptr);
   return make_error<StringError>("libc returned instead of exiting directly?!",
                                  errc::invalid_argument);
-  //return Start(Main, static_cast<int>(argc), argv_ptr);//(static_cast<int>(ArgV.size()), ArgV.data());
+  // return Start(Main, static_cast<int>(argc),
+  // argv_ptr);//(static_cast<int>(ArgV.size()), ArgV.data());
 
-   //startty start = reinterpret_cast<startty>(StartAddr);
-   //start(reinterpret_cast<mainty>(MainSym), argc, argv_ptr);
-  /* return make_error<StringError>("libc returned instead of exiting directly?!",
+  // startty start = reinterpret_cast<startty>(StartAddr);
+  // start(reinterpret_cast<mainty>(MainSym), argc, argv_ptr);
+  /* return make_error<StringError>("libc returned instead of exiting
+     directly?!",
                                   errc::invalid_argument);*/
 }
-
-

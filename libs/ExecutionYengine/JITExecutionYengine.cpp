@@ -121,11 +121,10 @@ Error ExecutionYengine::doOrcJITExec() {
     return std::move(M.get());
   };
 
-   // get main module
-   auto MainMod = LoadModule(0);
-   if (!MainMod)
+  // get main module
+  auto MainMod = LoadModule(0);
+  if (!MainMod)
     return MainMod.takeError();
-
 
   for (size_t i = 0, e = allexe.getNumModules(); i != e; ++i) {
     auto M = LoadModule(i);
@@ -136,7 +135,7 @@ Error ExecutionYengine::doOrcJITExec() {
     if (auto E = (*M)->materializeAll())
       return std::move(E);
 
-     libcxxabiKludge(**M);
+    libcxxabiKludge(**M);
 
     Ms.push_back(move(*M));
   }
@@ -145,6 +144,5 @@ Error ExecutionYengine::doOrcJITExec() {
   return llvm::orc::runOrcJIT(std::move(Ms), Info);
 
   // Exit immediately with given exit code
-//  ::_exit(ret);
+  //  ::_exit(ret);
 }
-
