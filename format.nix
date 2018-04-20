@@ -6,7 +6,7 @@ let
 
     dontUseCmakeBuildDir = true;
 
-    phases = [ "nobuildphase" ];
+    phases = [ "nobuildPhase" ];
 
     nobuildPhase = ''
       echo
