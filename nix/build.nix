@@ -11,7 +11,7 @@
 # Only run tests on x86 (and non-cross, handled by default automagic)
 , doCheck ? stdenv.hostPlatform.isx86
 , pandoc, texlive
-, useClangWerrorFlags ? stdenv.cc.isClang
+, useClangWerrorFlags ? false #stdenv.cc.isClang
 }:
 
 # Make sure no one tries to enable clang-specific flags

@@ -8,6 +8,7 @@ set(LLVM_LINK_COMPONENTS
   IRReader
   MC
   MIRParser
+  orcJIT
   ScalarOpts
   SelectionDAG
   Support
@@ -19,7 +20,8 @@ add_allvm_library(ExecutionYengine
   JITExecutionYengine.cpp
   LinuxJIT.cpp # select this based on platform
   StaticExecutionYengine.cpp
-
+  orcJIT.cpp
+   
   LINK_LIBS
   liball
   Cache

@@ -30,6 +30,9 @@ public:
   // Execute using JIT
   llvm::Error doJITExec();
 
+  // Execute using OrcJIT
+  llvm::Error doOrcJITExec();
+
 private:
   ExecutionInfo Info;
 };

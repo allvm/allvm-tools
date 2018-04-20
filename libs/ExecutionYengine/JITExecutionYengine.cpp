@@ -2,6 +2,7 @@
 #include "allvm/JITCache.h"
 
 #include "PlatformSpecificJIT.h"
+#include "orcJIT.h"
 
 #include <llvm/IR/Constants.h>
 #include <llvm/IR/LLVMContext.h>
@@ -105,3 +106,45 @@ Error ExecutionYengine::doJITExec() {
 
   return runHosted(*EE, Info);
 }
+
+Error ExecutionYengine::doOrcJITExec() {
+  std::vector<std::unique_ptr<Module>> Ms;
+  LLVMContext context;
+  auto &allexe = Info.allexe;
+  auto LoadModule = [&](size_t idx) -> Expected<std::unique_ptr<Module>> {
+    uint32_t crc;
+    auto M = allexe.getModule(idx, context, &crc);
+    auto name = allexe.getModuleName(idx);
+    if (!M)
+      return M.takeError();
+    M.get()->setModuleIdentifier(JITCache::generateName(name, crc));
+    return std::move(M.get());
+  };
+
+   // get main module
+   auto MainMod = LoadModule(0);
+   if (!MainMod)
+    return MainMod.takeError();
+
+
+  for (size_t i = 0, e = allexe.getNumModules(); i != e; ++i) {
+    auto M = LoadModule(i);
+    if (!M)
+      return M.takeError();
+
+    // For now, make sure modules are fully loaded
+    if (auto E = (*M)->materializeAll())
+      return std::move(E);
+
+     libcxxabiKludge(**M);
+
+    Ms.push_back(move(*M));
+  }
+
+  // XXX: Handle ctor/dtors, exit code
+  return llvm::orc::runOrcJIT(std::move(Ms), Info);
+
+  // Exit immediately with given exit code
+//  ::_exit(ret);
+}
+
