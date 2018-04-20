@@ -24,7 +24,7 @@ static PtrTy fromTargetAddress(JITTargetAddress Addr) {
 }
 
 Error llvm::orc::runOrcJIT(std::vector<std::unique_ptr<Module>> Ms,
-                           // const std::vector<std::string> &Args,
+                           const std::vector<std::string> &Args,
                            allvm::ExecutionYengine::ExecutionInfo &Info) {
 
   // Grab a target machine and try to build a factory function for the
@@ -119,30 +119,23 @@ Error llvm::orc::runOrcJIT(std::vector<std::unique_ptr<Module>> Ms,
   assert(!Info.Args.empty());
   int argc = static_cast<int>(Info.Args.size());
 
-  // typedef int (*mainty)(int, char **, char **);
-  // typedef int (*startty)(mainty, int, char **);
-
   std::vector<const char *> ArgV;
-  for (auto &Arg : Info.Args)
+  for (auto &Arg : Args)
     ArgV.push_back(Arg.c_str());
 
   if (Info.NoExec) {
     errs() << "'noexec' option set, skipping execution...\n";
-    //    errs() << "hello2\n";
     return Error::success();
   }
 
-  errs() << "hellso\n";
-
-  for (auto &M : Ms) {
-    // M->setDataLayout(DL);
-    J.addModule(std::move(M));
-  }
+  // for (auto &M : Ms) {
+  J.addModuleSet(std::move(Ms));
+  //}
 
   auto StartSym = J.findSymbol("__libc_start_main");
   auto MainSym = J.findSymbol("main");
 
-  typedef int (*MainFnPtr)(int, char *[]);
+  typedef int (*MainFnPtr)(int, const char *[]);
   typedef int (*StartFnPtr)(MainFnPtr, int, char *[]);
 
   if (!MainSym) {
@@ -152,17 +145,11 @@ Error llvm::orc::runOrcJIT(std::vector<std::unique_ptr<Module>> Ms,
 
   auto Main = fromTargetAddress<MainFnPtr>(MainSym.getAddress());
   auto Start = fromTargetAddress<StartFnPtr>(StartSym.getAddress());
-  //  return Main(static_cast<int>(ArgV.size()), ArgV.data());
 
   Start(Main, static_cast<int>(argc), argv_ptr);
+
+  // StartFnPtr startX = reinterpret_cast<StartFnPtr>(Start);
+  // startX(reinterpret_cast<MainFnPtr>(Main), argc, argv_ptr);
   return make_error<StringError>("libc returned instead of exiting directly?!",
                                  errc::invalid_argument);
-  // return Start(Main, static_cast<int>(argc),
-  // argv_ptr);//(static_cast<int>(ArgV.size()), ArgV.data());
-
-  // startty start = reinterpret_cast<startty>(StartAddr);
-  // start(reinterpret_cast<mainty>(MainSym), argc, argv_ptr);
-  /* return make_error<StringError>("libc returned instead of exiting
-     directly?!",
-                                  errc::invalid_argument);*/
 }

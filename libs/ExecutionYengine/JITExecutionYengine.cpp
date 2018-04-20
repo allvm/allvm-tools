@@ -141,7 +141,7 @@ Error ExecutionYengine::doOrcJITExec() {
   }
 
   // XXX: Handle ctor/dtors, exit code
-  return llvm::orc::runOrcJIT(std::move(Ms), Info);
+  return llvm::orc::runOrcJIT(std::move(Ms), Info.Args, Info);
 
   // Exit immediately with given exit code
   //  ::_exit(ret);

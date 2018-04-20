@@ -114,7 +114,7 @@ int main(int argc, const char **argv, const char **envp) {
   if (allexe->getNumModules() == 1)
     ExitOnErr(EY.tryStaticExec(Linker, Options));
 
-  errs() << "Execution\n";
+  // errs() << "Execution\n";
   int orcExec = 1;
 
   if (orcExec) {

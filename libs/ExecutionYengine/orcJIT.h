@@ -2,7 +2,8 @@
 #include <llvm/ADT/STLExtras.h>
 #include <llvm/ExecutionEngine/ExecutionEngine.h>
 #include <llvm/ExecutionEngine/JITSymbol.h>
-#include <llvm/ExecutionEngine/Orc/CompileOnDemandLayer.h>
+
+//#include <llvm/ExecutionEngine/Orc/CompileOnDemandLayer.h>
 #include <llvm/ExecutionEngine/Orc/CompileUtils.h>
 #include <llvm/ExecutionEngine/Orc/ExecutionUtils.h>
 #include <llvm/ExecutionEngine/Orc/IRCompileLayer.h>
@@ -24,7 +25,9 @@
 #include <llvm/Transforms/Scalar.h>
 #include <llvm/Transforms/Scalar/GVN.h>
 
+#include "allvm/AdaptiveCompileOnDemandLayer.h"
 #include "allvm/ExecutionYengine.h"
+//#include "allvm/DebugIRLayer.h"
 
 #include <algorithm>
 #include <memory>
@@ -56,21 +59,25 @@ private:
 
   ObjectLayerT ObjectLayer;
   CompileLayerT CompileLayer;
+
   // CODLayerT CODLayer;
 
   std::vector<object::OwningBinary<object::Archive>> Archives;
 
   std::unique_ptr<JITCompileCallbackManager> CompileCallbackManager;
 
-  typedef orc::CompileOnDemandLayer<CompileLayerT,
-                                    orc::JITCompileCallbackManager>
+  typedef AdaptiveCompileOnDemandLayer<IRDumpLayerT,
+                                       orc::JITCompileCallbackManager>
       CODLayerT;
   typedef CODLayerT::IndirectStubsManagerBuilderT IndirectStubsManagerBuilder;
 
+  IRDumpLayerT OptimizeLayer;
   CODLayerT CODLayer;
 
   orc::LocalCXXRuntimeOverrides CXXRuntimeOverrides;
   std::vector<orc::CtorDtorRunner<CODLayerT>> IRStaticDestructorRunners;
+
+  std::unique_ptr<IndirectStubsManager> IndirectStubsMgr;
 
 public:
   OrcJIT(std::unique_ptr<TargetMachine> TM,
@@ -79,12 +86,19 @@ public:
       : TM(move(TM)), DL(this->TM->createDataLayout()), ObjectLayer(),
         CompileLayer(ObjectLayer, SimpleCompiler(*this->TM)),
         CompileCallbackManager(move(CompileCallbackMgr)),
-        CODLayer(CompileLayer,
+        OptimizeLayer(CompileLayer,
+                      [this](std::unique_ptr<Module> M) {
+                        return optimizeModule(std::move(M));
+                      }),
+        CODLayer(OptimizeLayer,
                  [](Function &F) { return std::set<Function *>({&F}); },
                  *CompileCallbackManager, std::move(IndirectStubsMgrBuilder),
                  true),
         CXXRuntimeOverrides(
-            [this](const std::string &S) { return mangle(S); }) {}
+            [this](const std::string &S) { return mangle(S); }) {
+
+    IndirectStubsMgr = IndirectStubsMgrBuilder();
+  }
 
   TargetMachine &getTargetMachine() { return *TM; }
 
@@ -95,68 +109,109 @@ public:
       DtorRunner.runViaLayer(CODLayer);
   }
 
-  bool addModule(std::unique_ptr<Module> M) {
+  auto createResolver() {
 
-    if (M->getDataLayout().isDefault())
-      M->setDataLayout(DL);
-
-    std::vector<std::string> CtorNames, DtorNames;
-    unsigned CtorId = 0, DtorId = 0;
-
-    for (auto Ctor : orc::getConstructors(*M)) {
-      std::string NewCtorName = ("$static_ctor." + Twine(CtorId++)).str();
-      Ctor.Func->setName(NewCtorName);
-      Ctor.Func->setLinkage(GlobalValue::ExternalLinkage);
-      Ctor.Func->setVisibility(GlobalValue::HiddenVisibility);
-      CtorNames.push_back(mangle(NewCtorName));
-    }
-
-    for (auto Dtor : orc::getDestructors(*M)) {
-      std::string NewDtorName = ("$static_dtor." + Twine(DtorId++)).str();
-      Dtor.Func->setName(NewDtorName);
-      Dtor.Func->setLinkage(GlobalValue::ExternalLinkage);
-      Dtor.Func->setVisibility(GlobalValue::HiddenVisibility);
-      DtorNames.push_back(mangle(NewDtorName));
-    }
-
-    auto Resolver = createLambdaResolver(
-        [&](const std::string &Name) -> JITSymbol {
-          if (auto Sym = CODLayer.findSymbol(Name, false)) {
+    return orc::createLambdaResolver(
+        [this](const std::string &Name) -> JITSymbol {
+          // errs() << "N1: " << Name << "\n";
+          if (auto Sym = CODLayer.findSymbol(Name, false))
             return Sym;
-          } else
-            return CXXRuntimeOverrides.searchOverrides(Name);
-        },
-        [this](const std::string &Name) {
-
           if (auto Sym = scanArchives(Name))
             return Sym;
 
-          if (auto SymAddr =
-                  RTDyldMemoryManager::getSymbolAddressInProcess(Name))
-            return JITSymbol(SymAddr, JITSymbolFlags::Exported);
-
-          if (Name == "__fini_array_end" || Name == "__fini_array_start" ||
-              Name == "__init_array_start" || Name == "__init_array_end")
-            return JITSymbol(
-                JITEvaluatedSymbol(reinterpret_cast<JITTargetAddress>(dummy),
-                                   JITSymbolFlags::Exported));
-
+          return CXXRuntimeOverrides.searchOverrides(Name);
+        },
+        [this](const std::string &Name) -> JITSymbol {
+          // errs() << "N2: " << Name << "\n";
+          if (auto Addr = RTDyldMemoryManager::getSymbolAddressInProcess(Name))
+            return JITSymbol(Addr, JITSymbolFlags::Exported);
           return JITSymbol(nullptr);
         });
+  }
 
-    std::vector<std::unique_ptr<Module>> Ms;
-    Ms.push_back(std::move(M));
+  bool addModuleSet(std::vector<std::unique_ptr<Module>> Ms) {
 
+    // errs() << "Add Module\n";
+
+    for (auto &M : Ms)
+      if (M->getDataLayout().isDefault())
+        M->setDataLayout(DL);
+
+    // Rename, bump linkage and record static constructors and destructors.
+    // We have to do this before we hand over ownership of the module to the
+    // JIT.
+
+    std::vector<std::vector<std::string>> CtorNamesS, DtorNamesS;
+    unsigned CtorId = 0, DtorId = 0;
+    for (auto &M : Ms) {
+
+      std::vector<std::string> CtorNames, DtorNames;
+
+      for (auto Ctor : orc::getConstructors(*M)) {
+        std::string NewCtorName = ("$static_ctor." + Twine(CtorId++)).str();
+        Ctor.Func->setName(NewCtorName);
+        Ctor.Func->setLinkage(GlobalValue::ExternalLinkage);
+        Ctor.Func->setVisibility(GlobalValue::HiddenVisibility);
+        CtorNames.push_back(mangle(Ctor.Func->getName()));
+      }
+
+      for (auto Dtor : orc::getDestructors(*M)) {
+        std::string NewDtorName = ("$static_dtor." + Twine(DtorId++)).str();
+        Dtor.Func->setLinkage(GlobalValue::ExternalLinkage);
+        Dtor.Func->setVisibility(GlobalValue::HiddenVisibility);
+        DtorNames.push_back(mangle(Dtor.Func->getName()));
+        Dtor.Func->setName(NewDtorName);
+      }
+
+      CtorNamesS.push_back(CtorNames);
+      DtorNamesS.push_back(DtorNames);
+      // M->dump();
+
+      /* for (auto Ctor : orc::getConstructors(*M)) {
+         errs() << "CtorName: " << Ctor.Func->getName() << "\n";
+         Ctor.Func->dump();
+       }
+
+       for (auto Dtor : orc::getDestructors(*M)) {
+         errs() << "DtorName: " << Dtor.Func->getName() << "\n";
+       } */
+    }
+
+    // M->dump();
+    // Symbol resolution order:
+    //   1) Search the JIT symbols.
+    //   2) Check for C++ runtime overrides.
+    //   3) Search the host process (LLI)'s symbol table.
+
+    // for (auto &M : Ms) {
+
+    // std::vector<std::unique_ptr<Module>> Msp;
+    // Msp.push_back(std::move(M));
     auto H = CODLayer.addModuleSet(std::move(Ms),
-                                   make_unique<SectionMemoryManager>(),
-                                   std::move(Resolver));
+                                   llvm::make_unique<SectionMemoryManager>(),
+                                   createResolver());
 
-    orc::CtorDtorRunner<CODLayerT> CtorRunner(std::move(CtorNames), H);
+    //}
+    // Run the static constructors, and save the static destructor runner for
+    // execution when the JIT is torn down.
 
-    CtorRunner.runViaLayer(CODLayer);
+    for (int i = 0; i < CtorNamesS.size(); i++) {
+      // errs() << "CtorNamesS[" << i << "]" << " = " << CtorNamesS[i].size() <<
+      // "\n";
+      // errs() << "DtorNamesS[" << i << "]" << " = " << DtorNamesS[i].size() <<
+      // "\n";
+      std::vector<std::string> CtorNames, DtorNames;
+      CtorNames = CtorNamesS[i];
+      DtorNames = DtorNamesS[i];
+      // errs() << "CtorNames = " << CtorNames.size() << "\n";
+      // errs() << "DtorNames = " << DtorNames.size() << "\n";
+      orc::CtorDtorRunner<CODLayerT> CtorRunner(std::move(CtorNames), H);
+      CtorRunner.runViaLayer(CODLayer);
+      // errs() << "we finish running?\n";
+      IRStaticDestructorRunners.emplace_back(std::move(DtorNames), H);
+    }
 
-    IRStaticDestructorRunners.emplace_back(std::move(DtorNames), H);
-
+    // errs() << "Done adding module\n";
     return true;
   }
 
@@ -173,17 +228,19 @@ public:
 
   JITSymbol findSymbol(const std::string Name) {
 
-    if (auto Sym = CODLayer.findSymbol(mangle(Name), false))
-      return Sym;
-
-    if (auto Sym = scanArchives(Name))
-      return Sym;
+    // errs() << "FindSymbol: " << Name << "\n";
 
     // FIXME: Resolve these properly instead of hardcoding to our dummy pointer
     if (Name == "__fini_array_end" || Name == "__fini_array_start" ||
         Name == "__init_array_start" || Name == "__init_array_end")
       return JITSymbol(JITEvaluatedSymbol(
           reinterpret_cast<JITTargetAddress>(dummy), JITSymbolFlags::Exported));
+
+    if (auto Sym = CODLayer.findSymbol(mangle(Name), false))
+      return Sym;
+
+    if (auto Sym = scanArchives(Name))
+      return Sym;
 
     return nullptr;
   }
@@ -220,12 +277,6 @@ public:
 
               },
               [this](const std::string &Name) {
-                if (auto Sym = scanArchives(Name))
-                  return Sym;
-
-                if (auto SymAddr =
-                        RTDyldMemoryManager::getSymbolAddressInProcess(Name))
-                  return JITSymbol(SymAddr, JITSymbolFlags::Exported);
 
                 if (Name == "__fini_array_end" ||
                     Name == "__fini_array_start" ||
@@ -233,6 +284,12 @@ public:
                   return JITSymbol(JITEvaluatedSymbol(
                       reinterpret_cast<JITTargetAddress>(dummy),
                       JITSymbolFlags::Exported));
+                if (auto Sym = scanArchives(Name))
+                  return Sym;
+
+                if (auto SymAddr =
+                        RTDyldMemoryManager::getSymbolAddressInProcess(Name))
+                  return JITSymbol(SymAddr, JITSymbolFlags::Exported);
 
                 return JITSymbol(nullptr);
               });
@@ -256,11 +313,31 @@ public:
     return JITSymbol(nullptr);
   }
 
-  // void removeModule(ModuleHandle H) { CODLayer.removeModuleSet(H) }
+private:
+  std::unique_ptr<Module> optimizeModule(std::unique_ptr<Module> M) {
+
+    auto FPM = llvm::make_unique<legacy::FunctionPassManager>(M.get());
+
+    FPM->add(createGVNPass());
+    FPM->doInitialization();
+
+    // errs() << "New Module\n";
+
+    for (auto &F : *M) {
+      // errs() << "Optimizing Function " << F.getName().str() << "\n";
+      // errs() << "Before: \n";
+      // F.dump();
+      FPM->run(F);
+      // errs() << "After: \n";
+      // F.dump();
+    }
+
+    return M;
+  }
 };
 
 Error runOrcJIT(std::vector<std::unique_ptr<Module>> Ms,
-                //  const std::vector<std::string> &Args,
+                const std::vector<std::string> &Args,
                 allvm::ExecutionYengine::ExecutionInfo &Info);
 
 } // end namespace orc
