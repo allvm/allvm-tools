@@ -128,14 +128,12 @@ Error llvm::orc::runOrcJIT(std::vector<std::unique_ptr<Module>> Ms,
     return Error::success();
   }
 
-  // for (auto &M : Ms) {
   J.addModuleSet(std::move(Ms));
-  //}
 
   auto StartSym = J.findSymbol("__libc_start_main");
   auto MainSym = J.findSymbol("main");
 
-  typedef int (*MainFnPtr)(int, const char *[]);
+  typedef int (*MainFnPtr)(int, char *[]);
   typedef int (*StartFnPtr)(MainFnPtr, int, char *[]);
 
   if (!MainSym) {
@@ -143,9 +141,15 @@ Error llvm::orc::runOrcJIT(std::vector<std::unique_ptr<Module>> Ms,
     return Error::success();
   }
 
+  if (!StartSym) {
+    errs() << "Could not find start function.\n";
+    return Error::success();
+  }
+
   auto Main = fromTargetAddress<MainFnPtr>(MainSym.getAddress());
   auto Start = fromTargetAddress<StartFnPtr>(StartSym.getAddress());
 
+  // Main(static_cast<int>(argc), argv_ptr);
   Start(Main, static_cast<int>(argc), argv_ptr);
 
   // StartFnPtr startX = reinterpret_cast<StartFnPtr>(Start);

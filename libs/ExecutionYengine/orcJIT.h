@@ -77,7 +77,7 @@ private:
   orc::LocalCXXRuntimeOverrides CXXRuntimeOverrides;
   std::vector<orc::CtorDtorRunner<CODLayerT>> IRStaticDestructorRunners;
 
-  std::unique_ptr<IndirectStubsManager> IndirectStubsMgr;
+  // std::unique_ptr<IndirectStubsManager> IndirectStubsMgr;
 
 public:
   OrcJIT(std::unique_ptr<TargetMachine> TM,
@@ -95,10 +95,7 @@ public:
                  *CompileCallbackManager, std::move(IndirectStubsMgrBuilder),
                  true),
         CXXRuntimeOverrides(
-            [this](const std::string &S) { return mangle(S); }) {
-
-    IndirectStubsMgr = IndirectStubsMgrBuilder();
-  }
+            [this](const std::string &S) { return mangle(S); }) {}
 
   TargetMachine &getTargetMachine() { return *TM; }
 
@@ -123,6 +120,11 @@ public:
         },
         [this](const std::string &Name) -> JITSymbol {
           // errs() << "N2: " << Name << "\n";
+          if (Name == "__fini_array_end" || Name == "__fini_array_start" ||
+              Name == "__init_array_start" || Name == "__init_array_end")
+            return JITSymbol(
+                JITEvaluatedSymbol(reinterpret_cast<JITTargetAddress>(dummy),
+                                   JITSymbolFlags::Exported));
           if (auto Addr = RTDyldMemoryManager::getSymbolAddressInProcess(Name))
             return JITSymbol(Addr, JITSymbolFlags::Exported);
           return JITSymbol(nullptr);
@@ -177,7 +179,6 @@ public:
        } */
     }
 
-    // M->dump();
     // Symbol resolution order:
     //   1) Search the JIT symbols.
     //   2) Check for C++ runtime overrides.
@@ -207,7 +208,6 @@ public:
       // errs() << "DtorNames = " << DtorNames.size() << "\n";
       orc::CtorDtorRunner<CODLayerT> CtorRunner(std::move(CtorNames), H);
       CtorRunner.runViaLayer(CODLayer);
-      // errs() << "we finish running?\n";
       IRStaticDestructorRunners.emplace_back(std::move(DtorNames), H);
     }
 
@@ -268,38 +268,12 @@ public:
         std::unique_ptr<object::Binary> &ChildBin = ChildBinOrErr.get();
         if (ChildBin->isObject()) {
 
-          auto Resolver = createLambdaResolver(
-              [&](const std::string &Name) -> JITSymbol {
-                if (auto Sym = CODLayer.findSymbol(Name, false)) {
-                  return Sym;
-                } else
-                  return CXXRuntimeOverrides.searchOverrides(Name);
-
-              },
-              [this](const std::string &Name) {
-
-                if (Name == "__fini_array_end" ||
-                    Name == "__fini_array_start" ||
-                    Name == "__init_array_start" || Name == "__init_array_end")
-                  return JITSymbol(JITEvaluatedSymbol(
-                      reinterpret_cast<JITTargetAddress>(dummy),
-                      JITSymbolFlags::Exported));
-                if (auto Sym = scanArchives(Name))
-                  return Sym;
-
-                if (auto SymAddr =
-                        RTDyldMemoryManager::getSymbolAddressInProcess(Name))
-                  return JITSymbol(SymAddr, JITSymbolFlags::Exported);
-
-                return JITSymbol(nullptr);
-              });
-
           std::vector<std::unique_ptr<object::ObjectFile>> ObjSet;
           ObjSet.push_back(std::unique_ptr<object::ObjectFile>(
               static_cast<object::ObjectFile *>(ChildBin.release())));
           ObjectLayer.addObjectSet(std::move(ObjSet),
                                    make_unique<SectionMemoryManager>(),
-                                   std::move(Resolver));
+                                   createResolver());
           if (auto Sym = ObjectLayer.findSymbol(Name, false))
             return Sym;
           else {
