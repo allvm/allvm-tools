@@ -6,3 +6,12 @@ before_install:
 
 # Force VM instead of container, so that sandbox works
 sudo: required
+
+# announce to #allvm
+notifications:
+    webhooks:
+        urls:
+            - "https://scalar.vector.im/api/neb/services/hooks/dHJhdmlzLWNpLyU0MGR0eldpbGwlM0FtYXRyaXgub3JnLyUyMVV6WElnQ2FnZnNLUE9nd3JqZiUzQW1hdHJpeC5vcmc"
+        on_success: change  # always|never|change
+        on_failure: always
+        on_start: never
