@@ -115,7 +115,7 @@ int main(int argc, const char **argv, const char **envp) {
     ExitOnErr(EY.tryStaticExec(Linker, Options));
 
   // errs() << "Execution\n";
-  int orcExec = 1;
+  int orcExec = 0;
 
   if (orcExec) {
     ExitOnErr(EY.doOrcJITExec());

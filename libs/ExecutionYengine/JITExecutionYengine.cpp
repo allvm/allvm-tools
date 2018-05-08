@@ -72,12 +72,12 @@ Error ExecutionYengine::doJITExec() {
   if (!MainMod)
     return MainMod.takeError();
 
-  auto Cache = llvm::make_unique<JITCache>();
+  // auto Cache = llvm::make_unique<JITCache>();
 
-  if (!Cache->hasObjectFor((*MainMod).get())) {
-    if (auto E = (*MainMod)->materializeAll())
-      return E;
-  }
+  // if (!Cache->hasObjectFor((*MainMod).get())) {
+  //   if (auto E = (*MainMod)->materializeAll())
+  //     return E;
+  // }
 
   // Create the EE using this module:
   EngineBuilder builder(std::move(*MainMod));
@@ -88,19 +88,19 @@ Error ExecutionYengine::doJITExec() {
   if (!EE.get())
     return make_error<StringError>("Error building execution engine: " + error,
                                    errc::invalid_argument);
-  EE->setObjectCache(Cache.get());
+  // EE->setObjectCache(Cache.get());
 
   // Add supporting libraries
   for (size_t i = 1, e = allexe.getNumModules(); i != e; ++i) {
     auto M = LoadModule(i);
     if (!M)
       return M.takeError();
-    if (!Cache->hasObjectFor((*M).get())) {
-      if (auto E = (*M)->materializeAll())
-        return E;
+    // if (!Cache->hasObjectFor((*M).get())) {
+    if (auto E = (*M)->materializeAll())
+      return E;
 
-      libcxxabiKludge(**M);
-    }
+    libcxxabiKludge(**M);
+    //  }
     EE->addModule(std::move(*M));
   }
 
