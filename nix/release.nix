@@ -30,7 +30,7 @@ let
   overlayForGCCV = gccVersion:
     self: super: {
       allvm-tools-variants = (super.allvm-tools-variants or {}) // {
-        "allvm-tools-gcc-${gccVersion}" = super.allvm-tools.override {
+        "allvm-tools-gcc${gccVersion}" = super.allvm-tools.override {
           stdenv = super.overrideCC super.stdenv super."gcc${gccVersion}";
         };
       };
