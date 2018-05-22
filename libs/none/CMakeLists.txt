@@ -71,7 +71,7 @@ configure_file(merge.ar.in merge.ar)
 add_custom_command(TARGET none POST_BUILD
   COMMAND ${CMAKE_AR} -M <merge.ar
   COMMAND mv libnone.a.merged ${LLVM_LIBRARY_OUTPUT_INTDIR}/libnone.a
-  COMMAND ${CMAKE_STRIP} --strip-debug ${LLVM_LIBRARY_OUTPUT_INTDIR}/libnone.a
+  COMMAND ${CMAKE_STRIP} --strip-debug --strip-unneeded ${LLVM_LIBRARY_OUTPUT_INTDIR}/libnone.a
   DEPENDS merge.ar
 )
 
