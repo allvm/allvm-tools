@@ -37,7 +37,7 @@ add_custom_command(OUTPUT ${MUSL}/config.mak
   COMMAND rm -rf "${MUSL}"
   COMMAND tar xf "${CMAKE_CURRENT_SOURCE_DIR}/musl/${MUSL}.tar.gz"
   COMMAND for PATCH in ${MUSL_PATCHES} \; do patch -p1 -d "${MUSL}" -i "${CMAKE_CURRENT_SOURCE_DIR}/$$PATCH" \; done
-  COMMAND cd ${MUSL} && CC=${CMAKE_C_COMPILER} ./configure --disable-shared CFLAGS=${MUSL_CFLAGS}
+  COMMAND cd ${MUSL} && CC=${CMAKE_C_COMPILER} ./configure --disable-shared CFLAGS=${MUSL_CFLAGS} --enable-debug
   MAIN_DEPENDENCY musl/${MUSL}.tar.gz
   DEPENDS ${MUSL_PATCHES}
   COMMENT "Configuring ${MUSL}"
@@ -69,6 +69,7 @@ configure_file(merge.ar.in merge.ar)
 add_custom_command(TARGET none POST_BUILD
   COMMAND ${CMAKE_AR} -M <merge.ar
   COMMAND mv libnone.a.merged ${LLVM_LIBRARY_OUTPUT_INTDIR}/libnone.a
+  COMMAND ${CMAKE_STRIP} --strip-debug ${LLVM_LIBRARY_OUTPUT_INTDIR}/libnone.a
   DEPENDS merge.ar
 )
 
