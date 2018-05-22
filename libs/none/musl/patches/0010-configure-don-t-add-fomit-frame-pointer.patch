@@ -1,0 +1,31 @@
+From 71f07c3b9aa92c8b59b1e47a6a9a3231b6e5e584 Mon Sep 17 00:00:00 2001
+From: Will Dietz <w@wdtz.org>
+Date: Tue, 22 May 2018 09:19:49 -0500
+Subject: [PATCH 2/2] configure: don't add -fomit-frame-pointer
+
+---
+ configure | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/configure b/configure
+index 868d7efc..b1c87881 100755
+--- a/configure
++++ b/configure
+@@ -457,10 +457,10 @@ tryflag CFLAGS_AUTO -pipe
+ # anyway on most archs even when debugging is enabled since the frame
+ # pointer is no longer needed for debugging.
+ #
+-if fnmatch '-g*|*\ -g*' "$CFLAGS_AUTO $CFLAGS" ; then :
+-else 
+-tryflag CFLAGS_AUTO -fomit-frame-pointer
+-fi
++#if fnmatch '-g*|*\ -g*' "$CFLAGS_AUTO $CFLAGS" ; then :
++#else
++#tryflag CFLAGS_AUTO -fomit-frame-pointer
++#fi
+ 
+ #
+ # Modern GCC wants to put DWARF tables (used for debugging and
+-- 
+2.17.0
+

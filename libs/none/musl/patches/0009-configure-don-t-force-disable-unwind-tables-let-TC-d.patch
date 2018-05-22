@@ -1,0 +1,28 @@
+From ad662224672d31d3ca9b18587e5f60d7bacea6c8 Mon Sep 17 00:00:00 2001
+From: Will Dietz <w@wdtz.org>
+Date: Tue, 22 May 2018 09:18:43 -0500
+Subject: [PATCH 1/2] configure: don't force-disable unwind tables, let TC do
+ default
+
+---
+ configure | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/configure b/configure
+index 09a0c436..868d7efc 100755
+--- a/configure
++++ b/configure
+@@ -468,8 +468,8 @@ fi
+ # unstrippable. These options force them back to debug sections (and
+ # cause them not to get generated at all if debugging is off).
+ #
+-tryflag CFLAGS_AUTO -fno-unwind-tables
+-tryflag CFLAGS_AUTO -fno-asynchronous-unwind-tables
++#tryflag CFLAGS_AUTO -fno-unwind-tables
++#tryflag CFLAGS_AUTO -fno-asynchronous-unwind-tables
+ 
+ #
+ # Attempt to put each function and each data object in its own
+-- 
+2.17.0
+
