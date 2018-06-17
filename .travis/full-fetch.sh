@@ -1,3 +1,4 @@
 #!/bin/sh
 
-nix run -f '<nixpkgs>' git -c git pull --unshallow
+# builtins.fetchGit doesn't work with shallow clones, so fetch full
+git pull --unshallow
