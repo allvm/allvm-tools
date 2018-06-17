@@ -20,17 +20,9 @@ assert useClangWerrorFlags -> stdenv.cc.isClang;
 
 let
   inherit (stdenv) lib;
-  gitrev = if (builtins.pathExists ../.git) then lib.commitIdFromGitRepo ../.git else "0000000000000000000000000000000000000000";
-  gitshort = builtins.substring 0 7 gitrev;
 
-  sourceFilter = name: type: let baseName = baseNameOf (toString name); in
-    (lib.cleanSourceFilter name type) && !(
-      (type == "directory" && (lib.hasPrefix "build" baseName ||
-                               lib.hasPrefix "install" baseName))
-  );
-  # Use "fetchGit" if it is present (1.12)
-  fetchSrc = path: if (builtins ? fetchGit) then builtins.fetchGit path else builtins.filterSource sourceFilter path;
-  src = fetchSrc ./..;
+  src = builtins.fetchGit ./..;
+  gitshort = src.shortRev;
 
   tex = texlive.combined.scheme-medium;
 in
