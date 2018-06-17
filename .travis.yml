@@ -4,6 +4,7 @@ before_install:
   - ./.travis/configure-nix.sh
   - ./.travis/install-new-nix.sh
   - ./.travis/full-fetch.sh
+  - ./.travis/install-cachix.sh
 
 # Force VM instead of container, so that sandbox works
 sudo: required
