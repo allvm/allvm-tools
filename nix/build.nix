@@ -21,7 +21,8 @@ assert useClangWerrorFlags -> stdenv.cc.isClang;
 let
   inherit (stdenv) lib;
 
-  src = builtins.fetchGit ./..;
+  src = if (builtins.pathExists ../.git) then builtins.fetchGit ./..
+        else { outPath = ./..; revCount = 1234; shortRev = "abcdefgh"; };
   gitshort = src.shortRev;
 
   tex = texlive.combined.scheme-medium;
