@@ -41,9 +41,16 @@ stdenv.mkDerivation {
 
   inherit doCheck;
 
-  preConfigure = ''
-    find ${./..}
-    git -C ${./..} diff-index HEAD --
+  preConfigure = let s = ./..; in ''
+    find ${s}
+    git -C ${s} diff-index HEAD --
+    cd ${s}
+    echo "status: "
+    git status
+    echo "-------"
+    git rev-parse HEAD
+    echo "-------"
+    cd -
     exit 1
   '';
 
