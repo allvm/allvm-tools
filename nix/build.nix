@@ -24,6 +24,8 @@ let
         else { outPath = ./..; revCount = 1234; shortRev = "abcdefgh"; };
   # If fetchGit gives us all 0's, try reading from '.git' directly.
   # Not entirely sure why but this seems to happen with Hydra's git inputs.
+  # Unfortunately this only fixes the rev bit, the source is therefore output path
+  # are still different :(
   gitshort = if src.shortRev != "0000000" then src.shortRev
              else assert builtins.pathExists ../.git; lib.commitIdFromGitRepo ../.git;
 
@@ -42,19 +44,6 @@ stdenv.mkDerivation {
   outputs = [ "out" /* "dev" */ ] ++ stdenv.lib.optional buildDocs "doc";
 
   inherit doCheck;
-
-  preConfigure = let s = ./..; in ''
-    find ${s}
-    git -C ${s} diff-index HEAD --
-    cd ${s}
-    echo "status: "
-    git status
-    echo "-------"
-    git rev-parse HEAD
-    echo "-------"
-    cd -
-    exit 1
-  '';
 
   cmakeFlags = [
     "-DBUILD_DOCS=${if buildDocs then "ON" else "OFF"}"
