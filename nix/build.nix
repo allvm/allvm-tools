@@ -20,10 +20,12 @@ assert useClangWerrorFlags -> stdenv.cc.isClang;
 
 let
   inherit (stdenv) lib;
-
   src = if (builtins.pathExists ../.git) then builtins.fetchGit ./..
         else { outPath = ./..; revCount = 1234; shortRev = "abcdefgh"; };
-  gitshort = src.shortRev;
+  # If fetchGit gives us all 0's, try reading from '.git' directly.
+  # Not entirely sure why but this seems to happen with Hydra's git inputs.
+  gitshort = if src.shortRev != "0000000" then src.shortRev
+             else assert builtins.pathExists ../.git; lib.commitIdFromGitRepo ../.git;
 
   tex = texlive.combined.scheme-medium;
 in
