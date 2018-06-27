@@ -41,6 +41,12 @@ stdenv.mkDerivation {
 
   inherit doCheck;
 
+  preConfigure = ''
+    find ${./..}
+    git -C ${./..} diff-index HEAD --
+    exit 1
+  '';
+
   cmakeFlags = [
     "-DBUILD_DOCS=${if buildDocs then "ON" else "OFF"}"
     "-DGITVERSION=${gitshort}-dev"
