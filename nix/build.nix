@@ -24,8 +24,6 @@ let
         else { outPath = ./..; revCount = 1234; shortRev = "abcdefgh"; };
   # If fetchGit gives us all 0's, try reading from '.git' directly.
   # Not entirely sure why but this seems to happen with Hydra's git inputs.
-  # Unfortunately this only fixes the rev bit, the source is therefore output path
-  # are still different :(
   gitshort = if src.shortRev != "0000000" then src.shortRev
              else assert builtins.pathExists ../.git; builtins.substring 0 7 (lib.commitIdFromGitRepo ../.git);
 
