@@ -27,7 +27,7 @@ let
   # Unfortunately this only fixes the rev bit, the source is therefore output path
   # are still different :(
   gitshort = if src.shortRev != "0000000" then src.shortRev
-             else assert builtins.pathExists ../.git; builtins.substring 0 7 gitrev lib.commitIdFromGitRepo ../.git;
+             else assert builtins.pathExists ../.git; builtins.substring 0 7 (lib.commitIdFromGitRepo ../.git);
 
   tex = texlive.combined.scheme-medium;
 in
