@@ -3,7 +3,7 @@ self: super: rec {
     inherit (self.llvmPackages_4) llvm clang lld;
   };
 
-  allvm-tools-variants = {
+  allvm-tools-variants = super.recurseIntoAttrs {
     inherit (self) allvm-tools;
   };
 }
