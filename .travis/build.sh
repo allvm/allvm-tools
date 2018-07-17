@@ -4,7 +4,7 @@ set -euo pipefail
 
 cachix push allvm --watch-store &
 
-nix build $@ -o result -v
+nix-build $@ -o result
 
 # If triggered by cron, ensure build closure is pushed too
 if [[ $TRAVIS_EVENT_TYPE == "cron" ]]; then
