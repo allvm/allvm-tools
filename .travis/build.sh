@@ -2,7 +2,7 @@
 
 cachix push allvm --watch-store &
 
-nix-build $@ -o result | cachix push allvm
+nix build -f . $@ -o result
 
 
 # If triggered by cron, ensure build closure is pushed too
