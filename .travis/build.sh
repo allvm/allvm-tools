@@ -4,7 +4,6 @@ cachix push allvm --watch-store &
 
 nix-build $@ -o result | cachix push allvm
 
-cachix push allvm ./result*
 
 # If triggered by cron, ensure build closure is pushed too
 if [[ $TRAVIS_EVENT_TYPE == "cron" ]]; then
@@ -27,4 +26,6 @@ if [[ $TRAVIS_EVENT_TYPE == "cron" ]]; then
 
   push_paths ./result*
 
+else
+  cachix push allvm ./result*
 fi
