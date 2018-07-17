@@ -24,8 +24,10 @@ if [[ $TRAVIS_EVENT_TYPE == "cron" ]]; then
     echo "done!"
   }
 
+  echo "Pushing build (and runtime) closures..."
   push_paths ./result*
 
 else
+  echo "Pushing runtime closures..."
   cachix push allvm ./result*
 fi
