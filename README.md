@@ -2,6 +2,8 @@
 
 [![Build Status](https://travis-ci.org/allvm/allvm-tools.svg?branch=master)](https://travis-ci.org/allvm/allvm-tools)
 
+![ALLVM ALL THE THINGS!](https://img.shields.io/badge/ALLVM-ALL%20THE%20THINGS-brightgreen.svg)
+
 ## Contact
 
 **Mailing List**: https://lists.cs.illinois.edu/lists/info/allvm-dev
