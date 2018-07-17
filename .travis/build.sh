@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -euo pipefail
+
 cachix push allvm --watch-store &
 
 nix build $@ -o result -v
