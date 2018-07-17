@@ -3,7 +3,6 @@ language: nix
 before_install:
   - ./.travis/configure-nix.sh
   - ./.travis/install-new-nix.sh
-  - ./.travis/full-fetch.sh
   - ./.travis/install-cachix.sh
 
 # Force VM instead of container, so that sandbox works
@@ -17,6 +16,10 @@ env:
     - FILE=./default.nix
     - FILE=./nix/release.nix ATTRS=default
     - FILE=./nix/release.nix ATTRS=musl
+
+# Full clone
+git:
+  depth: false
 
 script:
   - ./.travis/build.sh -f ${FILE:-./default.nix} ${ATTRS}
