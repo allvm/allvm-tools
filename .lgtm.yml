@@ -1,0 +1,11 @@
+path_classifiers:
+  library:
+    - utils/lit
+    - libs/none/musl
+  docs:
+    - README.md
+    - LICENSE.txt
+    - CREDITS.txt
+    - docs
+  test:
+    - test
