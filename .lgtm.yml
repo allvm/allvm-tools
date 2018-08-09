@@ -6,6 +6,6 @@ path_classifiers:
     - README.md
     - LICENSE.txt
     - CREDITS.txt
-    - docs
+    - docs/*md
   test:
-    - test
+    - test/lit
