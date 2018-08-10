@@ -2,7 +2,16 @@
 
 set -euo pipefail
 
-cachix push allvm --watch-store &
+# For pull requests, don't try pushing if don't have key in env
+function cachix_push() {
+  if [ -n "${CACHIX_SIGNING_KEY}" ] || [ "false" = "${TRAVIS_PULL_REQUEST-false}" ]; then
+    cachix push "$@"
+  else
+    : # "$@"
+  fi
+}
+
+cachix_push allvm --watch-store &
 
 nix-build $@ -o result
 
@@ -21,7 +30,7 @@ if [[ $TRAVIS_EVENT_TYPE == "cron" ]]; then
     local closure=$(echo $drvs | xargs nix-store -qR --include-outputs)
     echo "closure size: $(echo "$closure" | wc -l)"
     echo "pushing..."
-    echo $closure | cachix push allvm 2>&1 | sed -e 's/^/  /'
+    echo $closure | cachix_push allvm 2>&1 | sed -e 's/^/  /'
     echo "done!"
   }
 
@@ -30,5 +39,5 @@ if [[ $TRAVIS_EVENT_TYPE == "cron" ]]; then
 
 else
   echo "Pushing runtime closures..."
-  cachix push allvm ./result*
+  cachix_push allvm ./result*
 fi
