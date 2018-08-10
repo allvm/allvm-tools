@@ -6,6 +6,15 @@ path_classifiers:
     - README.md
     - LICENSE.txt
     - CREDITS.txt
-    - docs
+    - docs/*md
   test:
-    - test
+    - test/lit
+
+extraction:
+  cpp:
+    prepare:
+      packages:
+        - llvm-4.0-dev
+        - llvm-4.0-tools
+          # TODO: liblld needed for alld
+        # - liblld-4.0-dev
