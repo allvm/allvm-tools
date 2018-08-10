@@ -9,3 +9,10 @@ path_classifiers:
     - docs/*md
   test:
     - test/lit
+
+extraction:
+  cpp:
+    prepare:
+      packages:
+        - llvm-4.0-dev
+        - liblld-4.0-dev
