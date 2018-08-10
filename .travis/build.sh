@@ -4,7 +4,7 @@ set -euo pipefail
 
 # For pull requests, don't try pushing if don't have key in env
 function cachix_push() {
-  if [ -n "${CACHIX_SIGNING_KEY}" ] || [ "false" = "${TRAVIS_PULL_REQUEST-false}" ]; then
+  if [ -n "${CACHIX_SIGNING_KEY+set}" ] || [ "false" = "${TRAVIS_PULL_REQUEST-false}" ]; then
     cachix push "$@"
   else
     : # "$@"
