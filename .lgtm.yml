@@ -14,7 +14,6 @@ extraction:
   cpp:
     prepare:
       packages:
-        # Can't install liblld-4.0-dev here; it's not on the whitelist. Trick LGTM into installing it later during configure.
         - llvm-4.0-dev
         - llvm-4.0-tools
         - llvm-4.0
