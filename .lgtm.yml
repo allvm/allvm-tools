@@ -2,8 +2,6 @@ path_classifiers:
   library:
     - utils/lit
     - libs/none/musl
-  generated:
-    exclude: /
   docs:
     - README.md
     - LICENSE.txt
