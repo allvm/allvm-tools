@@ -2,4 +2,4 @@
 
 # Install recent-ish Nix for misc fixes.
 # Attempt to "update" to it, for the day it's no longer "new".
-nix-env -u /nix/store/4kfzxnzwdi66z491r12lcarmgwxy9awz-nix-2.1pre6377_954d1f4d
+nix-env -u /nix/store/yl12ga4svrrq7qmzyxhig2mmrf0wmql6-nix-2.1
