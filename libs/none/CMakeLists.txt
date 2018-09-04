@@ -1,6 +1,6 @@
 enable_language(ASM)
 
-set(MUSL musl-1.1.19)
+set(MUSL musl-1.1.20)
 
 set(MUSL_PATCHES
   ## # musl/patches/0002-Disable-vdso-support-on-x86_64-we-don-t-support-it-y.patch
