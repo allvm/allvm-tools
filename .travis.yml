@@ -1,8 +1,8 @@
 language: nix
+nix: 2.1
 
 before_install:
   - ./.travis/configure-nix.sh
-  - ./.travis/install-new-nix.sh
   - ./.travis/install-cachix.sh
 
 # Force VM instead of container, so that sandbox works
