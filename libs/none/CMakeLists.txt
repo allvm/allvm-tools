@@ -12,6 +12,7 @@ set(MUSL_PATCHES
   ## musl/patches/0008-kludge-around-_DYNAMIC-and-our-bad-weak-symbol-handl.patch
   musl/patches/0009-configure-don-t-force-disable-unwind-tables-let-TC-d.patch
   musl/patches/0010-configure-don-t-add-fomit-frame-pointer.patch
+  musl/patches/fexecve.patch
 )
 
 set(MUSL_CFLAGS_EXTRA "")
