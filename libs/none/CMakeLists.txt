@@ -12,6 +12,13 @@ set(MUSL_PATCHES
   ## musl/patches/0008-kludge-around-_DYNAMIC-and-our-bad-weak-symbol-handl.patch
   musl/patches/0009-configure-don-t-force-disable-unwind-tables-let-TC-d.patch
   musl/patches/0010-configure-don-t-add-fomit-frame-pointer.patch
+
+  # Upstream commits
+  musl/patches/upstream/0001-implement-fexecve-in-terms-of-execveat-when-it-exist.patch
+  musl/patches/upstream/0002-fix-mistake-cruft-in-1.1.20-release-notes.patch
+  musl/patches/upstream/0003-in-pthread_mutex_trylock-EBUSY-out-more-directly-whe.patch
+  musl/patches/upstream/0004-in-pthread_mutex_timedlock-avoid-repeatedly-reading-.patch
+  musl/patches/upstream/0005-fix-namespace-violation-for-c11-mutex-functions.patch
 )
 
 set(MUSL_CFLAGS_EXTRA "")

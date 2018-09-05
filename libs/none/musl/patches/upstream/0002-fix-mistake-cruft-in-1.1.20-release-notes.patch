@@ -1,0 +1,27 @@
+From 4fb273bd4002b37d7e149e077974bc22e2bc4e26 Mon Sep 17 00:00:00 2001
+From: Rich Felker <dalias@aerifal.cx>
+Date: Tue, 4 Sep 2018 19:27:15 -0400
+Subject: [PATCH 2/5] fix mistake/cruft in 1.1.20 release notes
+
+this fix was intended to be amended in before release, but somehow got
+missed.
+---
+ WHATSNEW | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/WHATSNEW b/WHATSNEW
+index 2516be99..dad17d6e 100644
+--- a/WHATSNEW
++++ b/WHATSNEW
+@@ -1919,7 +1919,7 @@ new features:
+ - mlock2 syscall wrapper
+ - memfd_create syscall wrapper
+ - explicit_bzero function
+-- header-level support for new linux features through 4.18 ??
++- header-level support for new linux features through 4.17
+ - wcsftime now supports padding specifier extensions
+ - dynamic linker's reclaim_gaps now works on fdpic archs
+ - getaddrinfo now honors AI_ADDRCONFIG
+-- 
+2.18.0
+
