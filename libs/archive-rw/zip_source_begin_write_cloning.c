@@ -1,6 +1,6 @@
 /*
-  zip_stat.c -- get information about file by name
-  Copyright (C) 1999-2014 Dieter Baron and Thomas Klausner
+  zip_source_begin_write_cloning.c -- clone part of file for writing
+  Copyright (C) 2017 Dieter Baron and Thomas Klausner
 
   This file is part of libzip, a library to manipulate ZIP archives.
   The authors can be contacted at <libzip@nih.at>
@@ -36,11 +36,17 @@
 
 
 ZIP_EXTERN int
-zip_stat(zip_t *za, const char *fname, zip_flags_t flags, zip_stat_t *st) {
-    zip_int64_t idx;
-
-    if ((idx = zip_name_locate(za, fname, flags)) < 0)
+zip_source_begin_write_cloning(zip_source_t *src, zip_uint64_t offset) {
+    if (ZIP_SOURCE_IS_OPEN_WRITING(src)) {
+	zip_error_set(&src->error, ZIP_ER_INVAL, 0);
 	return -1;
+    }
 
-    return zip_stat_index(za, (zip_uint64_t)idx, flags, st);
+    if (_zip_source_call(src, NULL, offset, ZIP_SOURCE_BEGIN_WRITE_CLONING) < 0) {
+	return -1;
+    }
+
+    src->write_state = ZIP_SOURCE_WRITE_OPEN;
+
+    return 0;
 }

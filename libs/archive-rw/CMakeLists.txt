@@ -6,6 +6,7 @@ add_allvm_library(archive-rw
   zip_add.c
   zip_add_dir.c
   zip_add_entry.c
+  zip_algorithm_deflate.c
   zip_buffer.c
   zip_close.c
   zip_delete.c
@@ -33,6 +34,7 @@ add_allvm_library(archive-rw
   zip_file_rename.c
   zip_file_replace.c
   zip_file_set_comment.c
+  zip_file_set_encryption.c
   zip_file_set_external_attributes.c
   zip_file_set_mtime.c
   zip_file_strerror.c
@@ -42,20 +44,23 @@ add_allvm_library(archive-rw
   zip_fopen_index.c
   zip_fopen_index_encrypted.c
   zip_fread.c
+  zip_fseek.c
+  zip_ftell.c
   zip_get_archive_comment.c
   zip_get_archive_flag.c
-  zip_get_compression_implementation.c
   zip_get_encryption_implementation.c
   zip_get_file_comment.c
+  zip_get_name.c
   zip_get_num_entries.c
   zip_get_num_files.c
-  zip_get_name.c
   zip_hash.c
   zip_io_util.c
+  zip_libzip_version.c
   zip_memdup.c
   zip_name_locate.c
   zip_new.c
   zip_open.c
+  zip_progress.c
   zip_rename.c
   zip_replace.c
   zip_set_archive_comment.c
@@ -65,16 +70,18 @@ add_allvm_library(archive-rw
   zip_set_file_compression.c
   zip_set_name.c
   zip_source_begin_write.c
+  zip_source_begin_write_cloning.c
   zip_source_buffer.c
   zip_source_call.c
   zip_source_close.c
   zip_source_commit_write.c
+  zip_source_compress.c
   zip_source_crc.c
-  zip_source_deflate.c
   zip_source_error.c
   zip_source_filep.c
   zip_source_free.c
   zip_source_function.c
+  zip_source_get_compression_flags.c
   zip_source_is_deleted.c
   zip_source_layered.c
   zip_source_open.c

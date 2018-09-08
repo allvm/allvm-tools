@@ -3,7 +3,7 @@
 
 /*
   compat.h -- compatibility defines.
-  Copyright (C) 1999-2016 Dieter Baron and Thomas Klausner
+  Copyright (C) 1999-2017 Dieter Baron and Thomas Klausner
 
   This file is part of libzip, a library to manipulate ZIP archives.
   The authors can be contacted at <libzip@nih.at>
@@ -20,7 +20,7 @@
   3. The names of the authors may not be used to endorse or promote
      products derived from this software without specific prior
      written permission.
- 
+
   THIS SOFTWARE IS PROVIDED BY THE AUTHORS ``AS IS'' AND ANY EXPRESS
   OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
   WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -34,63 +34,11 @@
   IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-/************************
- * Copied from config.h *
- ************************/
-#define HAVE_DLFCN_H 1
-#define HAVE_FILENO 1
-#define HAVE_FSEEKO 1
-#define HAVE_FTELLO 1
-#define HAVE_FTS_H 1
-#define HAVE_GETOPT 1
-#define HAVE_INT16_T 1
-#define HAVE_INT32_T 1
-#define HAVE_INT64_T 1
-#define HAVE_INT8_T 1
-#define HAVE_INTTYPES_H 1
-#define HAVE_LIBZ 1
-#define HAVE_MEMORY_H 1
-#define HAVE_MKSTEMP 1
-#define HAVE_OPEN 1
-#define HAVE_SNPRINTF 1
-#define HAVE_SSIZE_T 1
-#define HAVE_STDBOOL_H 1
-#define HAVE_STDINT_H 1
-#define HAVE_STDLIB_H 1
-#define HAVE_STRCASECMP 1
-#define HAVE_STRDUP 1
-#define HAVE_STRINGS_H 1
-#define HAVE_STRING_H 1
-#define HAVE_STRUCT_TM_TM_ZONE 1
-#define HAVE_SYS_STAT_H 1
-#define HAVE_SYS_TYPES_H 1
-#define HAVE_TM_ZONE 1
-#define HAVE_UINT16_T 1
-#define HAVE_UINT32_T 1
-#define HAVE_UINT64_T 1
-#define HAVE_UINT8_T 1
-#define HAVE_UNISTD_H 1
-#define HAVE_VISIBILITY 1
-#define HAVE___PROGNAME 1
-#define LT_OBJDIR ".libs/"
-#define PACKAGE "libzip"
-#define PACKAGE_BUGREPORT "libzip@nih.at"
-#define PACKAGE_NAME "libzip"
-#define PACKAGE_STRING "libzip 1.1.3"
-#define PACKAGE_TARNAME "libzip"
-#define PACKAGE_URL ""
-#define PACKAGE_VERSION "1.1.3"
-#define SIZEOF_INT 4
-#define SIZEOF_LONG 8
-#define SIZEOF_LONG_LONG 8
-#define SIZEOF_OFF_T 8
-#define SIZEOF_SHORT 2
-#define SIZEOF_SIZE_T 8
-#define STDC_HEADERS 1
-#define VERSION "1.1.3"
-#ifndef _DARWIN_USE_64_BIT_INODE
-# define _DARWIN_USE_64_BIT_INODE 1
-#endif
+#include "zipconf.h"
+
+// #ifdef HAVE_CONFIG_H
+#include "config.h"
+// #endif
 
 /* to have *_MAX definitions for all types when compiling with g++ */
 #ifndef __STDC_LIMIT_MACROS
@@ -98,7 +46,11 @@
 #endif
 
 #ifdef _WIN32
+#ifndef ZIP_EXTERN
+#ifndef ZIP_STATIC
 #define ZIP_EXTERN __declspec(dllexport)
+#endif
+#endif
 /* for dup(), close(), etc. */
 #include <io.h>
 #endif
@@ -107,8 +59,8 @@
 #include <stdbool.h>
 #else
 typedef char bool;
-#define true    1
-#define false   0
+#define true 1
+#define false 0
 #endif
 
 #include <errno.h>
@@ -128,43 +80,58 @@ typedef char bool;
 #endif
 
 #ifdef _WIN32
+#if defined(HAVE__CHMOD)
+#define chmod _chmod
+#endif
 #if defined(HAVE__CLOSE)
-#define close		_close
+#define close _close
 #endif
 #if defined(HAVE__DUP)
-#define dup		_dup
+#define dup _dup
 #endif
 /* crashes reported when using fdopen instead of _fdopen on Windows/Visual Studio 10/Win64 */
 #if defined(HAVE__FDOPEN)
-#define fdopen		_fdopen
+#define fdopen _fdopen
 #endif
 #if !defined(HAVE_FILENO) && defined(HAVE__FILENO)
-#define fileno		_fileno
+#define fileno _fileno
 #endif
 /* Windows' open() doesn't understand Unix permissions */
 #if defined(HAVE__OPEN)
-#define open(a, b, c)	_open((a), (b))
+#define open(a, b, c) _open((a), (b))
 #endif
 #if defined(HAVE__SNPRINTF)
-#define snprintf	_snprintf
+#define snprintf _snprintf
 #endif
 #if defined(HAVE__STRDUP)
 #if !defined(HAVE_STRDUP) || defined(_WIN32)
 #undef strdup
-#define strdup		_strdup
+#define strdup _strdup
 #endif
 #endif
 #if !defined(HAVE__SETMODE) && defined(HAVE_SETMODE)
-#define _setmode	setmode
+#define _setmode setmode
+#endif
+#if !defined(HAVE_STRTOLL) && defined(HAVE__STRTOI64)
+#define strtoll _strtoi64
+#endif
+#if !defined(HAVE_STRTOULL) && defined(HAVE__STRTOUI64)
+#define strtoull _strtoui64
+#endif
+#if defined(HAVE__UMASK)
+#define umask _umask
+#endif
+#if defined(HAVE__UNLINK)
+#define unlink _unlink
 #endif
 #endif
 
 #ifndef HAVE_FSEEKO
-#define fseeko(s, o, w)	(fseek((s), (long int)(o), (w)))
+#define fseeko(s, o, w) (fseek((s), (long int)(o), (w)))
 #endif
 
 #ifndef HAVE_FTELLO
-#define ftello(s)	((long)ftell((s)))
+#define ftello(s) ((long)ftell((s)))
 #endif
 
 #ifndef HAVE_MKSTEMP
@@ -174,9 +141,9 @@ int _zip_mkstemp(char *);
 
 #if !defined(HAVE_STRCASECMP)
 #if defined(HAVE__STRICMP)
-#define strcasecmp	_stricmp
+#define strcasecmp _stricmp
 #elif defined(HAVE_STRICMP)
-#define strcasecmp	stricmp
+#define strcasecmp stricmp
 #endif
 #endif
 
@@ -231,7 +198,7 @@ int _zip_mkstemp(char *);
 #endif
 
 #ifndef S_ISDIR
-#define S_ISDIR(mode)	(((mode) & S_IFMT) == S_IFDIR)
+#define S_ISDIR(mode) (((mode)&S_IFMT) == S_IFDIR)
 #endif
 
 #endif /* compat.h */
