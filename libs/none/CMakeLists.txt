@@ -21,6 +21,9 @@ set(MUSL_PATCHES
   musl/patches/upstream/0005-fix-namespace-violation-for-c11-mutex-functions.patch
   # Additional upstream, non-consecutive
   musl/patches/upstream/fix-file-locking-race.patch
+  musl/patches/upstream/name_to_handle_at-001.patch
+  musl/patches/upstream/name_to_handle_at-002.patch
+  musl/patches/upstream/rework-posix_spawnp.patch
   musl/patches/upstream/tty-more-precise-errors.patch
 )
 
