@@ -25,6 +25,8 @@ set(MUSL_PATCHES
   musl/patches/upstream/name_to_handle_at-002.patch
   musl/patches/upstream/rework-posix_spawnp.patch
   musl/patches/upstream/tty-more-precise-errors.patch
+  musl/patches/upstream/fix-getaddrinfo.patch
+  musl/patches/upstream/increase-default-thread-stack-guard-size.patch 
 )
 
 set(MUSL_CFLAGS_EXTRA "")
