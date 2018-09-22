@@ -71,6 +71,7 @@ Error runHosted(ExecutionEngine &EE, ExecutionYengine::ExecutionInfo &Info) {
   EE.addGlobalMapping("__fini_array_start", dummy_addr);
   EE.addGlobalMapping("__fini_array_end", dummy_addr);
 
+
   // Setup our stack for running the libc initialization code
   // This needs to actually be stack-allocated as musl code
   // uses that property for some checks.
@@ -83,6 +84,10 @@ Error runHosted(ExecutionEngine &EE, ExecutionYengine::ExecutionInfo &Info) {
   // which won't work if trying to JIT remotely or whatnot.
   // See ExecutionEngine's ArgvArray for how to do this
   // using EE's memory interface if that becomes important.
+
+  assert(!Info.Args.empty());
+  stack_init.push_back(Info.Args.size());
+
   for (auto &arg : Info.Args)
     stack_init.push_back(reinterpret_cast<uint64_t>(arg.data()));
   stack_init.push_back(0); // null-terminated list
@@ -124,8 +129,7 @@ Error runHosted(ExecutionEngine &EE, ExecutionYengine::ExecutionInfo &Info) {
   stack_init.clear();
 
   char **argv_ptr = reinterpret_cast<char **>(stack);
-  assert(!Info.Args.empty());
-  int argc = static_cast<int>(Info.Args.size());
+  ++argv_ptr; // skip argc
 
   auto Exit = EE.getFunctionAddress("exit");
   auto MainAddr = EE.getFunctionAddress("main");
@@ -148,6 +152,8 @@ Error runHosted(ExecutionEngine &EE, ExecutionYengine::ExecutionInfo &Info) {
   initlibcty initlibc = reinterpret_cast<initlibcty>(InitLibc);
   exitty exitfn = reinterpret_cast<exitty>(Exit);
 
+  int argc = static_cast<int>(Info.Args.size());
+  assert(argc >= 0);
   auto env_ptr = argv_ptr + argc + 1;
   char title[] = "weeee";
   initlibc(env_ptr, title);
