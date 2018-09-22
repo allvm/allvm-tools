@@ -127,27 +127,37 @@ Error runHosted(ExecutionEngine &EE, ExecutionYengine::ExecutionInfo &Info) {
   assert(!Info.Args.empty());
   int argc = static_cast<int>(Info.Args.size());
 
-  auto StartAddr = EE.getFunctionAddress("__libc_start_main");
+  auto Exit = EE.getFunctionAddress("exit");
   auto MainAddr = EE.getFunctionAddress("main");
-  assert(StartAddr);
+  auto InitLibc = EE.getFunctionAddress("__init_libc");
+  assert(Exit);
   assert(MainAddr);
+  assert(InitLibc);
 
   EE.finalizeObject();
-
-  typedef int (*mainty)(int, char **, char **);
-  typedef int (*startty)(mainty, int, char **);
 
   if (Info.NoExec) {
     errs() << "'noexec' option set, skipping execution...\n";
     return Error::success();
   }
 
-  // TODO: Run static constructors, but AFTER initializing libc components...
-  EE.runStaticConstructorsDestructors(false);
+  typedef int (*mainty)(int, char **, char **);
+  typedef void (*initlibcty)(char ** /* envp */, char * /* pn */);
+  typedef void (*exitty)(int /* status */);
 
-  // Note: __libc_start_main() calls exit() so we don't really return
-  startty start = reinterpret_cast<startty>(StartAddr);
-  start(reinterpret_cast<mainty>(MainAddr), argc, argv_ptr);
+  initlibcty initlibc = reinterpret_cast<initlibcty>(InitLibc);
+  exitty exitfn = reinterpret_cast<exitty>(Exit);
+
+  auto env_ptr = argv_ptr + argc + 1;
+  char title[] = "weeee";
+  initlibc(env_ptr, title);
+
+  EE.runStaticConstructorsDestructors(false /* constructors */);
+
+  mainty newmain = reinterpret_cast<mainty>(MainAddr);
+
+  exitfn(newmain(argc, argv_ptr, env_ptr));
+
   return make_error<StringError>("libc returned instead of exiting directly?!",
                                  errc::invalid_argument);
 }
