@@ -71,7 +71,6 @@ Error runHosted(ExecutionEngine &EE, ExecutionYengine::ExecutionInfo &Info) {
   EE.addGlobalMapping("__fini_array_start", dummy_addr);
   EE.addGlobalMapping("__fini_array_end", dummy_addr);
 
-
   // Setup our stack for running the libc initialization code
   // This needs to actually be stack-allocated as musl code
   // uses that property for some checks.
@@ -85,7 +84,7 @@ Error runHosted(ExecutionEngine &EE, ExecutionYengine::ExecutionInfo &Info) {
   // See ExecutionEngine's ArgvArray for how to do this
   // using EE's memory interface if that becomes important.
 
-  assert(!Info.Args.empty());
+  assert(!Info.Args.empty()); // should have at least argv[0]
   stack_init.push_back(Info.Args.size());
 
   for (auto &arg : Info.Args)
@@ -129,7 +128,7 @@ Error runHosted(ExecutionEngine &EE, ExecutionYengine::ExecutionInfo &Info) {
   stack_init.clear();
 
   char **argv_ptr = reinterpret_cast<char **>(stack);
-  ++argv_ptr; // skip argc
+  ++argv_ptr; // skip argc (argv[-1])
 
   auto Exit = EE.getFunctionAddress("exit");
   auto MainAddr = EE.getFunctionAddress("main");
@@ -155,8 +154,7 @@ Error runHosted(ExecutionEngine &EE, ExecutionYengine::ExecutionInfo &Info) {
   int argc = static_cast<int>(Info.Args.size());
   assert(argc >= 0);
   auto env_ptr = argv_ptr + argc + 1;
-  char title[] = "weeee";
-  initlibc(env_ptr, title);
+  initlibc(env_ptr, argv_ptr[0]);
 
   EE.runStaticConstructorsDestructors(false /* constructors */);
 
