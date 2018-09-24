@@ -31,9 +31,9 @@ set(MUSL_PATCHES
 
 set(MUSL_CFLAGS_EXTRA "")
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-  list(APPEND MUSL_PATCHES
-    musl/patches/0001-Build-with-fPIC-large-code-model-to-workaround-RTDyL.patch
-  )
+  #list(APPEND MUSL_PATCHES
+  #  musl/patches/0001-Build-with-fPIC-large-code-model-to-workaround-RTDyL.patch
+  #)
   # Don't complain about 'unused' arguments
   # This happens when building assembly files using same CFLAGS used for C files,
   # lots of them don't make any sense for assembly code so they go unused.
