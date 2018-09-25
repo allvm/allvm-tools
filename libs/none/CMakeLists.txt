@@ -56,7 +56,7 @@ set(MUSL_CFLAGS "-fPIC ${MUSL_CFLAGS_EXTRA}" CACHE string "CFLAGS for building m
 add_custom_command(OUTPUT ${MUSL}/config.mak
   COMMAND rm -rf "${MUSL}"
   COMMAND tar xf "${CMAKE_CURRENT_SOURCE_DIR}/musl/${MUSL}.tar.gz"
-  COMMAND for PATCH in ${MUSL_PATCHES} \; do patch -p1 -d "${MUSL}" -i "${CMAKE_CURRENT_SOURCE_DIR}/$$PATCH" \; done
+  COMMAND for PATCH in ${MUSL_PATCHES} \; do echo "Applying patch \"$$PATCH\" to ${MUSL}..."\; patch -p1 -d "${MUSL}" -i "${CMAKE_CURRENT_SOURCE_DIR}/$$PATCH" \; done
   COMMAND cd ${MUSL} && CC=${CMAKE_C_COMPILER} ./configure --disable-shared CFLAGS=${MUSL_CFLAGS} --enable-debug
   MAIN_DEPENDENCY musl/${MUSL}.tar.gz
   DEPENDS ${MUSL_PATCHES}
