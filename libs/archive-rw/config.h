@@ -22,7 +22,15 @@
 /* #undef HAVE_CLONEFILE */
 /* #undef HAVE_COMMONCRYPTO */
 /* #undef HAVE_CRYPTO */
-#define HAVE_FICLONERANGE
+
+// (re: HAVE_FICLONERANGE)
+// Only used by zip_source_filep.c, which we currently don't make use of.
+// Introduced in Linux 4.5
+// A quick glance at the code suggests it doesn't differentiate errors
+// and so unsupported is treated same as a write error.
+// Avoid portability issues and just pretend we don't support it.
+// (regardless of what our build-time kernel headers indicate)
+/* #undef HAVE_FICLONERANGE */
 #define HAVE_FILENO
 #define HAVE_FSEEKO
 #define HAVE_FTELLO
