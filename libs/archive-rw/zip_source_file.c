@@ -1,6 +1,6 @@
 /*
   zip_source_file.c -- create data source from file
-  Copyright (C) 1999-2015 Dieter Baron and Thomas Klausner
+  Copyright (C) 1999-2016 Dieter Baron and Thomas Klausner
 
   This file is part of libzip, a library to manipulate ZIP archives.
   The authors can be contacted at <libzip@nih.at>
@@ -17,7 +17,7 @@
   3. The names of the authors may not be used to endorse or promote
      products derived from this software without specific prior
      written permission.
- 
+
   THIS SOFTWARE IS PROVIDED BY THE AUTHORS ``AS IS'' AND ANY EXPRESS
   OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
   WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -42,18 +42,16 @@
 #endif
 
 ZIP_EXTERN zip_source_t *
-zip_source_file(zip_t *za, const char *fname, zip_uint64_t start, zip_int64_t len)
-{
+zip_source_file(zip_t *za, const char *fname, zip_uint64_t start, zip_int64_t len) {
     if (za == NULL)
 	return NULL;
-    
+
     return zip_source_file_create(fname, start, len, &za->error);
 }
 
 
 ZIP_EXTERN zip_source_t *
-zip_source_file_create(const char *fname, zip_uint64_t start, zip_int64_t length, zip_error_t *error)
-{
+zip_source_file_create(const char *fname, zip_uint64_t start, zip_int64_t length, zip_error_t *error) {
     if (fname == NULL || length < -1) {
 	zip_error_set(error, ZIP_ER_INVAL, 0);
 	return NULL;

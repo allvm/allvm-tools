@@ -1,6 +1,6 @@
 /*
-  zip_set_file_compression.c -- set compression for file in archive
-  Copyright (C) 2012-2017 Dieter Baron and Thomas Klausner
+  zip_file_set_encryption.c -- set encryption for file in archive
+  Copyright (C) 2016-2017 Dieter Baron and Thomas Klausner
 
   This file is part of libzip, a library to manipulate ZIP archives.
   The authors can be contacted at <libzip@nih.at>
@@ -34,13 +34,15 @@
 
 #include "zipint.h"
 
+#include <stdlib.h>
+#include <string.h>
 
 ZIP_EXTERN int
-zip_set_file_compression(zip_t *za, zip_uint64_t idx, zip_int32_t method, zip_uint32_t flags) {
+zip_file_set_encryption(zip_t *za, zip_uint64_t idx, zip_uint16_t method, const char *password) {
     zip_entry_t *e;
-    zip_int32_t old_method;
+    zip_uint16_t old_method;
 
-    if (idx >= za->nentry || flags > 9) {
+    if (idx >= za->nentry) {
 	zip_error_set(&za->error, ZIP_ER_INVAL, 0);
 	return -1;
     }
@@ -50,24 +52,23 @@ zip_set_file_compression(zip_t *za, zip_uint64_t idx, zip_int32_t method, zip_ui
 	return -1;
     }
 
-    if (!zip_compression_method_supported(method, true)) {
-	zip_error_set(&za->error, ZIP_ER_COMPNOTSUPP, 0);
+    if (method != ZIP_EM_NONE && _zip_get_encryption_implementation(method, ZIP_CODEC_ENCODE) == NULL) {
+	zip_error_set(&za->error, ZIP_ER_ENCRNOTSUPP, 0);
 	return -1;
     }
 
     e = za->entry + idx;
 
-    old_method = (e->orig == NULL ? ZIP_CM_DEFAULT : e->orig->comp_method);
+    old_method = (e->orig == NULL ? ZIP_EM_NONE : e->orig->encryption_method);
 
-    /* TODO: do we want to recompress if level is set? Only if it's
-     * different than what bit flags tell us, but those are not
-     * defined for all compression methods, or not directly mappable
-     * to levels */
-
-    if (method == old_method) {
+    if (method == old_method && password == NULL) {
 	if (e->changes) {
-	    e->changes->changed &= ~ZIP_DIRENT_COMP_METHOD;
-	    e->changes->compression_level = 0;
+	    if (e->changes->changed & ZIP_DIRENT_PASSWORD) {
+		_zip_crypto_clear(e->changes->password, strlen(e->changes->password));
+		free(e->changes->password);
+		e->changes->password = (e->orig == NULL ? NULL : e->orig->password);
+	    }
+	    e->changes->changed &= ~(ZIP_DIRENT_ENCRYPTION_METHOD | ZIP_DIRENT_PASSWORD);
 	    if (e->changes->changed == 0) {
 		_zip_dirent_free(e->changes);
 		e->changes = NULL;
@@ -75,16 +76,40 @@ zip_set_file_compression(zip_t *za, zip_uint64_t idx, zip_int32_t method, zip_ui
 	}
     }
     else {
-	if (e->changes == NULL) {
-	    if ((e->changes = _zip_dirent_clone(e->orig)) == NULL) {
+	char *our_password = NULL;
+
+	if (password) {
+	    if ((our_password = strdup(password)) == NULL) {
 		zip_error_set(&za->error, ZIP_ER_MEMORY, 0);
 		return -1;
 	    }
 	}
 
-	e->changes->comp_method = method;
-	e->changes->compression_level = (zip_uint16_t)flags;
-	e->changes->changed |= ZIP_DIRENT_COMP_METHOD;
+	if (e->changes == NULL) {
+	    if ((e->changes = _zip_dirent_clone(e->orig)) == NULL) {
+		if (our_password) {
+		    _zip_crypto_clear(our_password, strlen(our_password));
+		}
+		free(our_password);
+		zip_error_set(&za->error, ZIP_ER_MEMORY, 0);
+		return -1;
+	    }
+	}
+
+	e->changes->encryption_method = method;
+	e->changes->changed |= ZIP_DIRENT_ENCRYPTION_METHOD;
+	if (password) {
+	    e->changes->password = our_password;
+	    e->changes->changed |= ZIP_DIRENT_PASSWORD;
+	}
+	else {
+	    if (e->changes->changed & ZIP_DIRENT_PASSWORD) {
+		_zip_crypto_clear(e->changes->password, strlen(e->changes->password));
+		free(e->changes->password);
+		e->changes->password = e->orig ? e->orig->password : NULL;
+		e->changes->changed &= ~ZIP_DIRENT_PASSWORD;
+	    }
+	}
     }
 
     return 0;
