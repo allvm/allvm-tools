@@ -22,7 +22,7 @@ add_allvm_library(Cache
   StaticCodeGen # CompilationOptions
 )
 
-include_directories (${ZLIB_INCLUDE_DIRS})
+include_directories (SYSTEM ${ZLIB_INCLUDE_DIRS})
 target_link_libraries (Cache PUBLIC ${ZLIB_LIBRARIES})
 
 add_definitions(${LLVM_DEFINITIONS})

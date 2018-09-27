@@ -104,7 +104,7 @@ set(LLVM_LIBRARY_OUTPUT_INTDIR
     ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/lib${LLVM_LIBDIR_SUFFIX})
 
 link_directories(${LLVM_LIBRARY_DIR})
-include_directories(${LLVM_INCLUDE_DIR})
+include_directories(SYSTEM ${LLVM_INCLUDE_DIR})
 
 ### Headers
 

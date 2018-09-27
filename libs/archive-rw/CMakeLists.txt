@@ -111,5 +111,5 @@ add_allvm_library(archive-rw
   zip_utf-8.c
 )
 
-include_directories (${ZLIB_INCLUDE_DIRS})
+include_directories (SYSTEM ${ZLIB_INCLUDE_DIRS})
 target_link_libraries (archive-rw PUBLIC ${ZLIB_LIBRARIES})
