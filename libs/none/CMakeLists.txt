@@ -52,11 +52,19 @@ set(MUSL_CFLAGS_EXTRA "${MUSL_CFLAGS_EXTRA} -fstack-protector-all")
 
 set(MUSL_CFLAGS "-fPIC ${MUSL_CFLAGS_EXTRA}" CACHE string "CFLAGS for building musl")
 
+set(MUSL_PATCH_COMMANDS COMMAND echo "Applying musl patches...")
+
+foreach(patch ${MUSL_PATCHES})
+  list(APPEND MUSL_PATCH_COMMANDS
+    COMMAND echo "Applying patch '${patch}'..."
+    COMMAND patch -p1 -d "${MUSL}" -i "${CMAKE_CURRENT_SOURCE_DIR}/${patch}"
+  )
+endforeach(patch)
 
 add_custom_command(OUTPUT ${MUSL}/config.mak
   COMMAND rm -rf "${MUSL}"
   COMMAND tar xf "${CMAKE_CURRENT_SOURCE_DIR}/musl/${MUSL}.tar.gz"
-  COMMAND for PATCH in ${MUSL_PATCHES} \; do echo "Applying patch \"$$PATCH\" to ${MUSL}..."\; patch -p1 -d "${MUSL}" -i "${CMAKE_CURRENT_SOURCE_DIR}/$$PATCH" \; done
+  ${MUSL_PATCH_COMMANDS}
   COMMAND cd ${MUSL} && CC=${CMAKE_C_COMPILER} ./configure --disable-shared CFLAGS=${MUSL_CFLAGS} --enable-debug
   MAIN_DEPENDENCY musl/${MUSL}.tar.gz
   DEPENDS ${MUSL_PATCHES}
