@@ -1,6 +1,8 @@
 #!/usr/bin/env nix-shell
 #! nix-shell -i bash -p git coreutils curl gnupatch gnutar xz -Q
 
+set -euo pipefail
+
 REV=672a17812561f50054716dc8d072c1420b9ee7c5
 
 ROOT=$(readlink -f $(dirname $0))
