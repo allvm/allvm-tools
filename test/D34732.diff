@@ -1,7 +1,145 @@
-Index: llvm/utils/lit/lit/Test.py
+Index: llvm/trunk/test/DebugInfo/Inputs/split-dwarf-addr-object-relocation.cpp
 ===================================================================
---- llvm/utils/lit/lit/Test.py
-+++ llvm/utils/lit/lit/Test.py
+--- llvm/trunk/test/DebugInfo/Inputs/split-dwarf-addr-object-relocation.cpp
++++ llvm/trunk/test/DebugInfo/Inputs/split-dwarf-addr-object-relocation.cpp
+@@ -0,0 +1,7 @@
++void f1();
++__attribute__((always_inline)) void f2() {
++  f1();
++}
++void f3() {
++  f2();
++}
+Index: llvm/trunk/test/DebugInfo/Inputs/split-dwarf-multiple-cu1.cpp
+===================================================================
+--- llvm/trunk/test/DebugInfo/Inputs/split-dwarf-multiple-cu1.cpp
++++ llvm/trunk/test/DebugInfo/Inputs/split-dwarf-multiple-cu1.cpp
+@@ -0,0 +1,2 @@
++extern int i;
++int i;
+Index: llvm/trunk/test/DebugInfo/Inputs/split-dwarf-multiple-cu2.cpp
+===================================================================
+--- llvm/trunk/test/DebugInfo/Inputs/split-dwarf-multiple-cu2.cpp
++++ llvm/trunk/test/DebugInfo/Inputs/split-dwarf-multiple-cu2.cpp
+@@ -0,0 +1,7 @@
++void f1();
++inline __attribute__((always_inline)) void f2() {
++  f1();
++}
++void f3() {
++  f2();
++}
+Index: llvm/trunk/test/DebugInfo/llvm-symbolizer.test
+===================================================================
+--- llvm/trunk/test/DebugInfo/llvm-symbolizer.test
++++ llvm/trunk/test/DebugInfo/llvm-symbolizer.test
+@@ -20,8 +20,8 @@
+ RUN: echo "%p/Inputs/fission-ranges.elf-x86_64 0x720" >> %t.input
+ RUN: echo "%p/Inputs/arange-overlap.elf-x86_64 0x714" >> %t.input
+ RUN: cp %p/Inputs/split-dwarf-test.dwo %T
+-RUN: echo "%p/Inputs/split-dwarf-test 0x4005d4" >> %t.input
+-RUN: echo "%p/Inputs/split-dwarf-test 0x4005c4" >> %t.input
++RUN: echo "%p/Inputs/split-dwarf-test 0x400504" >> %t.input
++RUN: echo "%p/Inputs/split-dwarf-test 0x4004f0" >> %t.input
+ RUN: echo "%p/Inputs/cross-cu-inlining.x86_64-macho.o 0x17" >> %t.input
+ RUN: cp %p/Inputs/split-dwarf-multiple-cu.dwo %T
+ RUN: echo "%p/Inputs/split-dwarf-multiple-cu.o 0x4" >> %t.input
+@@ -141,9 +141,9 @@
+ CHECK-NEXT: /tmp{{[/\\]}}cross-cu-inlining.c:11:0
+ 
+ CHECK:      f2
+-CHECK-NEXT: b.cpp:3:3
++CHECK-NEXT: split-dwarf-multiple-cu2.cpp:3:3
+ CHECK-NEXT: f3
+-CHECK-NEXT: b.cpp:6:0
++CHECK-NEXT: split-dwarf-multiple-cu2.cpp:6:0
+ 
+ CHECK:      f2
+ CHECK-NEXT: split-dwarf-addr-object-relocation.cpp:3:3
+Index: llvm/trunk/test/Other/lit-globbing.ll
+===================================================================
+--- llvm/trunk/test/Other/lit-globbing.ll
++++ llvm/trunk/test/Other/lit-globbing.ll
+@@ -1,28 +1,28 @@
+-RUN: echo TA > %T/TA.txt
+-RUN: echo TB > %T/TB.txt
+-RUN: echo TAB > %T/TAB.txt
+-
+-RUN: echo %T/TA* | FileCheck -check-prefix=STAR %s
+-RUN: echo %T/'TA'* | FileCheck -check-prefix=STAR %s
+-RUN: echo %T/T'A'* | FileCheck -check-prefix=STAR %s
+-
+-RUN: echo %T/T?.txt | FileCheck -check-prefix=QUESTION %s
+-RUN: echo %T/'T'?.txt | FileCheck -check-prefix=QUESTION %s
+-
+-RUN: echo %T/T??.txt | FileCheck -check-prefix=QUESTION2 %s
+-RUN: echo %T/'T'??.txt | FileCheck -check-prefix=QUESTION2 %s
+-
+-RUN: echo 'T*' 'T?.txt' 'T??.txt' | FileCheck -check-prefix=QUOTEDARGS %s
+-
+-STAR-NOT: TB.txt
+-STAR: {{(TA.txt.*TAB.txt|TAB.txt.*TA.txt)}}
+-
+-QUESTION-NOT: TAB.txt
+-QUESTION: {{(TA.txt.*TB.txt|TB.txt.*TA.txt)}}
+-
+-QUESTION2-NOT: TA.txt
+-QUESTION2-NOT: TB.txt
+-QUESTION2: TAB.txt
+-
+-QUOTEDARGS-NOT: .txt
+-QUOTEDARGS: T* T?.txt T??.txt
++RUN: echo XXA > %T/XXA.txt
++RUN: echo XXB > %T/XXB.txt
++RUN: echo XXAB > %T/XXAB.txt
++
++RUN: echo %T/XXA* | FileCheck -check-prefix=STAR %s
++RUN: echo %T/'XXA'* | FileCheck -check-prefix=STAR %s
++RUN: echo %T/XX'A'* | FileCheck -check-prefix=STAR %s
++
++RUN: echo %T/XX?.txt | FileCheck -check-prefix=QUESTION %s
++RUN: echo %T/'XX'?.txt | FileCheck -check-prefix=QUESTION %s
++
++RUN: echo %T/XX??.txt | FileCheck -check-prefix=QUESTION2 %s
++RUN: echo %T/'XX'??.txt | FileCheck -check-prefix=QUESTION2 %s
++
++RUN: echo 'XX*' 'XX?.txt' 'XX??.txt' | FileCheck -check-prefix=QUOTEDARGS %s
++
++STAR-NOT: XXB.txt
++STAR: {{(XXA.txt.*XXAB.txt|XXAB.txt.*XXA.txt)}}
++
++QUESTION-NOT: XXAB.txt
++QUESTION: {{(XXA.txt.*XXB.txt|XXB.txt.*XXA.txt)}}
++
++QUESTION2-NOT: XXA.txt
++QUESTION2-NOT: XXB.txt
++QUESTION2: XXAB.txt
++
++QUOTEDARGS-NOT: .txt
++QUOTEDARGS: XX* XX?.txt XX??.txt
+Index: llvm/trunk/test/Unit/lit.cfg
+===================================================================
+--- llvm/trunk/test/Unit/lit.cfg
++++ llvm/trunk/test/Unit/lit.cfg
+@@ -39,9 +39,11 @@
+         config.environment[symbolizer] = os.environ[symbolizer]
+ 
+ # Win32 seeks DLLs along %PATH%.
+-if sys.platform in ['win32', 'cygwin'] and os.path.isdir(config.shlibdir):
+-    config.environment['PATH'] = os.path.pathsep.join((
+-            config.shlibdir, config.environment['PATH']))
++if sys.platform in ['win32', 'cygwin']:
++	shlibdir = getattr(config, 'shlibdir', None)
++	if shlibdir is not None and os.path.isdir(shlibdir):
++	    config.environment['PATH'] = os.path.pathsep.join((
++	            config.shlibdir, config.environment['PATH']))
+ 
+ # Win32 may use %SYSTEMDRIVE% during file system shell operations, so propogate.
+ if sys.platform == 'win32' and 'SYSTEMDRIVE' in os.environ:
+Index: llvm/trunk/utils/lit/lit/Test.py
+===================================================================
+--- llvm/trunk/utils/lit/lit/Test.py
++++ llvm/trunk/utils/lit/lit/Test.py
 @@ -172,7 +172,7 @@
          return os.path.join(self.source_root, *components)
  
@@ -50,10 +188,10 @@ Index: llvm/utils/lit/lit/Test.py
          else:
              class_name = safe_name + "." + safe_name
  
-Index: llvm/utils/lit/lit/TestRunner.py
+Index: llvm/trunk/utils/lit/lit/TestRunner.py
 ===================================================================
---- llvm/utils/lit/lit/TestRunner.py
-+++ llvm/utils/lit/lit/TestRunner.py
+--- llvm/trunk/utils/lit/lit/TestRunner.py
++++ llvm/trunk/utils/lit/lit/TestRunner.py
 @@ -123,7 +123,7 @@
          self.exitCode = exitCode
          self.timeoutReached = timeoutReached
@@ -224,35 +362,38 @@ Index: llvm/utils/lit/lit/TestRunner.py
          if res.code != Test.FAIL:
              break
      # If we had to run the test more than once, count it as a flaky pass. These
-Index: llvm/utils/lit/lit/run.py
+Index: llvm/trunk/utils/lit/lit/run.py
 ===================================================================
---- llvm/utils/lit/lit/run.py
-+++ llvm/utils/lit/lit/run.py
-@@ -248,6 +248,28 @@
+--- llvm/trunk/utils/lit/lit/run.py
++++ llvm/trunk/utils/lit/lit/run.py
+@@ -1,4 +1,5 @@
+ import os
++import shutil
+ import sys
+ import threading
+ import time
+@@ -74,6 +75,25 @@
          if not self.tests or jobs == 0:
              return
  
 +        # Create fresh output directories for each test we're going to run.
 +        # This guarantees that test runs will not remnants of previous test
 +        # runs' output.
-+        import time
-+        start = time.time()
 +        clean_paths = set()
 +        for test in self.tests:
 +            clean_paths.add(os.path.normpath(test.getTempFileDir()))
 +        clean_paths = list(clean_paths)
++        # Sort by number of path components, to ensure that parent directories
++        # get deleted and re-created before child directories.
 +        clean_paths.sort(key=lambda x: len(x.split(os.sep)))
 +        for base in clean_paths:
 +            if os.path.exists(base):
 +                if not os.path.islink(base) and os.path.isdir(base):
-+                    from shutil import rmtree
-+                    rmtree(base, True)
++                    shutil.rmtree(base, True)
 +                else:
 +                    os.unlink(os.path)
 +            if not os.path.exists(base):
 +                lit.util.mkdir_p(base)
-+        end = time.time()
-+        print("Cleanup took {} seconds".format(end - start))
 +
          # Set up semaphores to limit parallelism of certain classes of tests.
          # For example, some ASan tests require lots of virtual memory and run
