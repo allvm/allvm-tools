@@ -1,4 +1,5 @@
-#!/bin/sh
+#!/usr/bin/env nix-shell
+#! nix-shell -i bash -p git coreutils curl gnupatch gnutar xz -Q
 
 REV=70e6b37768d55ddff56e65b2ca8813544cca15e3
 
