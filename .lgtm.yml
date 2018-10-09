@@ -1,7 +1,7 @@
 path_classifiers:
   library:
-    - utils/lit
-    - libs/none/musl
+    - third_party/lit
+    - third_party/musl
   docs:
     - README.md
     - LICENSE.txt
