@@ -3,9 +3,9 @@
 REV=70e6b37768d55ddff56e65b2ca8813544cca15e3
 
 ROOT=$(readlink -f $(dirname $0))
-UTIL_DIR=$ROOT/../utils
+LIT_DIR=$ROOT/../third_party/lit
 
-rm $UTIL_DIR -rf
+rm $LIT_DIR -rf
 
 dir=`mktemp -d`
 trap 'rm -rf "$dir"' EXIT
@@ -16,12 +16,12 @@ curl -L https://github.com/llvm-mirror/llvm/archive/${REV}.tar.gz | tar xzvf - -
 
 POSIXLY_CORRECT=1 patch -p3 -i $ROOT/D34732.diff -d llvm-*/utils/lit
 
-mv llvm-*/utils $UTIL_DIR
+mv llvm-*/utils/lit $LIT_DIR
 
 # Remove things that only take up space since we don't use them
-rm -rf $UTIL_DIR/lit/{examples,tests,lit/ExampleTests.*}
+rm -rf $LIT_DIR/lit/{examples,tests,lit/ExampleTests.*}
 
-cd $UTIL_DIR
+cd $LIT_DIR
 git rm -rf --cached .
 git add -f .
 

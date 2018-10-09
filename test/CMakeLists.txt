@@ -32,7 +32,7 @@ if (EXISTS ${LLVM_INSTALL_PREFIX}/lit/lit.py)
   set(LIT_COMMAND ${LLVM_INSTALL_PREFIX}/lit/lit.py)
 endif()
 if (NOT LIT_COMMAND)
-  set(LIT_COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/utils/lit/lit.py)
+  set(LIT_COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/third_party/lit/lit.py)
 endif()
 
 # Check we have FileCheck utility, as indicator of the LLVM utilities.
