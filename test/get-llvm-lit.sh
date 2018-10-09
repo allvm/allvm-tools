@@ -1,7 +1,7 @@
 #!/usr/bin/env nix-shell
 #! nix-shell -i bash -p git coreutils curl gnupatch gnutar xz -Q
 
-REV=70e6b37768d55ddff56e65b2ca8813544cca15e3
+REV=672a17812561f50054716dc8d072c1420b9ee7c5
 
 ROOT=$(readlink -f $(dirname $0))
 LIT_DIR=$ROOT/../third_party/lit
