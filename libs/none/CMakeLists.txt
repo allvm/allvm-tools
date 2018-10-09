@@ -3,30 +3,30 @@ enable_language(ASM)
 set(MUSL musl-1.1.20)
 
 set(MUSL_PATCHES
-  ## # musl/patches/0002-Disable-vdso-support-on-x86_64-we-don-t-support-it-y.patch
-  ## musl/patches/0003-Remove-simple-malloc-gets-in-way-of-real-malloc.patch
-  ## #  musl/patches/0004-KLUDGE-More-workaround-weak-alias-this-time-tackling.patch
-  musl/patches/0005-Another-weak_alias-victim-destructors-for-stdio-and-.patch
-  ## musl/patches/0006-configure-improve-tryflag-to-reject-ignored-opt-argu.patch
-  ## musl/patches/0007-Partially-revert-remove-potentially-PIC-incompatible.patch
-  ## musl/patches/0008-kludge-around-_DYNAMIC-and-our-bad-weak-symbol-handl.patch
-  musl/patches/0009-configure-don-t-force-disable-unwind-tables-let-TC-d.patch
-  musl/patches/0010-configure-don-t-add-fomit-frame-pointer.patch
+  ## # 0002-Disable-vdso-support-on-x86_64-we-don-t-support-it-y.patch
+  ## 0003-Remove-simple-malloc-gets-in-way-of-real-malloc.patch
+  ## #  0004-KLUDGE-More-workaround-weak-alias-this-time-tackling.patch
+  0005-Another-weak_alias-victim-destructors-for-stdio-and-.patch
+  ## 0006-configure-improve-tryflag-to-reject-ignored-opt-argu.patch
+  ## 0007-Partially-revert-remove-potentially-PIC-incompatible.patch
+  ## 0008-kludge-around-_DYNAMIC-and-our-bad-weak-symbol-handl.patch
+  0009-configure-don-t-force-disable-unwind-tables-let-TC-d.patch
+  0010-configure-don-t-add-fomit-frame-pointer.patch
 
   # Upstream commits
-  musl/patches/upstream/0001-implement-fexecve-in-terms-of-execveat-when-it-exist.patch
-  musl/patches/upstream/0002-fix-mistake-cruft-in-1.1.20-release-notes.patch
-  musl/patches/upstream/0003-in-pthread_mutex_trylock-EBUSY-out-more-directly-whe.patch
-  musl/patches/upstream/0004-in-pthread_mutex_timedlock-avoid-repeatedly-reading-.patch
-  musl/patches/upstream/0005-fix-namespace-violation-for-c11-mutex-functions.patch
+  upstream/0001-implement-fexecve-in-terms-of-execveat-when-it-exist.patch
+  upstream/0002-fix-mistake-cruft-in-1.1.20-release-notes.patch
+  upstream/0003-in-pthread_mutex_trylock-EBUSY-out-more-directly-whe.patch
+  upstream/0004-in-pthread_mutex_timedlock-avoid-repeatedly-reading-.patch
+  upstream/0005-fix-namespace-violation-for-c11-mutex-functions.patch
   # Additional upstream, non-consecutive
-  musl/patches/upstream/fix-file-locking-race.patch
-  musl/patches/upstream/name_to_handle_at-001.patch
-  musl/patches/upstream/name_to_handle_at-002.patch
-  musl/patches/upstream/rework-posix_spawnp.patch
-  musl/patches/upstream/tty-more-precise-errors.patch
-  musl/patches/upstream/fix-getaddrinfo.patch
-  musl/patches/upstream/increase-default-thread-stack-guard-size.patch 
+  upstream/fix-file-locking-race.patch
+  upstream/name_to_handle_at-001.patch
+  upstream/name_to_handle_at-002.patch
+  upstream/rework-posix_spawnp.patch
+  upstream/tty-more-precise-errors.patch
+  upstream/fix-getaddrinfo.patch
+  upstream/increase-default-thread-stack-guard-size.patch 
 )
 
 set(MUSL_CFLAGS_EXTRA "")
@@ -34,7 +34,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
   # Bug in LLVM 7.0 causes compiler to crash!
   if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 7.0)
     list(APPEND MUSL_PATCHES
-      musl/patches/0001-Build-with-fPIC-large-code-model-to-workaround-RTDyL.patch
+      0001-Build-with-fPIC-large-code-model-to-workaround-RTDyL.patch
     )
   endif()
   # Don't complain about 'unused' arguments
@@ -54,16 +54,18 @@ set(MUSL_CFLAGS "-fPIC ${MUSL_CFLAGS_EXTRA}" CACHE string "CFLAGS for building m
 
 set(MUSL_PATCH_COMMANDS COMMAND echo "Applying musl patches...")
 
+set(MUSL_DIR "${PROJECT_SOURCE_DIR}/third_party/musl")
+
 foreach(patch ${MUSL_PATCHES})
   list(APPEND MUSL_PATCH_COMMANDS
     COMMAND echo "Applying patch '${patch}'..."
-    COMMAND patch -p1 -d "${MUSL}" -i "${CMAKE_CURRENT_SOURCE_DIR}/${patch}"
+    COMMAND patch -p1 -d "${MUSL}" -i "${MUSL_DIR}/patches/${patch}"
   )
 endforeach(patch)
 
 add_custom_command(OUTPUT ${MUSL}/config.mak
   COMMAND rm -rf "${MUSL}"
-  COMMAND tar xf "${CMAKE_CURRENT_SOURCE_DIR}/musl/${MUSL}.tar.gz"
+  COMMAND tar xf "${MUSL_DIR}/${MUSL}.tar.gz"
   ${MUSL_PATCH_COMMANDS}
   COMMAND cd ${MUSL} && CC=${CMAKE_C_COMPILER} ./configure --disable-shared CFLAGS=${MUSL_CFLAGS} --enable-debug
   MAIN_DEPENDENCY musl/${MUSL}.tar.gz

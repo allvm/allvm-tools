@@ -64,4 +64,4 @@ Program             Directory
 libunwind           libs/none/unwind
 libzip              libs/archive-rw
 llvm-lit            third_party/lit
-musl                libs/none/musl
+musl                third_party/musl
