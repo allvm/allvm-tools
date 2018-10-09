@@ -6,30 +6,30 @@ set(MUSL_DIR "${PROJECT_SOURCE_DIR}/third_party/musl")
 set(MUSL_TARBALL "${MUSL_DIR}/${MUSL}.tar.gz")
 
 set(MUSL_PATCHES
-  ## # 0002-Disable-vdso-support-on-x86_64-we-don-t-support-it-y.patch
-  ## 0003-Remove-simple-malloc-gets-in-way-of-real-malloc.patch
-  ## #  0004-KLUDGE-More-workaround-weak-alias-this-time-tackling.patch
-  0005-Another-weak_alias-victim-destructors-for-stdio-and-.patch
-  ## 0006-configure-improve-tryflag-to-reject-ignored-opt-argu.patch
-  ## 0007-Partially-revert-remove-potentially-PIC-incompatible.patch
-  ## 0008-kludge-around-_DYNAMIC-and-our-bad-weak-symbol-handl.patch
-  0009-configure-don-t-force-disable-unwind-tables-let-TC-d.patch
-  0010-configure-don-t-add-fomit-frame-pointer.patch
+  ## # ${MUSL_DIR}/patches/0002-Disable-vdso-support-on-x86_64-we-don-t-support-it-y.patch
+  ## ${MUSL_DIR}/patches/0003-Remove-simple-malloc-gets-in-way-of-real-malloc.patch
+  ## #  ${MUSL_DIR}/patches/0004-KLUDGE-More-workaround-weak-alias-this-time-tackling.patch
+  ${MUSL_DIR}/patches/0005-Another-weak_alias-victim-destructors-for-stdio-and-.patch
+  ## ${MUSL_DIR}/patches/0006-configure-improve-tryflag-to-reject-ignored-opt-argu.patch
+  ## ${MUSL_DIR}/patches/0007-Partially-revert-remove-potentially-PIC-incompatible.patch
+  ## ${MUSL_DIR}/patches/0008-kludge-around-_DYNAMIC-and-our-bad-weak-symbol-handl.patch
+  ${MUSL_DIR}/patches/0009-configure-don-t-force-disable-unwind-tables-let-TC-d.patch
+  ${MUSL_DIR}/patches/0010-configure-don-t-add-fomit-frame-pointer.patch
 
   # Upstream commits
-  upstream/0001-implement-fexecve-in-terms-of-execveat-when-it-exist.patch
-  upstream/0002-fix-mistake-cruft-in-1.1.20-release-notes.patch
-  upstream/0003-in-pthread_mutex_trylock-EBUSY-out-more-directly-whe.patch
-  upstream/0004-in-pthread_mutex_timedlock-avoid-repeatedly-reading-.patch
-  upstream/0005-fix-namespace-violation-for-c11-mutex-functions.patch
+  ${MUSL_DIR}/patches/upstream/0001-implement-fexecve-in-terms-of-execveat-when-it-exist.patch
+  ${MUSL_DIR}/patches/upstream/0002-fix-mistake-cruft-in-1.1.20-release-notes.patch
+  ${MUSL_DIR}/patches/upstream/0003-in-pthread_mutex_trylock-EBUSY-out-more-directly-whe.patch
+  ${MUSL_DIR}/patches/upstream/0004-in-pthread_mutex_timedlock-avoid-repeatedly-reading-.patch
+  ${MUSL_DIR}/patches/upstream/0005-fix-namespace-violation-for-c11-mutex-functions.patch
   # Additional upstream, non-consecutive
-  upstream/fix-file-locking-race.patch
-  upstream/name_to_handle_at-001.patch
-  upstream/name_to_handle_at-002.patch
-  upstream/rework-posix_spawnp.patch
-  upstream/tty-more-precise-errors.patch
-  upstream/fix-getaddrinfo.patch
-  upstream/increase-default-thread-stack-guard-size.patch 
+  ${MUSL_DIR}/patches/upstream/fix-file-locking-race.patch
+  ${MUSL_DIR}/patches/upstream/name_to_handle_at-001.patch
+  ${MUSL_DIR}/patches/upstream/name_to_handle_at-002.patch
+  ${MUSL_DIR}/patches/upstream/rework-posix_spawnp.patch
+  ${MUSL_DIR}/patches/upstream/tty-more-precise-errors.patch
+  ${MUSL_DIR}/patches/upstream/fix-getaddrinfo.patch
+  ${MUSL_DIR}/patches/upstream/increase-default-thread-stack-guard-size.patch 
 )
 
 set(MUSL_CFLAGS_EXTRA "")
@@ -37,7 +37,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
   # Bug in LLVM 7.0 causes compiler to crash!
   if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 7.0)
     list(APPEND MUSL_PATCHES
-      0001-Build-with-fPIC-large-code-model-to-workaround-RTDyL.patch
+      ${MUSL_DIR}/patches/0001-Build-with-fPIC-large-code-model-to-workaround-RTDyL.patch
     )
   endif()
   # Don't complain about 'unused' arguments
@@ -56,8 +56,6 @@ set(MUSL_CFLAGS_EXTRA "${MUSL_CFLAGS_EXTRA} -fstack-protector-all")
 set(MUSL_CFLAGS "-fPIC ${MUSL_CFLAGS_EXTRA}" CACHE string "CFLAGS for building musl")
 
 set(MUSL_PATCH_COMMANDS COMMAND echo "Applying musl patches...")
-
-list(TRANSFORM MUSL_PATCHES PREPEND "${MUSL_DIR}/patches/")
 
 foreach(patch ${MUSL_PATCHES})
   list(APPEND MUSL_PATCH_COMMANDS
