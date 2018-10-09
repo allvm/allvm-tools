@@ -16,6 +16,7 @@ import time
 import argparse
 import tempfile
 import shutil
+from xml.sax.saxutils import quoteattr
 
 import lit.ProgressBar
 import lit.LitConfig
@@ -81,6 +82,18 @@ class TestingProgressDisplay(object):
                 print('%s: %s ' % (metric_name, value.format()))
             print("*" * 10)
 
+        # Report micro-tests, if present
+        if test.result.microResults:
+            items = sorted(test.result.microResults.items())
+            for micro_test_name, micro_test in items:
+                print("%s MICRO-TEST: %s" %
+                         ('*'*3, micro_test_name))
+   
+                if micro_test.metrics:
+                    sorted_metrics = sorted(micro_test.metrics.items())
+                    for metric_name, value in sorted_metrics:
+                        print('    %s:  %s ' % (metric_name, value.format()))
+
         # Ensure the output is flushed.
         sys.stdout.flush()
 
@@ -112,6 +125,25 @@ def write_test_results(run, lit_config, testing_time, output_path):
             test_data['metrics'] = metrics_data = {}
             for key, value in test.result.metrics.items():
                 metrics_data[key] = value.todata()
+
+        # Report micro-tests separately, if present
+        if test.result.microResults:
+            for key, micro_test in test.result.microResults.items():
+                # Expand parent test name with micro test name
+                parent_name = test.getFullName()
+                micro_full_name = parent_name + ':' + key
+
+                micro_test_data = {
+                    'name' : micro_full_name,
+                    'code' : micro_test.code.name,
+                    'output' : micro_test.output,
+                    'elapsed' : micro_test.elapsed }
+                if micro_test.metrics:
+                    micro_test_data['metrics'] = micro_metrics_data = {}
+                    for key, value in micro_test.metrics.items():
+                        micro_metrics_data[key] = value.todata()
+
+                tests_data.append(micro_test_data)
 
         tests_data.append(test_data)
 
@@ -199,6 +231,12 @@ def main_with_tmp(builtinParameters):
     format_group.add_argument("-v", "--verbose", dest="showOutput",
                      help="Show test output for failures",
                      action="store_true", default=False)
+    format_group.add_argument("-vv", "--echo-all-commands",
+                     dest="echoAllCommands",
+                     action="store_true", default=False,
+                     help="Echo all commands as they are executed to stdout.\
+                     In case of failure, last command shown will be the\
+                     failing one.")
     format_group.add_argument("-a", "--show-all", dest="showAllOutput",
                      help="Display all commandlines and output",
                      action="store_true", default=False)
@@ -262,7 +300,8 @@ def main_with_tmp(builtinParameters):
     selection_group.add_argument("--filter", metavar="REGEX",
                      help=("Only run tests with paths matching the given "
                            "regular expression"),
-                     action="store", default=None)
+                     action="store",
+                     default=os.environ.get("LIT_FILTER"))
     selection_group.add_argument("--num-shards", dest="numShards", metavar="M",
                      help="Split testsuite into M pieces and only run one",
                      action="store", type=int,
@@ -282,9 +321,10 @@ def main_with_tmp(builtinParameters):
     debug_group.add_argument("--show-tests", dest="showTests",
                       help="Show all discovered tests",
                       action="store_true", default=False)
-    debug_group.add_argument("--use-processes", dest="executionStrategy",
-                      help="Run tests in parallel with processes (not threads)",
-                      action="store_const", const="PROCESSES")
+    debug_group.add_argument("--single-process", dest="singleProcess",
+                      help="Don't run tests in parallel.  Intended for debugging "
+                      "single test failures",
+                      action="store_true", default=False)
 
     opts = parser.parse_args()
     args = opts.test_paths
@@ -301,6 +341,9 @@ def main_with_tmp(builtinParameters):
 
     if opts.maxFailures == 0:
         parser.error("Setting --max-failures to 0 does not have any effect.")
+
+    if opts.echoAllCommands:
+        opts.showOutput = True
 
     inputs = args
 
@@ -331,13 +374,15 @@ def main_with_tmp(builtinParameters):
         valgrindLeakCheck = opts.valgrindLeakCheck,
         valgrindArgs = opts.valgrindArgs,
         noExecute = opts.noExecute,
+        singleProcess = opts.singleProcess,
         debug = opts.debug,
         isWindows = isWindows,
         params = userParams,
         config_prefix = opts.configPrefix,
         maxIndividualTestTime = maxIndividualTestTime,
         maxFailures = opts.maxFailures,
-        parallelism_groups = {})
+        parallelism_groups = {},
+        echo_all_commands = opts.echoAllCommands)
 
     # Perform test discovery.
     run = lit.run.Run(litConfig,
@@ -553,24 +598,30 @@ def main_with_tmp(builtinParameters):
                 by_suite[suite] = {
                                    'passes'   : 0,
                                    'failures' : 0,
+                                   'skipped': 0,
                                    'tests'    : [] }
             by_suite[suite]['tests'].append(result_test)
             if result_test.result.code.isFailure:
                 by_suite[suite]['failures'] += 1
+            elif result_test.result.code == lit.Test.UNSUPPORTED:
+                by_suite[suite]['skipped'] += 1
             else:
                 by_suite[suite]['passes'] += 1
         xunit_output_file = open(opts.xunit_output_file, "w")
         xunit_output_file.write("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n")
         xunit_output_file.write("<testsuites>\n")
         for suite_name, suite in by_suite.items():
-            safe_suite_name = suite_name.replace(".", "-")
-            xunit_output_file.write("<testsuite name='" + safe_suite_name + "'")
-            xunit_output_file.write(" tests='" + str(suite['passes'] + 
-              suite['failures']) + "'")
-            xunit_output_file.write(" failures='" + str(suite['failures']) + 
-              "'>\n")
+            safe_suite_name = quoteattr(suite_name.replace(".", "-"))
+            xunit_output_file.write("<testsuite name=" + safe_suite_name)
+            xunit_output_file.write(" tests=\"" + str(suite['passes'] +
+              suite['failures'] + suite['skipped']) + "\"")
+            xunit_output_file.write(" failures=\"" + str(suite['failures']) + "\"")
+            xunit_output_file.write(" skipped=\"" + str(suite['skipped']) +
+              "\">\n")
+
             for result_test in suite['tests']:
-                xunit_output_file.write(result_test.getJUnitXML() + "\n")
+                result_test.writeJUnitXML(xunit_output_file)
+                xunit_output_file.write("\n")
             xunit_output_file.write("</testsuite>\n")
         xunit_output_file.write("</testsuites>")
         xunit_output_file.close()
