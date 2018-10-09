@@ -2,6 +2,9 @@ enable_language(ASM)
 
 set(MUSL musl-1.1.20)
 
+set(MUSL_DIR "${PROJECT_SOURCE_DIR}/third_party/musl")
+set(MUSL_TARBALL "${MUSL_DIR}/${MUSL}.tar.gz")
+
 set(MUSL_PATCHES
   ## # 0002-Disable-vdso-support-on-x86_64-we-don-t-support-it-y.patch
   ## 0003-Remove-simple-malloc-gets-in-way-of-real-malloc.patch
@@ -54,21 +57,21 @@ set(MUSL_CFLAGS "-fPIC ${MUSL_CFLAGS_EXTRA}" CACHE string "CFLAGS for building m
 
 set(MUSL_PATCH_COMMANDS COMMAND echo "Applying musl patches...")
 
-set(MUSL_DIR "${PROJECT_SOURCE_DIR}/third_party/musl")
+list(TRANSFORM MUSL_PATCHES PREPEND "${MUSL_DIR}/patches/")
 
 foreach(patch ${MUSL_PATCHES})
   list(APPEND MUSL_PATCH_COMMANDS
     COMMAND echo "Applying patch '${patch}'..."
-    COMMAND patch -p1 -d "${MUSL}" -i "${MUSL_DIR}/patches/${patch}"
+    COMMAND patch -p1 -d "${MUSL}" -i ${patch}
   )
 endforeach(patch)
 
 add_custom_command(OUTPUT ${MUSL}/config.mak
   COMMAND rm -rf "${MUSL}"
-  COMMAND tar xf "${MUSL_DIR}/${MUSL}.tar.gz"
+  COMMAND tar xf "${MUSL_TARBALL}"
   ${MUSL_PATCH_COMMANDS}
   COMMAND cd ${MUSL} && CC=${CMAKE_C_COMPILER} ./configure --disable-shared CFLAGS=${MUSL_CFLAGS} --enable-debug
-  MAIN_DEPENDENCY musl/${MUSL}.tar.gz
+  MAIN_DEPENDENCY ${MUSL_TARBALL}
   DEPENDS ${MUSL_PATCHES}
   COMMENT "Configuring ${MUSL}"
 )
