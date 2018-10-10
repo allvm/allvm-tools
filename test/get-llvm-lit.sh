@@ -22,7 +22,7 @@ POSIXLY_CORRECT=1 patch -p3 -i $ROOT/D34732.diff -d llvm-*/utils/lit
 mv llvm-*/utils/lit $LIT_DIR
 
 # Remove things that only take up space since we don't use them
-rm -rf $LIT_DIR/lit/{examples,tests,lit/ExampleTests.*}
+rm -rf $LIT_DIR/{examples,tests,lit/ExampleTests.*}
 
 cd $LIT_DIR
 git rm -rf --cached .
