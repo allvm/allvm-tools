@@ -9,7 +9,6 @@ set(MUSL_SRC "${PROJECT_SOURCE_DIR}/third_party/musl")
 set(MUSL_PATCHES_DIR "${CMAKE_CURRENT_SOURCE_DIR}/musl-patches")
 
 set(MUSL_PATCHES
-  #${MUSL_PATCHES_DIR}/0005-Another-weak_alias-victim-destructors-for-stdio-and-.patch
   ${MUSL_PATCHES_DIR}/0009-configure-don-t-force-disable-unwind-tables-let-TC-d.patch
   ${MUSL_PATCHES_DIR}/0010-configure-don-t-add-fomit-frame-pointer.patch
 )
