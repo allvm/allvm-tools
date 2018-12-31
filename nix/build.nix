@@ -54,8 +54,11 @@ stdenv.mkDerivation {
     make check-format -j1
   '';
 
+  # if "paxmark" is available, use it
   postBuild = ''
-    command -v paxmark && paxmark m bin/alley
+    if command -v paxmark >/dev/null 2>&1; then
+      paxmark m bin/alley
+    fi
   '';
 
   enableParallelBuilding = true;
