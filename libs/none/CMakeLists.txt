@@ -12,21 +12,6 @@ set(MUSL_PATCHES
   ${MUSL_PATCHES_DIR}/0005-Another-weak_alias-victim-destructors-for-stdio-and-.patch
   ${MUSL_PATCHES_DIR}/0009-configure-don-t-force-disable-unwind-tables-let-TC-d.patch
   ${MUSL_PATCHES_DIR}/0010-configure-don-t-add-fomit-frame-pointer.patch
-
-  # Upstream commits
-  ${MUSL_PATCHES_DIR}/upstream/0001-implement-fexecve-in-terms-of-execveat-when-it-exist.patch
-  ${MUSL_PATCHES_DIR}/upstream/0002-fix-mistake-cruft-in-1.1.20-release-notes.patch
-  ${MUSL_PATCHES_DIR}/upstream/0003-in-pthread_mutex_trylock-EBUSY-out-more-directly-whe.patch
-  ${MUSL_PATCHES_DIR}/upstream/0004-in-pthread_mutex_timedlock-avoid-repeatedly-reading-.patch
-  ${MUSL_PATCHES_DIR}/upstream/0005-fix-namespace-violation-for-c11-mutex-functions.patch
-  # Additional upstream, non-consecutive
-  ${MUSL_PATCHES_DIR}/upstream/fix-file-locking-race.patch
-  ${MUSL_PATCHES_DIR}/upstream/name_to_handle_at-001.patch
-  ${MUSL_PATCHES_DIR}/upstream/name_to_handle_at-002.patch
-  ${MUSL_PATCHES_DIR}/upstream/rework-posix_spawnp.patch
-  ${MUSL_PATCHES_DIR}/upstream/tty-more-precise-errors.patch
-  ${MUSL_PATCHES_DIR}/upstream/fix-getaddrinfo.patch
-  ${MUSL_PATCHES_DIR}/upstream/increase-default-thread-stack-guard-size.patch 
 )
 
 set(MUSL_CFLAGS_EXTRA "")
