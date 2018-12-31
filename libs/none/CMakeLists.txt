@@ -1,12 +1,12 @@
 enable_language(ASM)
 
-# TODO: read from 'VERSION' file
-set(MUSL_VERSION 1.1.20)
-
-set(MUSL "musl-${MUSL_VERSION}")
-
 set(MUSL_SRC "${PROJECT_SOURCE_DIR}/third_party/musl")
 set(MUSL_PATCHES_DIR "${CMAKE_CURRENT_SOURCE_DIR}/musl-patches")
+
+# read version of musl we're using, from "VERSION" file in musl source
+file(STRINGS "${MUSL_SRC}/VERSION" MUSL_VERSION)
+
+set(MUSL "musl-${MUSL_VERSION}")
 
 set(MUSL_PATCHES
   ${MUSL_PATCHES_DIR}/0009-configure-don-t-force-disable-unwind-tables-let-TC-d.patch
