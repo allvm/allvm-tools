@@ -55,7 +55,7 @@ stdenv.mkDerivation {
   '';
 
   postBuild = ''
-    paxmark m bin/alley
+    command -v paxmark && paxmark m bin/alley
   '';
 
   enableParallelBuilding = true;
