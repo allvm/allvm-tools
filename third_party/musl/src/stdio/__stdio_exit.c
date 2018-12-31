@@ -1,9 +1,9 @@
 #include "stdio_impl.h"
 
-static FILE *volatile dummy_file = 0;
-weak_alias(dummy_file, __stdin_used);
-weak_alias(dummy_file, __stdout_used);
-weak_alias(dummy_file, __stderr_used);
+//static FILE *volatile dummy_file = 0;
+//weak_alias(dummy_file, __stdin_used);
+//weak_alias(dummy_file, __stdout_used);
+//weak_alias(dummy_file, __stderr_used);
 
 static void close_file(FILE *f)
 {

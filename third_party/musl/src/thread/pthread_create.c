@@ -163,10 +163,10 @@ weak_alias(dummy_tsd, __pthread_tsd_main);
 
 volatile int __block_new_threads = 0;
 
-static FILE *volatile dummy_file = 0;
-weak_alias(dummy_file, __stdin_used);
-weak_alias(dummy_file, __stdout_used);
-weak_alias(dummy_file, __stderr_used);
+//static FILE *volatile dummy_file = 0;
+//weak_alias(dummy_file, __stdin_used);
+//weak_alias(dummy_file, __stdout_used);
+//weak_alias(dummy_file, __stderr_used);
 
 static void init_file_lock(FILE *f)
 {
