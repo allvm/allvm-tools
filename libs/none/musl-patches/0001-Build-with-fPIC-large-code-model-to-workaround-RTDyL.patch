@@ -1,0 +1,26 @@
+From 83cadd34d46615b1cdb6bddef317e90bec886971 Mon Sep 17 00:00:00 2001
+From: Will Dietz <w@wdtz.org>
+Date: Fri, 29 Jul 2016 07:45:00 -0500
+Subject: [PATCH 1/8] Build with -fPIC/large code model to workaround RTDyLd
+ relocation limitations.
+
+---
+ Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/Makefile b/Makefile
+index 8246b78f..7d54b252 100644
+--- a/Makefile
++++ b/Makefile
+@@ -45,7 +45,7 @@ CFLAGS =
+ CFLAGS_AUTO = -Os -pipe
+ CFLAGS_C99FSE = -std=c99 -ffreestanding -nostdinc 
+ 
+-CFLAGS_ALL = $(CFLAGS_C99FSE)
++CFLAGS_ALL = $(CFLAGS_C99FSE) -fPIC -mcmodel=large
+ CFLAGS_ALL += -D_XOPEN_SOURCE=700 -I$(srcdir)/arch/$(ARCH) -I$(srcdir)/arch/generic -Iobj/src/internal -I$(srcdir)/src/include -I$(srcdir)/src/internal -Iobj/include -I$(srcdir)/include
+ CFLAGS_ALL += $(CPPFLAGS) $(CFLAGS_AUTO) $(CFLAGS)
+ 
+-- 
+2.11.0
+
