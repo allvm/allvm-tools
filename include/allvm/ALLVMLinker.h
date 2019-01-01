@@ -17,7 +17,7 @@ class ALLVMLinker {
 public:
   /// Links the given object files into an executable with the given file name.
   virtual llvm::Error
-  link(const llvm::SmallVectorImpl<llvm::StringRef> &ObjectFilenames,
+  link(llvm::ArrayRef<llvm::StringRef> ObjectFilenames,
        llvm::StringRef CrtBits, llvm::StringRef OutFilename) const = 0;
   virtual ~ALLVMLinker();
 
@@ -48,7 +48,7 @@ public:
   PathLinker(llvm::StringRef LinkerName);
 
   llvm::Error
-  link(const llvm::SmallVectorImpl<llvm::StringRef> &ObjectFilenames,
+  link(const llvm::ArrayRef<llvm::StringRef> ObjectFilenames,
        llvm::StringRef CrtBits, llvm::StringRef OutFilename) const override;
 };
 
@@ -62,7 +62,7 @@ public:
   InternalLinker(llvm::StringRef AlldPath);
 
   llvm::Error
-  link(const llvm::SmallVectorImpl<llvm::StringRef> &ObjectFilenames,
+  link(const llvm::ArrayRef<llvm::StringRef> ObjectFilenames,
        llvm::StringRef CrtBits, llvm::StringRef OutFilename) const override;
 };
 
