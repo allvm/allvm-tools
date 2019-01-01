@@ -18,7 +18,7 @@ static Error makeOpenError(const StringRef Filename, const Twine &Msg,
       "Could not open allexe '" + Filename + "': " + Msg, EC);
 }
 
-static std::unique_ptr<MemoryBuffer> moduleToBuffer(const Module *M) {
+static std::unique_ptr<MemoryBuffer> moduleToBuffer(const Module &M) {
   std::string X;
   raw_string_ostream OS(X);
   WriteBitcodeToFile(M, OS,
@@ -94,7 +94,7 @@ uint64_t Allexe::getModuleSize(size_t idx) {
 
 Error Allexe::updateModule(size_t idx, std::unique_ptr<Module> m) {
   assert(idx < getNumModules() && "invalid module idx");
-  if (!archive->updateEntry(idx, moduleToBuffer(m.get())))
+  if (!archive->updateEntry(idx, moduleToBuffer(*m.get())))
     return make_error<StringError>("Error updating module in allexe",
                                    errc::invalid_argument);
   return Error::success();
@@ -102,7 +102,7 @@ Error Allexe::updateModule(size_t idx, std::unique_ptr<Module> m) {
 
 Error Allexe::addModule(std::unique_ptr<Module> m, StringRef moduleName) {
   StringRef entryName = !moduleName.empty() ? moduleName : m->getName();
-  if (!archive->addEntry(moduleToBuffer(m.get()), entryName))
+  if (!archive->addEntry(moduleToBuffer(*m.get()), entryName))
     return make_error<StringError>("Error adding module to allexe",
                                    errc::invalid_argument);
   return Error::success();
