@@ -25,7 +25,7 @@ protected:
   /// Creates the command line arguments given to the linker and pushes them
   /// back to the given LinkerArgs vector.
   void createLinkerArguments(
-      const llvm::SmallVectorImpl<llvm::StringRef> &ObjectFilenames,
+      llvm::ArrayRef<llvm::StringRef> ObjectFilenames,
       llvm::Optional<llvm::StringRef> CrtBits, llvm::StringRef OutFilename,
       llvm::SmallVectorImpl<std::string> &LinkerArgs) const;
 
@@ -34,7 +34,7 @@ protected:
   ///
   /// \returns Error::success() on success.
   llvm::Error callLinkerAsExternalProcess(llvm::StringRef LinkerProgram,
-                                          llvm::ArrayRef<llvm::StringRef> LinkerArgs) const;
+                                          llvm::ArrayRef<llvm::StringRef> LinkerArgv) const;
 };
 
 /// Implementation of the linker interface that uses an ld-like linker that
