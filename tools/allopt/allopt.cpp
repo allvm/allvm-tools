@@ -64,7 +64,7 @@ Error runPipeline(StringRef Input, StringRef Output) {
 
   std::string err;
   auto Prog = ExitOnErr(errorOrToExpected(sys::findProgramByName(Pipeline)));
-  auto ret = sys::ExecuteAndWait(Prog, ArgStrs, None, redirects,
+  auto ret = sys::ExecuteAndWait(Prog, ArgStrs, {}, redirects,
                                  secondsToWait, memoryLimit, &err);
   if (ret < 0) {
     return make_error<StringError>(err, errc::invalid_argument);
