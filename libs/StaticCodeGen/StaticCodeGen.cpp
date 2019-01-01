@@ -191,7 +191,7 @@ static Error compileModule(std::unique_ptr<Module> &M, raw_pwrite_stream &OS,
                         Options.TrapFuncName, *M);
 
   // Ask the target to add backend passes as necessary.
-  if (Target->addPassesToEmitFile(PM, OS, TargetMachine::CGFT_ObjectFile,
+  if (Target->addPassesToEmitFile(PM, OS, nullptr /* DwoOut */, TargetMachine::CGFT_ObjectFile,
                                   Options.NoVerify)) {
     return makeStaticCodeGenError(
         "target does not support generation of object files!",
