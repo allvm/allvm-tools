@@ -35,7 +35,7 @@ Error allvm::AOTCompileIfNeeded(StaticBinaryCache &Cache, Allexe &allexe,
     // Generate native code for the specified .allexe into a temp file.
     LLVM_DEBUG(dbgs() << "Starting static compilation...\n");
     SmallString<20> tempFileName;
-    if (auto EC = sys::fs::createTemporaryFile("allvm", "aot", tempFileName))
+    if (auto EC = sys::fs::getPotentiallyUniqueTempFileName("allvm", "aot", tempFileName))
       return make_error<StringError>("Unable to create temporary file", EC);
 
     auto binary = compileAndLinkAllexeWithLlcDefaults(
