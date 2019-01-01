@@ -4,6 +4,11 @@
 [![Total Alerts](https://img.shields.io/lgtm/alerts/g/allvm/allvm-tools.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/allvm/allvm-tools/alerts/)
 [![Language Grade: C/C++](https://img.shields.io/lgtm/grade/cpp/g/allvm/allvm-tools.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/allvm/allvm-tools/)
 ![ALLVM ALL THE THINGS!](https://img.shields.io/badge/ALLVM-ALL%20THE%20THINGS-brightgreen.svg)
+[![Cachix Cache][cachix-cache-shield]][cachix-cache]
+
+[cachix-cache]: https://allvm.cachix.org
+[cachix-cache-shield]: https://img.shields.io/badge/cachix-allvm-blue.svg
+
 
 ## Contact
 
