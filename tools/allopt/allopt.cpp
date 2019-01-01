@@ -50,15 +50,11 @@ cl::list<std::string> Args(cl::ConsumeAfter, cl::desc("<pipeline arguments>"),
 allvm::ExitOnError ExitOnErr;
 
 Error runPipeline(StringRef Input, StringRef Output) {
-  SmallVector<const char *, 4> ArgStrs;
+  SmallVector<StringRef, 4> ArgStrs;
 
   ArgStrs.push_back(Pipeline.data());
   for (auto &A : Args)
     ArgStrs.push_back(A.data());
-  ArgStrs.push_back(nullptr);
-
-  // Empty environment
-  const char *env[] = {nullptr};
 
   Optional<StringRef> redirects[3] = {Input, Output, None};
 
@@ -68,7 +64,7 @@ Error runPipeline(StringRef Input, StringRef Output) {
 
   std::string err;
   auto Prog = ExitOnErr(errorOrToExpected(sys::findProgramByName(Pipeline)));
-  auto ret = sys::ExecuteAndWait(Prog, ArgStrs.data(), env, redirects,
+  auto ret = sys::ExecuteAndWait(Prog, ArgStrs, None, redirects,
                                  secondsToWait, memoryLimit, &err);
   if (ret < 0) {
     return make_error<StringError>(err, errc::invalid_argument);
@@ -131,7 +127,7 @@ int main(int argc, const char *argv[]) {
     ExitOnErr(M->materializeAll());
     raw_fd_ostream InS(TempIn, EC, sys::fs::F_None);
     ExitOnErr(errorCodeToError(EC));
-    WriteBitcodeToFile(M.get(), InS);
+    WriteBitcodeToFile(*M.get(), InS);
   }
 
   // Run the pipeline
