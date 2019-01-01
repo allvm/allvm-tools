@@ -47,7 +47,7 @@ void StaticBinaryCache::notifyObjectCompiled(StringRef CacheKey,
     SmallString<128> dir(sys::path::parent_path(CacheName));
     sys::fs::create_directories(Twine(dir));
   }
-  DEBUG(dbgs() << "Copying binary for " << CacheKey << " from " << execFilePath
+  LLVM_DEBUG(dbgs() << "Copying binary for " << CacheKey << " from " << execFilePath
                << " to " << CacheName << "\n");
   std::string CacheNameTmp = CacheName + ".tmp";
   auto EC = sys::fs::copy_file(execFilePath, CacheNameTmp);
@@ -74,12 +74,12 @@ int StaticBinaryCache::getObjectFileDesc(StringRef Name) const {
 
   // FIXME: Need to ensure we have an absolute path name so exec is not
   // subject to name resolution by searching through a PATH.
-  DEBUG(dbgs() << "Exec cache file name: " << CacheName << "\n");
+  LLVM_DEBUG(dbgs() << "Exec cache file name: " << CacheName << "\n");
 
   // Open the cache file in read-only mode and return the file descriptor.
   int execFD = open(CacheName.c_str(), O_PATH | O_CLOEXEC);
   if (execFD == -1) { // Not an error: just a cache miss
-    DEBUG(dbgs() << "Executable does not exist in file cache " << CacheDir
+    LLVM_DEBUG(dbgs() << "Executable does not exist in file cache " << CacheDir
                  << "\n");
   }
 
@@ -103,7 +103,7 @@ bool StaticBinaryCache::getCacheFilename(StringRef ModID,
   CacheName = CacheDir + CacheSubdir;
   size_t pos = CacheName.rfind('.');
   CacheName.replace(pos, CacheName.length() - pos, "");
-  DEBUG(dbgs() << "For Module " << ModID << " : Cache file name: " << CacheName
+  LLVM_DEBUG(dbgs() << "For Module " << ModID << " : Cache file name: " << CacheName
                << "\n");
   return true;
 }
