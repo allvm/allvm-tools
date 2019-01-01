@@ -105,7 +105,7 @@ static Error writeAsSingleBC(const WLLVMFile &File, StringRef Filename) {
 
   setWLLVMSource(Composite->get(), InputFilename);
 
-  WriteBitcodeToFile(*Composite->get(), Out->os(),
+  WriteBitcodeToFile(**Composite, Out->os(),
                      false,   // ShouldPreserveUseListOrder
                      nullptr, // ModuleSummaryIndex (ThinLTO)
                      true     // Generate Hash

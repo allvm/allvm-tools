@@ -127,7 +127,7 @@ int main(int argc, const char *argv[]) {
     ExitOnErr(M->materializeAll());
     raw_fd_ostream InS(TempIn, EC, sys::fs::F_None);
     ExitOnErr(errorCodeToError(EC));
-    WriteBitcodeToFile(*M.get(), InS);
+    WriteBitcodeToFile(*M, InS);
   }
 
   // Run the pipeline
