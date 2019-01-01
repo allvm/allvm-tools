@@ -41,12 +41,12 @@ void ALLVMLinker::createLinkerArguments(
 }
 
 Error ALLVMLinker::callLinkerAsExternalProcess(StringRef LinkerProgram,
-                                               const char **LinkerArgv) const {
+                                               ArrayRef<StringRef> LinkerArgs) const {
 
   bool ExecutionFailed;
   std::string ErrorMsg;
-  int Res = llvm::sys::ExecuteAndWait(LinkerProgram, LinkerArgv,
-                                      /*env*/ nullptr, /*Redirects*/ {},
+  int Res = llvm::sys::ExecuteAndWait(LinkerProgram, LinkerArgs,
+                                      /*env*/ None, /*Redirects*/ {},
                                       /*secondsToWait*/ 0, /*memoryLimit*/ 0,
                                       &ErrorMsg, &ExecutionFailed);
 
@@ -104,19 +104,15 @@ Error PathLinker::link(const SmallVectorImpl<StringRef> &ObjectFilenames,
   }
   createLinkerArguments(ObjectFilenames, CrtBitsOption, OutFilename,
                         LinkerArgs);
+  SmallVector<StringRef, 10> LinkerArgRefs;
 
-  SmallVector<const char *, 10> LinkerArgv;
+ // LinkerArgv.push_back(LinkerProgram.c_str());
 
-  LinkerArgv.push_back(LinkerProgram.c_str());
-
-  for (const std::string &Arg : LinkerArgs) {
-    LinkerArgv.push_back(Arg.c_str());
-  }
-
-  LinkerArgv.push_back(nullptr);
+  for (auto &Arg: LinkerArgs)
+    LinkerArgRefs.push_back(Arg);
 
   // Call linker as external process.
-  return callLinkerAsExternalProcess(LinkerProgram, LinkerArgv.data());
+  return callLinkerAsExternalProcess(LinkerProgram, LinkerArgRefs);
 }
 
 InternalLinker::InternalLinker(StringRef AlldPath) : Alld(AlldPath) {}
@@ -130,19 +126,13 @@ Error InternalLinker::link(const SmallVectorImpl<StringRef> &ObjectFilenames,
   createLinkerArguments(ObjectFilenames, CrtBitsOption, OutFilename,
                         LinkerArgs);
 
-  SmallVector<const char *, 10> LinkerArgv;
+  SmallVector<StringRef, 10> LinkerArgRefs;
 
-  std::string AlldStr = Alld.str();
-  LinkerArgv.push_back(AlldStr.c_str());
-
-  for (const std::string &Arg : LinkerArgs) {
-    LinkerArgv.push_back(Arg.c_str());
-  }
-
-  LinkerArgv.push_back(nullptr);
+  for (auto &Arg: LinkerArgs)
+    LinkerArgRefs.push_back(Arg);
 
   // Call linker as external process.
-  return callLinkerAsExternalProcess(Alld, LinkerArgv.data());
+  return callLinkerAsExternalProcess(Alld, LinkerArgRefs);
 }
 
 } // end namespace allvm
