@@ -15,7 +15,7 @@
 #include "allvm/ToolCommon.h"
 
 // XXX: Revisit this!
-#include <llvm/CodeGen/CommandFlags.def>
+#include <llvm/CodeGen/CommandFlags.inc>
 
 #include <llvm/ADT/SmallString.h>
 #include <llvm/IR/LLVMContext.h>
