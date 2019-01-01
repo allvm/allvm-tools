@@ -29,11 +29,11 @@ Error allvm::AOTCompileIfNeeded(StaticBinaryCache &Cache, Allexe &allexe,
   int execFD = Cache.getObjectFileDesc(CacheKey);
   bool isCached = (execFD >= 0);
 
-  DEBUG(dbgs() << (isCached ? "Found in cache\n" : "Not in cache!\n"));
+  LLVM_DEBUG(dbgs() << (isCached ? "Found in cache\n" : "Not in cache!\n"));
 
   if (!isCached) {
     // Generate native code for the specified .allexe into a temp file.
-    DEBUG(dbgs() << "Starting static compilation...\n");
+    LLVM_DEBUG(dbgs() << "Starting static compilation...\n");
     SmallString<20> tempFileName;
     if (auto EC = sys::fs::createTemporaryFile("allvm", "aot", tempFileName))
       return make_error<StringError>("Unable to create temporary file", EC);
@@ -42,7 +42,7 @@ Error allvm::AOTCompileIfNeeded(StaticBinaryCache &Cache, Allexe &allexe,
         allexe, LibNone, CrtBits, Linker, tempFileName, context);
     if (!binary)
       return binary.takeError();
-    DEBUG(dbgs() << "Compiled successfully into " << tempFileName << "\n");
+    LLVM_DEBUG(dbgs() << "Compiled successfully into " << tempFileName << "\n");
 
     // Now copy the executable to the cache location and delete the temp file
     Cache.notifyObjectCompiled(CacheKey, tempFileName);

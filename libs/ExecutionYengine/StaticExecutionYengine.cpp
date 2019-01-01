@@ -101,7 +101,7 @@ Error ExecutionYengine::tryStaticExec(StringRef Linker LLVM_ATTRIBUTE_UNUSED,
   int execFD = Cache->getObjectFileDesc(CacheKey);
   bool isCached = (execFD >= 0);
 
-  DEBUG(dbgs() << (isCached ? "Found in cache\n" : "Not in cache!\n"));
+  LLVM_DEBUG(dbgs() << (isCached ? "Found in cache\n" : "Not in cache!\n"));
 
   if (!isCached) {
     // No error encountered, but returning means we didn't exec() anything
@@ -114,7 +114,7 @@ Error ExecutionYengine::tryStaticExec(StringRef Linker LLVM_ATTRIBUTE_UNUSED,
   }
 
   // Almost ready to launch this
-  DEBUG(dbgs() << "fexecve: " << execFD << ": " << argv[0] << "\n");
+  LLVM_DEBUG(dbgs() << "fexecve: " << execFD << ": " << argv[0] << "\n");
   allvm::fexecve(execFD, const_cast<char **>(argv.data()),
                  const_cast<char **>(Info.envp));
 
