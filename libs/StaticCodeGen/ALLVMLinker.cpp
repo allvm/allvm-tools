@@ -74,7 +74,7 @@ PathLinker::PathLinker(llvm::StringRef LinkerName)
       GccLikeDriver(LinkerName == "gcc" || LinkerName == "clang" ||
                     LinkerName == "cc") {}
 
-Error PathLinker::link(const SmallVectorImpl<StringRef> &ObjectFilenames,
+Error PathLinker::link(ArrayRef<StringRef> ObjectFilenames,
                        StringRef CrtBits, StringRef OutFilename) const {
   if (GccLikeDriver) {
     errs() << "\n"
@@ -117,7 +117,7 @@ Error PathLinker::link(const SmallVectorImpl<StringRef> &ObjectFilenames,
 
 InternalLinker::InternalLinker(StringRef AlldPath) : Alld(AlldPath) {}
 
-Error InternalLinker::link(const SmallVectorImpl<StringRef> &ObjectFilenames,
+Error InternalLinker::link(ArrayRef<StringRef> ObjectFilenames,
                            StringRef CrtBits, StringRef OutFilename) const {
 
   // Create linker arguments.
@@ -127,7 +127,9 @@ Error InternalLinker::link(const SmallVectorImpl<StringRef> &ObjectFilenames,
                         LinkerArgs);
 
   SmallVector<StringRef, 10> LinkerArgv;
-  LinkerArgv.push_back(Alld);
+  std::string AlldStr = Alld.str();
+  LinkerArgv.push_back(AlldStr.c_str());
+  //LinkerArgv.push_back(Alld);
 
   for (auto &Arg: LinkerArgs)
     LinkerArgv.push_back(Arg);
