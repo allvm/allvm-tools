@@ -52,9 +52,9 @@ allvm::ExitOnError ExitOnErr;
 Error runPipeline(StringRef Input, StringRef Output) {
   SmallVector<StringRef, 4> ArgStrs;
 
-  ArgStrs.push_back(Pipeline.data());
+  ArgStrs.push_back(Pipeline);
   for (auto &A : Args)
-    ArgStrs.push_back(A.data());
+    ArgStrs.push_back(A);
 
   Optional<StringRef> redirects[3] = {Input, Output, None};
 
