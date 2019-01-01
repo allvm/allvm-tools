@@ -1,6 +1,7 @@
 #ifndef ALLVM_ALLVMLINKER
 #define ALLVM_ALLVMLINKER
 
+#include <llvm/ADT/ArrayRef.h>
 #include <llvm/ADT/SmallVector.h>
 #include <llvm/ADT/StringRef.h>
 
@@ -22,7 +23,7 @@ public:
 
 protected:
   /// Creates the command line arguments given to the linker and pushes them
-  /// back to the given LinkerArgv vector.
+  /// back to the given LinkerArgs vector.
   void createLinkerArguments(
       const llvm::SmallVectorImpl<llvm::StringRef> &ObjectFilenames,
       llvm::Optional<llvm::StringRef> CrtBits, llvm::StringRef OutFilename,
@@ -33,7 +34,7 @@ protected:
   ///
   /// \returns Error::success() on success.
   llvm::Error callLinkerAsExternalProcess(llvm::StringRef LinkerProgram,
-                                          const char **LinkerArgv) const;
+                                          llvm::ArrayRef<llvm::StringRef> LinkerArgs) const;
 };
 
 /// Implementation of the linker interface that uses an ld-like linker that
