@@ -16,25 +16,27 @@ namespace allvm {
 class ALLVMLinker {
 public:
   /// Links the given object files into an executable with the given file name.
-  virtual llvm::Error
-  link(llvm::ArrayRef<llvm::StringRef> ObjectFilenames,
-       llvm::StringRef CrtBits, llvm::StringRef OutFilename) const = 0;
+  virtual llvm::Error link(llvm::ArrayRef<llvm::StringRef> ObjectFilenames,
+                           llvm::StringRef CrtBits,
+                           llvm::StringRef OutFilename) const = 0;
   virtual ~ALLVMLinker();
 
 protected:
   /// Creates the command line arguments given to the linker and pushes them
   /// back to the given LinkerArgs vector.
-  void createLinkerArguments(
-      llvm::ArrayRef<llvm::StringRef> ObjectFilenames,
-      llvm::Optional<llvm::StringRef> CrtBits, llvm::StringRef OutFilename,
-      llvm::SmallVectorImpl<std::string> &LinkerArgs) const;
+  void
+  createLinkerArguments(llvm::ArrayRef<llvm::StringRef> ObjectFilenames,
+                        llvm::Optional<llvm::StringRef> CrtBits,
+                        llvm::StringRef OutFilename,
+                        llvm::SmallVectorImpl<std::string> &LinkerArgs) const;
 
   /// Calls the given linker program with the given arguments as an external
   /// process and waits that process.
   ///
   /// \returns Error::success() on success.
-  llvm::Error callLinkerAsExternalProcess(llvm::StringRef LinkerProgram,
-                                          llvm::ArrayRef<llvm::StringRef> LinkerArgv) const;
+  llvm::Error
+  callLinkerAsExternalProcess(llvm::StringRef LinkerProgram,
+                              llvm::ArrayRef<llvm::StringRef> LinkerArgv) const;
 };
 
 /// Implementation of the linker interface that uses an ld-like linker that
@@ -47,9 +49,9 @@ private:
 public:
   PathLinker(llvm::StringRef LinkerName);
 
-  llvm::Error
-  link(const llvm::ArrayRef<llvm::StringRef> ObjectFilenames,
-       llvm::StringRef CrtBits, llvm::StringRef OutFilename) const override;
+  llvm::Error link(const llvm::ArrayRef<llvm::StringRef> ObjectFilenames,
+                   llvm::StringRef CrtBits,
+                   llvm::StringRef OutFilename) const override;
 };
 
 /// Implementation of the linker interface that uses the alld linker that is
@@ -61,9 +63,9 @@ private:
 public:
   InternalLinker(llvm::StringRef AlldPath);
 
-  llvm::Error
-  link(const llvm::ArrayRef<llvm::StringRef> ObjectFilenames,
-       llvm::StringRef CrtBits, llvm::StringRef OutFilename) const override;
+  llvm::Error link(const llvm::ArrayRef<llvm::StringRef> ObjectFilenames,
+                   llvm::StringRef CrtBits,
+                   llvm::StringRef OutFilename) const override;
 };
 
 } // end namespace allvm
