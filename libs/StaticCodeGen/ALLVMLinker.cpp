@@ -20,9 +20,8 @@ namespace allvm {
 ALLVMLinker::~ALLVMLinker() {}
 
 void ALLVMLinker::createLinkerArguments(
-    ArrayRef<StringRef> ObjectFilenames,
-    Optional<StringRef> CrtBits, StringRef OutFilename,
-    SmallVectorImpl<std::string> &LinkerArgs) const {
+    ArrayRef<StringRef> ObjectFilenames, Optional<StringRef> CrtBits,
+    StringRef OutFilename, SmallVectorImpl<std::string> &LinkerArgs) const {
 
   LinkerArgs.emplace_back("-o");
   LinkerArgs.emplace_back(OutFilename.str());
@@ -40,8 +39,8 @@ void ALLVMLinker::createLinkerArguments(
   }
 }
 
-Error ALLVMLinker::callLinkerAsExternalProcess(StringRef LinkerProgram,
-                                               ArrayRef<StringRef> LinkerArgv) const {
+Error ALLVMLinker::callLinkerAsExternalProcess(
+    StringRef LinkerProgram, ArrayRef<StringRef> LinkerArgv) const {
 
   bool ExecutionFailed;
   std::string ErrorMsg;
@@ -74,8 +73,8 @@ PathLinker::PathLinker(llvm::StringRef LinkerName)
       GccLikeDriver(LinkerName == "gcc" || LinkerName == "clang" ||
                     LinkerName == "cc") {}
 
-Error PathLinker::link(ArrayRef<StringRef> ObjectFilenames,
-                       StringRef CrtBits, StringRef OutFilename) const {
+Error PathLinker::link(ArrayRef<StringRef> ObjectFilenames, StringRef CrtBits,
+                       StringRef OutFilename) const {
   if (GccLikeDriver) {
     errs() << "\n"
            << "ALLVM linker warning: Using the " << Linker << " driver as "
@@ -108,7 +107,7 @@ Error PathLinker::link(ArrayRef<StringRef> ObjectFilenames,
 
   LinkerArgv.push_back(LinkerProgram);
 
-  for (auto &Arg: LinkerArgs)
+  for (auto &Arg : LinkerArgs)
     LinkerArgv.push_back(Arg);
 
   // Call linker as external process.
@@ -129,9 +128,9 @@ Error InternalLinker::link(ArrayRef<StringRef> ObjectFilenames,
   SmallVector<StringRef, 10> LinkerArgv;
   std::string AlldStr = Alld.str();
   LinkerArgv.push_back(AlldStr.c_str());
-  //LinkerArgv.push_back(Alld);
+  // LinkerArgv.push_back(Alld);
 
-  for (auto &Arg: LinkerArgs)
+  for (auto &Arg : LinkerArgs)
     LinkerArgv.push_back(Arg);
 
   // Call linker as external process.
