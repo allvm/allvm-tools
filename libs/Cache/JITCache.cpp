@@ -38,7 +38,7 @@ void JITCache::notifyObjectCompiled(const Module *M, MemoryBufferRef Obj) {
     outfile.close();
   } else {
     // Using errs() in JITCache seems like a Bad Idea (tm).
-    errs() << "Error writing to cache, trying to ignore...\n";
+    // errs() << "Error writing to cache, trying to ignore...\n";
   }
 }
 
@@ -77,7 +77,6 @@ std::unique_ptr<MemoryBuffer> JITCache::getObject(StringRef Name) {
 
 bool JITCache::getCacheFilename(StringRef ModID, std::string &CacheName) {
   std::string Prefix("allexe:");
-  errs() << "ModID: " << ModID << "\n";
   size_t PrefixLength = Prefix.length();
   if (ModID.substr(0, PrefixLength) != Prefix)
     return false;
