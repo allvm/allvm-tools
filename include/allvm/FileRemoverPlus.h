@@ -5,22 +5,11 @@
 #include <llvm/ADT/StringRef.h>
 #include <llvm/Support/FileSystem.h>
 #include <llvm/Support/Signals.h>
+#include <llvm/Support/FileUtilities.h>
 
 namespace allvm {
 
-class FileRemoverPlus {
-  llvm::SmallString<128> filename;
-
-public:
-  FileRemoverPlus(llvm::StringRef Filename) : filename(Filename) {
-    llvm::sys::RemoveFileOnSignal(filename);
-  }
-
-  ~FileRemoverPlus() {
-    llvm::sys::fs::remove(filename);
-    llvm::sys::DontRemoveFileOnSignal(filename);
-  }
-};
+using FileRemoverPlus = llvm::FileRemover;
 
 } // end namespace allvm
 
