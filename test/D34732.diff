@@ -1,0 +1,400 @@
+Index: llvm/trunk/test/DebugInfo/Inputs/split-dwarf-addr-object-relocation.cpp
+===================================================================
+--- llvm/trunk/test/DebugInfo/Inputs/split-dwarf-addr-object-relocation.cpp
++++ llvm/trunk/test/DebugInfo/Inputs/split-dwarf-addr-object-relocation.cpp
+@@ -0,0 +1,7 @@
++void f1();
++__attribute__((always_inline)) void f2() {
++  f1();
++}
++void f3() {
++  f2();
++}
+Index: llvm/trunk/test/DebugInfo/Inputs/split-dwarf-multiple-cu1.cpp
+===================================================================
+--- llvm/trunk/test/DebugInfo/Inputs/split-dwarf-multiple-cu1.cpp
++++ llvm/trunk/test/DebugInfo/Inputs/split-dwarf-multiple-cu1.cpp
+@@ -0,0 +1,2 @@
++extern int i;
++int i;
+Index: llvm/trunk/test/DebugInfo/Inputs/split-dwarf-multiple-cu2.cpp
+===================================================================
+--- llvm/trunk/test/DebugInfo/Inputs/split-dwarf-multiple-cu2.cpp
++++ llvm/trunk/test/DebugInfo/Inputs/split-dwarf-multiple-cu2.cpp
+@@ -0,0 +1,7 @@
++void f1();
++inline __attribute__((always_inline)) void f2() {
++  f1();
++}
++void f3() {
++  f2();
++}
+Index: llvm/trunk/test/DebugInfo/llvm-symbolizer.test
+===================================================================
+--- llvm/trunk/test/DebugInfo/llvm-symbolizer.test
++++ llvm/trunk/test/DebugInfo/llvm-symbolizer.test
+@@ -20,8 +20,8 @@
+ RUN: echo "%p/Inputs/fission-ranges.elf-x86_64 0x720" >> %t.input
+ RUN: echo "%p/Inputs/arange-overlap.elf-x86_64 0x714" >> %t.input
+ RUN: cp %p/Inputs/split-dwarf-test.dwo %T
+-RUN: echo "%p/Inputs/split-dwarf-test 0x4005d4" >> %t.input
+-RUN: echo "%p/Inputs/split-dwarf-test 0x4005c4" >> %t.input
++RUN: echo "%p/Inputs/split-dwarf-test 0x400504" >> %t.input
++RUN: echo "%p/Inputs/split-dwarf-test 0x4004f0" >> %t.input
+ RUN: echo "%p/Inputs/cross-cu-inlining.x86_64-macho.o 0x17" >> %t.input
+ RUN: cp %p/Inputs/split-dwarf-multiple-cu.dwo %T
+ RUN: echo "%p/Inputs/split-dwarf-multiple-cu.o 0x4" >> %t.input
+@@ -141,9 +141,9 @@
+ CHECK-NEXT: /tmp{{[/\\]}}cross-cu-inlining.c:11:0
+ 
+ CHECK:      f2
+-CHECK-NEXT: b.cpp:3:3
++CHECK-NEXT: split-dwarf-multiple-cu2.cpp:3:3
+ CHECK-NEXT: f3
+-CHECK-NEXT: b.cpp:6:0
++CHECK-NEXT: split-dwarf-multiple-cu2.cpp:6:0
+ 
+ CHECK:      f2
+ CHECK-NEXT: split-dwarf-addr-object-relocation.cpp:3:3
+Index: llvm/trunk/test/Other/lit-globbing.ll
+===================================================================
+--- llvm/trunk/test/Other/lit-globbing.ll
++++ llvm/trunk/test/Other/lit-globbing.ll
+@@ -1,28 +1,28 @@
+-RUN: echo TA > %T/TA.txt
+-RUN: echo TB > %T/TB.txt
+-RUN: echo TAB > %T/TAB.txt
+-
+-RUN: echo %T/TA* | FileCheck -check-prefix=STAR %s
+-RUN: echo %T/'TA'* | FileCheck -check-prefix=STAR %s
+-RUN: echo %T/T'A'* | FileCheck -check-prefix=STAR %s
+-
+-RUN: echo %T/T?.txt | FileCheck -check-prefix=QUESTION %s
+-RUN: echo %T/'T'?.txt | FileCheck -check-prefix=QUESTION %s
+-
+-RUN: echo %T/T??.txt | FileCheck -check-prefix=QUESTION2 %s
+-RUN: echo %T/'T'??.txt | FileCheck -check-prefix=QUESTION2 %s
+-
+-RUN: echo 'T*' 'T?.txt' 'T??.txt' | FileCheck -check-prefix=QUOTEDARGS %s
+-
+-STAR-NOT: TB.txt
+-STAR: {{(TA.txt.*TAB.txt|TAB.txt.*TA.txt)}}
+-
+-QUESTION-NOT: TAB.txt
+-QUESTION: {{(TA.txt.*TB.txt|TB.txt.*TA.txt)}}
+-
+-QUESTION2-NOT: TA.txt
+-QUESTION2-NOT: TB.txt
+-QUESTION2: TAB.txt
+-
+-QUOTEDARGS-NOT: .txt
+-QUOTEDARGS: T* T?.txt T??.txt
++RUN: echo XXA > %T/XXA.txt
++RUN: echo XXB > %T/XXB.txt
++RUN: echo XXAB > %T/XXAB.txt
++
++RUN: echo %T/XXA* | FileCheck -check-prefix=STAR %s
++RUN: echo %T/'XXA'* | FileCheck -check-prefix=STAR %s
++RUN: echo %T/XX'A'* | FileCheck -check-prefix=STAR %s
++
++RUN: echo %T/XX?.txt | FileCheck -check-prefix=QUESTION %s
++RUN: echo %T/'XX'?.txt | FileCheck -check-prefix=QUESTION %s
++
++RUN: echo %T/XX??.txt | FileCheck -check-prefix=QUESTION2 %s
++RUN: echo %T/'XX'??.txt | FileCheck -check-prefix=QUESTION2 %s
++
++RUN: echo 'XX*' 'XX?.txt' 'XX??.txt' | FileCheck -check-prefix=QUOTEDARGS %s
++
++STAR-NOT: XXB.txt
++STAR: {{(XXA.txt.*XXAB.txt|XXAB.txt.*XXA.txt)}}
++
++QUESTION-NOT: XXAB.txt
++QUESTION: {{(XXA.txt.*XXB.txt|XXB.txt.*XXA.txt)}}
++
++QUESTION2-NOT: XXA.txt
++QUESTION2-NOT: XXB.txt
++QUESTION2: XXAB.txt
++
++QUOTEDARGS-NOT: .txt
++QUOTEDARGS: XX* XX?.txt XX??.txt
+Index: llvm/trunk/test/Unit/lit.cfg
+===================================================================
+--- llvm/trunk/test/Unit/lit.cfg
++++ llvm/trunk/test/Unit/lit.cfg
+@@ -39,9 +39,11 @@
+         config.environment[symbolizer] = os.environ[symbolizer]
+ 
+ # Win32 seeks DLLs along %PATH%.
+-if sys.platform in ['win32', 'cygwin'] and os.path.isdir(config.shlibdir):
+-    config.environment['PATH'] = os.path.pathsep.join((
+-            config.shlibdir, config.environment['PATH']))
++if sys.platform in ['win32', 'cygwin']:
++	shlibdir = getattr(config, 'shlibdir', None)
++	if shlibdir is not None and os.path.isdir(shlibdir):
++	    config.environment['PATH'] = os.path.pathsep.join((
++	            config.shlibdir, config.environment['PATH']))
+ 
+ # Win32 may use %SYSTEMDRIVE% during file system shell operations, so propogate.
+ if sys.platform == 'win32' and 'SYSTEMDRIVE' in os.environ:
+Index: llvm/trunk/utils/lit/lit/Test.py
+===================================================================
+--- llvm/trunk/utils/lit/lit/Test.py
++++ llvm/trunk/utils/lit/lit/Test.py
+@@ -172,7 +172,7 @@
+         return os.path.join(self.source_root, *components)
+ 
+     def getExecPath(self, components):
+-        return os.path.join(self.exec_root, *components)
++        return os.path.join(self.exec_root, "Output", *components)
+ 
+ class Test:
+     """Test - Information on a single test instance."""
+@@ -222,20 +222,26 @@
+             # Syntax error in an XFAIL line.
+             self.result.code = UNRESOLVED
+             self.result.output = str(e)
+-        
++
+     def getFullName(self):
+         return self.suite.config.name + ' :: ' + '/'.join(self.path_in_suite)
+ 
++    def getTestBaseName(self):
++        return self.path_in_suite[-1]
++
+     def getFilePath(self):
+         if self.file_path:
+             return self.file_path
+         return self.getSourcePath()
+ 
+     def getSourcePath(self):
+         return self.suite.getSourcePath(self.path_in_suite)
+ 
+-    def getExecPath(self):
+-        return self.suite.getExecPath(self.path_in_suite)
++    def getTempFilePrefix(self):
++        return self.suite.getExecPath(self.path_in_suite) + ".tmp"
++
++    def getTempFileDir(self):
++        return os.path.dirname(self.getTempFilePrefix())
+ 
+     def isExpectedToFail(self):
+         """
+@@ -347,7 +353,7 @@
+         safe_name = self.suite.name.replace(".","-")
+ 
+         if safe_test_path:
+-            class_name = safe_name + "." + "/".join(safe_test_path) 
++            class_name = safe_name + "." + "/".join(safe_test_path)
+         else:
+             class_name = safe_name + "." + safe_name
+ 
+Index: llvm/trunk/utils/lit/lit/TestRunner.py
+===================================================================
+--- llvm/trunk/utils/lit/lit/TestRunner.py
++++ llvm/trunk/utils/lit/lit/TestRunner.py
+@@ -123,7 +123,7 @@
+         self.exitCode = exitCode
+         self.timeoutReached = timeoutReached
+         self.outputFiles = list(outputFiles)
+-               
++
+ def executeShCmd(cmd, shenv, results, timeout=0):
+     """
+         Wrapper around _executeShCmd that handles
+@@ -501,7 +501,7 @@
+                         data = None
+                     if data is not None:
+                         output_files.append((name, path, data))
+-            
++
+         results.append(ShellCommandResult(
+             cmd.commands[i], out, err, res, timeoutHelper.timeoutReached(),
+             output_files))
+@@ -573,7 +573,7 @@
+                 else:
+                     out += data
+                 out += "\n"
+-                    
++
+         if result.stdout.strip():
+             out += '# command output:\n%s\n' % (result.stdout,)
+         if result.stderr.strip():
+@@ -690,37 +690,28 @@
+     finally:
+         f.close()
+ 
+-def getTempPaths(test):
+-    """Get the temporary location, this is always relative to the test suite
+-    root, not test source root."""
+-    execpath = test.getExecPath()
+-    execdir,execbase = os.path.split(execpath)
+-    tmpDir = os.path.join(execdir, 'Output')
+-    tmpBase = os.path.join(tmpDir, execbase)
+-    return tmpDir, tmpBase
+-
+-def getDefaultSubstitutions(test, tmpDir, tmpBase, normalize_slashes=False):
++def getDefaultSubstitutions(test, normalize_slashes=False):
+     sourcepath = test.getSourcePath()
+     sourcedir = os.path.dirname(sourcepath)
++    tmpDir = test.getTempFileDir()
++    tmpPrefix = test.getTempFilePrefix()
++    baseName = test.getTestBaseName()
+ 
+     # Normalize slashes, if requested.
+     if normalize_slashes:
+         sourcepath = sourcepath.replace('\\', '/')
+         sourcedir = sourcedir.replace('\\', '/')
+         tmpDir = tmpDir.replace('\\', '/')
+-        tmpBase = tmpBase.replace('\\', '/')
+ 
+     # We use #_MARKER_# to hide %% while we do the other substitutions.
+     substitutions = []
+     substitutions.extend([('%%', '#_MARKER_#')])
+     substitutions.extend(test.config.substitutions)
+-    tmpName = tmpBase + '.tmp'
+-    baseName = os.path.basename(tmpBase)
+     substitutions.extend([('%s', sourcepath),
+                           ('%S', sourcedir),
+                           ('%p', sourcedir),
+                           ('%{pathsep}', os.pathsep),
+-                          ('%t', tmpName),
++                          ('%t', tmpPrefix),
+                           ('%basename_t', baseName),
+                           ('%T', tmpDir),
+                           ('#_MARKER_#', '%')])
+@@ -730,7 +721,7 @@
+             ('%/s', sourcepath.replace('\\', '/')),
+             ('%/S', sourcedir.replace('\\', '/')),
+             ('%/p', sourcedir.replace('\\', '/')),
+-            ('%/t', tmpBase.replace('\\', '/') + '.tmp'),
++            ('%/t', tmpPrefix.replace('\\', '/')),
+             ('%/T', tmpDir.replace('\\', '/')),
+             ])
+ 
+@@ -740,15 +731,15 @@
+                 ('%:s', re.sub(r'^(.):', r'\1', sourcepath)),
+                 ('%:S', re.sub(r'^(.):', r'\1', sourcedir)),
+                 ('%:p', re.sub(r'^(.):', r'\1', sourcedir)),
+-                ('%:t', re.sub(r'^(.):', r'\1', tmpBase) + '.tmp'),
++                ('%:t', re.sub(r'^(.):', r'\1', tmpPrefix)),
+                 ('%:T', re.sub(r'^(.):', r'\1', tmpDir)),
+                 ])
+     else:
+         substitutions.extend([
+                 ('%:s', sourcepath),
+                 ('%:S', sourcedir),
+                 ('%:p', sourcedir),
+-                ('%:t', tmpBase + '.tmp'),
++                ('%:t', tmpPrefix),
+                 ('%:T', tmpDir),
+                 ])
+     return substitutions
+@@ -779,7 +770,7 @@
+     TAG: A keyword taking no value. Ex 'END.'
+     COMMAND: A keyword taking a list of shell commands. Ex 'RUN:'
+     LIST: A keyword taking a comma-separated list of values.
+-    BOOLEAN_EXPR: A keyword taking a comma-separated list of 
++    BOOLEAN_EXPR: A keyword taking a comma-separated list of
+         boolean expressions. Ex 'XFAIL:'
+     CUSTOM: A keyword with custom parsing semantics.
+     """
+@@ -951,14 +942,14 @@
+         IntegratedTestKeywordParser('REQUIRES:', ParserKind.BOOLEAN_EXPR,
+                                     initial_value=test.requires),
+         IntegratedTestKeywordParser('REQUIRES-ANY:', ParserKind.CUSTOM,
+-                                    IntegratedTestKeywordParser._handleRequiresAny, 
+-                                    initial_value=test.requires), 
++                                    IntegratedTestKeywordParser._handleRequiresAny,
++                                    initial_value=test.requires),
+         IntegratedTestKeywordParser('UNSUPPORTED:', ParserKind.BOOLEAN_EXPR,
+                                     initial_value=test.unsupported),
+         IntegratedTestKeywordParser('END.', ParserKind.TAG)
+     ]
+     keyword_parsers = {p.keyword: p for p in builtin_parsers}
+-    
++
+     # Install user-defined additional parsers.
+     for parser in additional_parsers:
+         if not isinstance(parser, IntegratedTestKeywordParser):
+@@ -968,7 +959,7 @@
+             raise ValueError("Parser for keyword '%s' already exists"
+                              % parser.keyword)
+         keyword_parsers[parser.keyword] = parser
+-        
++
+     # Collect the test lines from the script.
+     sourcepath = test.getSourcePath()
+     for line_number, command_type, ln in \
+@@ -1014,12 +1005,8 @@
+ 
+     return script
+ 
+-
+ def _runShTest(test, litConfig, useExternalSh, script, tmpBase):
+-    # Create the output directory if it does not already exist.
+-    lit.util.mkdir_p(os.path.dirname(tmpBase))
+-
+-    execdir = os.path.dirname(test.getExecPath())
++    execdir = os.path.dirname(test.getTempFileDir())
+     if useExternalSh:
+         res = executeScript(test, litConfig, tmpBase, script, execdir)
+     else:
+@@ -1063,19 +1050,18 @@
+         return script
+     if litConfig.noExecute:
+         return lit.Test.Result(Test.PASS)
+-
+-    tmpDir, tmpBase = getTempPaths(test)
+     substitutions = list(extra_substitutions)
+-    substitutions += getDefaultSubstitutions(test, tmpDir, tmpBase,
++    substitutions += getDefaultSubstitutions(test,
+                                              normalize_slashes=useExternalSh)
+     script = applySubstitutions(script, substitutions)
+ 
+     # Re-run failed tests up to test_retry_attempts times.
+     attempts = 1
+     if hasattr(test.config, 'test_retry_attempts'):
+         attempts += test.config.test_retry_attempts
+     for i in range(attempts):
+-        res = _runShTest(test, litConfig, useExternalSh, script, tmpBase)
++        res = _runShTest(test, litConfig, useExternalSh, script,
++                         test.getTempFilePrefix())
+         if res.code != Test.FAIL:
+             break
+     # If we had to run the test more than once, count it as a flaky pass. These
+Index: llvm/trunk/utils/lit/lit/run.py
+===================================================================
+--- llvm/trunk/utils/lit/lit/run.py
++++ llvm/trunk/utils/lit/lit/run.py
+@@ -1,4 +1,5 @@
+ import os
++import shutil
+ import sys
+ import threading
+ import time
+@@ -74,6 +75,25 @@
+         if not self.tests or jobs == 0:
+             return
+ 
++        # Create fresh output directories for each test we're going to run.
++        # This guarantees that test runs will not remnants of previous test
++        # runs' output.
++        clean_paths = set()
++        for test in self.tests:
++            clean_paths.add(os.path.normpath(test.getTempFileDir()))
++        clean_paths = list(clean_paths)
++        # Sort by number of path components, to ensure that parent directories
++        # get deleted and re-created before child directories.
++        clean_paths.sort(key=lambda x: len(x.split(os.sep)))
++        for base in clean_paths:
++            if os.path.exists(base):
++                if not os.path.islink(base) and os.path.isdir(base):
++                    shutil.rmtree(base, True)
++                else:
++                    os.unlink(os.path)
++            if not os.path.exists(base):
++                lit.util.mkdir_p(base)
++
+         # Set up semaphores to limit parallelism of certain classes of tests.
+         # For example, some ASan tests require lots of virtual memory and run
+         # faster with less parallelism on OS X.
