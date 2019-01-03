@@ -89,7 +89,7 @@ else()
 endif()
 
 
-option(USE_GOLD_LINKER_IF_AVAILABLE "use gold linker if supported" ON)
+option(USE_GOLD_LINKER_IF_AVAILABLE "use gold linker if supported" OFF)
 if(USE_GOLD_LINKER_IF_AVAILABLE)
   check_cxx_compiler_flag("-fuse-ld=gold" CXX_SUPPORTS_GOLD)
   append_if(CXX_SUPPORTS_GOLD "-fuse-ld=gold"
