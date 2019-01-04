@@ -3,7 +3,7 @@
 
 set -euo pipefail
 
-REV=cd98f42d0747826062fc3d2d2fad383aedf58dd6
+REV=60ccceba7433d258aaf9cf262b88c6fe2c4cbe95
 
 ROOT=$(readlink -f $(dirname $0))
 LIT_DIR=$ROOT/../third_party/lit
