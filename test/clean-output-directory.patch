@@ -1,0 +1,252 @@
+--- a/utils/lit/lit/Test.py
++++ a/utils/lit/lit/Test.py
+@@ -192,7 +192,7 @@ class TestSuite:
+         return os.path.join(self.source_root, *components)
+ 
+     def getExecPath(self, components):
+-        return os.path.join(self.exec_root, *components)
++        return os.path.join(self.exec_root, "Output", *components)
+ 
+ class Test:
+     """Test - Information on a single test instance."""
+@@ -242,10 +242,13 @@ class Test:
+             # Syntax error in an XFAIL line.
+             self.result.code = UNRESOLVED
+             self.result.output = str(e)
+-        
++
+     def getFullName(self):
+         return self.suite.config.name + ' :: ' + '/'.join(self.path_in_suite)
+ 
++    def getTestBaseName(self):
++        return self.path_in_suite[-1]
++
+     def getFilePath(self):
+         if self.file_path:
+             return self.file_path
+@@ -254,8 +257,11 @@ class Test:
+     def getSourcePath(self):
+         return self.suite.getSourcePath(self.path_in_suite)
+ 
+-    def getExecPath(self):
+-        return self.suite.getExecPath(self.path_in_suite)
++    def getTempFilePrefix(self):
++        return self.suite.getExecPath(self.path_in_suite) + ".tmp"
++
++    def getTempFileDir(self):
++        return os.path.dirname(self.getTempFilePrefix())
+ 
+     def isExpectedToFail(self):
+         """
+@@ -368,7 +374,7 @@ class Test:
+         safe_name = self.suite.name.replace(".","-")
+ 
+         if safe_test_path:
+-            class_name = safe_name + "." + "/".join(safe_test_path) 
++            class_name = safe_name + "." + "/".join(safe_test_path)
+         else:
+             class_name = safe_name + "." + safe_name
+         class_name = quoteattr(class_name)
+--- a/utils/lit/lit/TestRunner.py
++++ a/utils/lit/lit/TestRunner.py
+@@ -149,7 +149,7 @@ class ShellCommandResult(object):
+         self.exitCode = exitCode
+         self.timeoutReached = timeoutReached
+         self.outputFiles = list(outputFiles)
+-               
++
+ def executeShCmd(cmd, shenv, results, timeout=0):
+     """
+         Wrapper around _executeShCmd that handles
+@@ -975,7 +975,7 @@ def _executeShCmd(cmd, shenv, results, timeoutHelper):
+                         data = None
+                     if data is not None:
+                         output_files.append((name, path, data))
+-            
++
+         results.append(ShellCommandResult(
+             cmd.commands[i], out, err, res, timeoutHelper.timeoutReached(),
+             output_files))
+@@ -1048,7 +1048,7 @@ def executeScriptInternal(test, litConfig, tmpBase, commands, cwd):
+                 else:
+                     out += data
+                 out += "\n"
+-                    
++
+         if result.stdout.strip():
+             out += '# command output:\n%s\n' % (result.stdout,)
+         if result.stderr.strip():
+@@ -1179,15 +1179,6 @@ def parseIntegratedTestScriptCommands(source_path, keywords):
+     finally:
+         f.close()
+ 
+-def getTempPaths(test):
+-    """Get the temporary location, this is always relative to the test suite
+-    root, not test source root."""
+-    execpath = test.getExecPath()
+-    execdir,execbase = os.path.split(execpath)
+-    tmpDir = os.path.join(execdir, 'Output')
+-    tmpBase = os.path.join(tmpDir, execbase)
+-    return tmpDir, tmpBase
+-
+ def colonNormalizePath(path):
+     if kIsWindows:
+         return re.sub(r'^(.):', r'\1', path.replace('\\', '/'))
+@@ -1195,28 +1186,28 @@ def colonNormalizePath(path):
+         assert path[0] == '/'
+         return path[1:]
+ 
+-def getDefaultSubstitutions(test, tmpDir, tmpBase, normalize_slashes=False):
++def getDefaultSubstitutions(test, normalize_slashes=False):
+     sourcepath = test.getSourcePath()
+     sourcedir = os.path.dirname(sourcepath)
++    tmpDir = test.getTempFileDir()
++    tmpPrefix = test.getTempFilePrefix()
++    baseName = test.getTestBaseName()
+ 
+     # Normalize slashes, if requested.
+     if normalize_slashes:
+         sourcepath = sourcepath.replace('\\', '/')
+         sourcedir = sourcedir.replace('\\', '/')
+         tmpDir = tmpDir.replace('\\', '/')
+-        tmpBase = tmpBase.replace('\\', '/')
+ 
+     # We use #_MARKER_# to hide %% while we do the other substitutions.
+     substitutions = []
+     substitutions.extend([('%%', '#_MARKER_#')])
+     substitutions.extend(test.config.substitutions)
+-    tmpName = tmpBase + '.tmp'
+-    baseName = os.path.basename(tmpBase)
+     substitutions.extend([('%s', sourcepath),
+                           ('%S', sourcedir),
+                           ('%p', sourcedir),
+                           ('%{pathsep}', os.pathsep),
+-                          ('%t', tmpName),
++                          ('%t', tmpPrefix),
+                           ('%basename_t', baseName),
+                           ('%T', tmpDir),
+                           ('#_MARKER_#', '%')])
+@@ -1226,7 +1217,7 @@ def getDefaultSubstitutions(test, tmpDir, tmpBase, normalize_slashes=False):
+             ('%/s', sourcepath.replace('\\', '/')),
+             ('%/S', sourcedir.replace('\\', '/')),
+             ('%/p', sourcedir.replace('\\', '/')),
+-            ('%/t', tmpBase.replace('\\', '/') + '.tmp'),
++            ('%/t', tmpPrefix.replace('\\', '/')),
+             ('%/T', tmpDir.replace('\\', '/')),
+             ])
+ 
+@@ -1236,7 +1227,7 @@ def getDefaultSubstitutions(test, tmpDir, tmpBase, normalize_slashes=False):
+             ('%:s', colonNormalizePath(sourcepath)),
+             ('%:S', colonNormalizePath(sourcedir)),
+             ('%:p', colonNormalizePath(sourcedir)),
+-            ('%:t', colonNormalizePath(tmpBase + '.tmp')),
++            ('%:t', colonNormalizePath(tmpPrefix)),
+             ('%:T', colonNormalizePath(tmpDir)),
+             ])
+     return substitutions
+@@ -1267,7 +1258,7 @@ class ParserKind(object):
+     TAG: A keyword taking no value. Ex 'END.'
+     COMMAND: A keyword taking a list of shell commands. Ex 'RUN:'
+     LIST: A keyword taking a comma-separated list of values.
+-    BOOLEAN_EXPR: A keyword taking a comma-separated list of 
++    BOOLEAN_EXPR: A keyword taking a comma-separated list of
+         boolean expressions. Ex 'XFAIL:'
+     CUSTOM: A keyword with custom parsing semantics.
+     """
+@@ -1449,14 +1440,14 @@ def parseIntegratedTestScript(test, additional_parsers=[],
+         IntegratedTestKeywordParser('REQUIRES:', ParserKind.BOOLEAN_EXPR,
+                                     initial_value=test.requires),
+         IntegratedTestKeywordParser('REQUIRES-ANY:', ParserKind.CUSTOM,
+-                                    IntegratedTestKeywordParser._handleRequiresAny, 
+-                                    initial_value=test.requires), 
++                                    IntegratedTestKeywordParser._handleRequiresAny,
++                                    initial_value=test.requires),
+         IntegratedTestKeywordParser('UNSUPPORTED:', ParserKind.BOOLEAN_EXPR,
+                                     initial_value=test.unsupported),
+         IntegratedTestKeywordParser('END.', ParserKind.TAG)
+     ]
+     keyword_parsers = {p.keyword: p for p in builtin_parsers}
+-    
++
+     # Install user-defined additional parsers.
+     for parser in additional_parsers:
+         if not isinstance(parser, IntegratedTestKeywordParser):
+@@ -1466,7 +1457,7 @@ def parseIntegratedTestScript(test, additional_parsers=[],
+             raise ValueError("Parser for keyword '%s' already exists"
+                              % parser.keyword)
+         keyword_parsers[parser.keyword] = parser
+-        
++
+     # Collect the test lines from the script.
+     sourcepath = test.getSourcePath()
+     for line_number, command_type, ln in \
+@@ -1512,12 +1503,8 @@ def parseIntegratedTestScript(test, additional_parsers=[],
+ 
+     return script
+ 
+-
+ def _runShTest(test, litConfig, useExternalSh, script, tmpBase):
+-    # Create the output directory if it does not already exist.
+-    lit.util.mkdir_p(os.path.dirname(tmpBase))
+-
+-    execdir = os.path.dirname(test.getExecPath())
++    execdir = os.path.dirname(test.getTempFileDir())
+     if useExternalSh:
+         res = executeScript(test, litConfig, tmpBase, script, execdir)
+     else:
+@@ -1561,10 +1548,8 @@ def executeShTest(test, litConfig, useExternalSh,
+         return script
+     if litConfig.noExecute:
+         return lit.Test.Result(Test.PASS)
+-
+-    tmpDir, tmpBase = getTempPaths(test)
+     substitutions = list(extra_substitutions)
+-    substitutions += getDefaultSubstitutions(test, tmpDir, tmpBase,
++    substitutions += getDefaultSubstitutions(test,
+                                              normalize_slashes=useExternalSh)
+     script = applySubstitutions(script, substitutions)
+ 
+@@ -1573,7 +1558,8 @@ def executeShTest(test, litConfig, useExternalSh,
+     if hasattr(test.config, 'test_retry_attempts'):
+         attempts += test.config.test_retry_attempts
+     for i in range(attempts):
+-        res = _runShTest(test, litConfig, useExternalSh, script, tmpBase)
++        res = _runShTest(test, litConfig, useExternalSh, script,
++                         test.getTempFilePrefix())
+         if res.code != Test.FAIL:
+             break
+     # If we had to run the test more than once, count it as a flaky pass. These
+--- a/utils/lit/lit/run.py
++++ a/utils/lit/lit/run.py
+@@ -1,4 +1,5 @@
+ import os
++import shutil
+ import sys
+ import threading
+ import time
+@@ -136,6 +137,25 @@ class Run(object):
+         if not self.tests or jobs == 0:
+             return
+ 
++        # Create fresh output directories for each test we're going to run.
++        # This guarantees that test runs will not remnants of previous test
++        # runs' output.
++        clean_paths = set()
++        for test in self.tests:
++            clean_paths.add(os.path.normpath(test.getTempFileDir()))
++        clean_paths = list(clean_paths)
++        # Sort by number of path components, to ensure that parent directories
++        # get deleted and re-created before child directories.
++        clean_paths.sort(key=lambda x: len(x.split(os.sep)))
++        for base in clean_paths:
++            if os.path.exists(base):
++                if not os.path.islink(base) and os.path.isdir(base):
++                    shutil.rmtree(base, True)
++                else:
++                    os.unlink(os.path)
++            if not os.path.exists(base):
++                lit.util.mkdir_p(base)
++
+         # Save the display object on the runner so that we can update it from
+         # our task completion callback.
+         self.display = display

@@ -3,7 +3,7 @@
 
 set -euo pipefail
 
-REV=672a17812561f50054716dc8d072c1420b9ee7c5
+REV=60ccceba7433d258aaf9cf262b88c6fe2c4cbe95
 
 ROOT=$(readlink -f $(dirname $0))
 LIT_DIR=$ROOT/../third_party/lit
@@ -17,7 +17,7 @@ cd $dir
 
 curl -L https://github.com/llvm-mirror/llvm/archive/${REV}.tar.gz | tar xzvf - --wildcards "llvm-*/utils/lit"
 
-POSIXLY_CORRECT=1 patch -p3 -i $ROOT/D34732.diff -d llvm-*/utils/lit
+POSIXLY_CORRECT=1 patch -p3 -i $ROOT/clean-output-directory.patch -d llvm-*/utils/lit
 
 mv llvm-*/utils/lit $LIT_DIR
 
