@@ -8,17 +8,12 @@
 //
 //===----------------------------------------------------------------------===//
 #include <lld/Common/Driver.h>
-
-#include <llvm/Support/ManagedStatic.h>
-#include <llvm/Support/PrettyStackTrace.h>
-#include <llvm/Support/Signals.h>
+//#include <llvm/Support/InitLLVM.h>
 
 using namespace llvm;
 
 int main(int Argc, const char **Argv) {
-  sys::PrintStackTraceOnErrorSignal(Argv[0]);
-  PrettyStackTraceProgram StackPrinter(Argc, Argv);
-  llvm_shutdown_obj Shutdown;
+  //InitLLVM X(Argc, Argv);
 
   ArrayRef<const char *> Args(Argv, Argv + Argc);
   return !lld::elf::link(Args, /* CanExitEarly */ true);
