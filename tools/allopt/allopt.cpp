@@ -21,10 +21,9 @@
 #include <llvm/Support/Errc.h>
 #include <llvm/Support/FileSystem.h>
 #include <llvm/Support/FileUtilities.h>
-#include <llvm/Support/PrettyStackTrace.h>
+#include <llvm/Support/InitLLVM.h>
 #include <llvm/Support/Process.h>
 #include <llvm/Support/Program.h>
-#include <llvm/Support/Signals.h>
 #include <llvm/Support/ToolOutputFile.h>
 
 using namespace allvm;
@@ -76,10 +75,7 @@ Error runPipeline(StringRef Input, StringRef Output) {
 } // end anonymous namespace
 
 int main(int argc, const char *argv[]) {
-  sys::PrintStackTraceOnErrorSignal(argv[0]);
-  PrettyStackTraceProgram X(argc, argv);
-  llvm_shutdown_obj Y; // Call llvm_shutdown() on exit.
-
+  InitLLVM X(argc, argv);
   ResourcePaths RP = ResourcePaths::getAnchored(argv[0]);
 
   AT.parseCLOpts(argc, argv);
