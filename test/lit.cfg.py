@@ -10,6 +10,8 @@ import lit.formats
 import lit.util
 
 from lit.llvm import llvm_config
+from lit.llvm.subst import FindTool
+from lit.llvm.subst import ToolSubst
 
 # Configuration file for the 'lit' test runner.
 
@@ -17,7 +19,7 @@ from lit.llvm import llvm_config
 config.name = 'allvm'
 
 # testFormat: The test format to use to interpret tests.
-config.test_format = lit.formats.ShTest(True) # not llvm_config.use_lit_shell)
+config.test_format = lit.formats.ShTest(not llvm_config.use_lit_shell)
 
 # suffixes: A list of file extensions to treat as test files.
 config.suffixes = ['.ll', '.c', '.cpp', '.test']
@@ -32,32 +34,48 @@ config.test_source_root = os.path.dirname(__file__)
 
 config.test_exec_root = os.path.join(config.allvm_obj_root, 'test')
 
+
+#llvm_config.with_environment('PATH', config.llvm_tools_dir, append_path=True)
+#llvm_config.with_environment('PATH', config.allvm_tools_dir, append_path=True)
+llvm_config.with_environment('XDG_CACHE_HOME', os.path.join(config.test_exec_root, "cache"))
+
 llvm_config.use_default_substitutions()
 # llvm_config.use_lld()
 
-#tool_patterns = [
-#    'llc', 'llvm-as', 'llvm-mc', 'llvm-nm', 'llvm-objdump', 'llvm-pdbutil',
-#    'llvm-dwarfdump', 'llvm-readelf', 'llvm-readobj', 'obj2yaml', 'yaml2obj',
-#    'opt', 'llvm-dis']
-#
-# llvm_config.add_tool_substitutions(tool_patterns)
-
-# Propagate some variables from the host environment.
-#llvm_config.with_system_environment(
-#    ['HOME', 'INCLUDE', 'LIB', 'TMP', 'TEMP', 'ASAN_SYMBOLIZER_PATH', 'MSAN_SYMBOLIZER_PATH'])
-
-#newpath = config.allvm_tools_dir "@LLVM_RUNTIME_OUTPUT_INTDIR@:@LLVM_TOOLS_BINARY_DIR@"
-#curpath = os.environ.get('PATH', '')
-#if curpath:
-#    newpath += ":" + curpath
-#config.environment['PATH'] = newpath
-config.environment['XDG_CACHE_HOME'] = config.test_exec_root + "/cache";
-
 # TODO: Get this more reliably/directly: " = @LIBNONE_PATH@" or something
-libnone = "@LLVM_LIBRARY_OUTPUT_INTDIR@/libnone.a"
+libnone = os.path.join(config.allvm_libs_dir, "libnone.a")
 
 config.substitutions.append( ('%libnone', libnone) )
-config.substitutions.append( ('%alley', "@LLVM_RUNTIME_OUTPUT_INTDIR@/alley") )
+# config.substitutions.append( ('%alley', "@LLVM_RUNTIME_OUTPUT_INTDIR@/alley") )
+
+llvm_tool_patterns = [
+    'llc', 'llvm-as', 'llvm-mc', 'llvm-nm', 'llvm-objdump', 'llvm-pdbutil',
+    'llvm-dwarfdump', 'llvm-readelf', 'llvm-readobj', 'obj2yaml', 'yaml2obj',
+    'opt', 'llvm-dis']
+
+llvm_config.add_tool_substitutions(llvm_tool_patterns, config.llvm_tools_dir)
+
+tools = [
+    ToolSubst('%alley', FindTool('alley'))
+]
+tools.extend([
+  'all-info',
+  'alley',
+  'allmux',
+  'allopt',
+  'allready',
+  'alltogether',
+  'bc2allvm',
+  'wllvm-dump',
+  'wllvm-extract',
+])
+
+llvm_config.add_tool_substitutions(tools, config.allvm_tools_dir)
+
+# Propagate some variables from the host environment.
+llvm_config.with_system_environment(
+    ['HOME', 'INCLUDE', 'LIB', 'TMP', 'TEMP', 'ASAN_SYMBOLIZER_PATH', 'MSAN_SYMBOLIZER_PATH'])
+
 
 #libpath = os.environ.get('LD_LIBRARY_PATH', '')
 #if libpath:
@@ -93,8 +111,8 @@ config.substitutions.append( ('%alley', "@LLVM_RUNTIME_OUTPUT_INTDIR@/alley") )
 #     ])
 
 # Set a fake constant version so that we get consistent output.
-config.environment['LLD_VERSION'] = 'LLD 1.0'
-config.environment['LLD_IN_TEST'] = '1'
+#config.environment['LLD_VERSION'] = 'LLD 1.0'
+#config.environment['LLD_IN_TEST'] = '1'
 
 tar_executable = lit.util.which('tar', config.environment['PATH'])
 if tar_executable:

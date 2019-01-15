@@ -1,8 +1,6 @@
 @LIT_SITE_CFG_IN_HEADER@
 # vim: set filetype=python:
 
-# TODO: lit.site.cfg.py.in?
-
 import lit.util
 
 config.llvm_src_root = "@LLVM_SOURCE_DIR@"
@@ -32,6 +30,5 @@ except KeyError as e:
 @LIT_SITE_CFG_IN_FOOTER@
 
 # Let the main config do the real work.
-lit_config.load_config(config, "@LLD_SOURCE_DIR@/test/lit.cfg.py")
-
+lit_config.load_config(config, "@ALLVM_SOURCE_DIR@/test/lit.cfg.py")
 
