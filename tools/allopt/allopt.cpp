@@ -86,13 +86,13 @@ int main(int argc, const char *argv[]) {
   ExitOnErr.setBanner(std::string(argv[0]) + ": ");
 
   // Create temporary files for bitcode input and output
-  SmallString<32> TempIn, TempOut, TempExe;
+  SmallString<64> TempIn, TempOut, TempExe;
   ExitOnErr(errorCodeToError(
-      sys::fs::createTemporaryFile("allopt-in", "bc", TempIn)));
+      sys::fs::getPotentiallyUniqueTempFileName("allopt-in", "bc", TempIn)));
   ExitOnErr(errorCodeToError(
-      sys::fs::createTemporaryFile("allopt-out", "bc", TempOut)));
+      sys::fs::getPotentiallyUniqueTempFileName("allopt-out", "bc", TempOut)));
   ExitOnErr(errorCodeToError(
-      sys::fs::createTemporaryFile("allopt-allexe", "allexe", TempExe)));
+      sys::fs::getPotentiallyUniqueTempFileName("allopt-allexe", "allexe", TempExe)));
   FileRemoverPlus InRemover(TempIn), OutRemover(TempOut), ExeRemover(TempExe);
 
   if (OutputFilename == "-" && !ForceOutput && !AnalyzeOnly &&
