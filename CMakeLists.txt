@@ -5,7 +5,7 @@ project (ALLVM CXX C)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
-add_definitions(-Wall)
+add_compile_options(-Wall)
 
 find_package(LLVM REQUIRED CONFIG)
 
@@ -69,7 +69,7 @@ if (USE_CLANG_WERROR_FLAGS)
   set(WARNING_FLAGS -Weverything
     -Wno-unknown-warning-option -Wno-c++98-compat -Wno-padded
     -Wno-global-constructors -Wno-exit-time-destructors -Wno-unused-macros)
-  list(APPEND LLVM_DEFINITIONS ${WARNING_FLAGS} -Werror)
+  add_compile_options(${WARNING_FLAGS})# -Werror)
 endif()
 
 option(USE_QEMU_FEXECVE_WORKAROUND "Try to avoid using fexecve() as workaround for use with qemu user emulation. YMMV." OFF)
