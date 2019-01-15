@@ -88,6 +88,9 @@ Error ExecutionYengine::doJITExec() {
     return make_error<StringError>("Error building execution engine: " + error,
                                    errc::invalid_argument);
   EE->setObjectCache(Cache.get());
+  // Revisit this!
+  // For now we simply don't support jumping back and forth, so disable
+  EE->DisableLazyCompilation(true);
 
   // Add supporting libraries
   for (size_t i = 1, e = allexe.getNumModules(); i != e; ++i) {
