@@ -8,6 +8,7 @@
 
 // XXX: Revisit this
 //#include <llvm/CodeGen/CommandFlags.h>
+#include <llvm/Support/InitLLVM.h>
 #include <llvm/ExecutionEngine/MCJIT.h>
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Module.h>
@@ -64,6 +65,8 @@ bool invokedAsAlley(StringRef Argv0) { return Argv0.endswith("alley"); }
 } // end anonymous namespace
 
 int main(int argc, const char **argv, const char **envp) {
+  InitLLVM X(argc, argv);
+
   // Link in necessary libraries
   InitializeNativeTarget();
   InitializeNativeTargetAsmPrinter();
