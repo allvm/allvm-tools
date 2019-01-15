@@ -49,7 +49,7 @@ private:
 public:
   PathLinker(llvm::StringRef LinkerName);
 
-  llvm::Error link(const llvm::ArrayRef<llvm::StringRef> ObjectFilenames,
+  llvm::Error link(llvm::ArrayRef<llvm::StringRef> ObjectFilenames,
                    llvm::StringRef CrtBits,
                    llvm::StringRef OutFilename) const override;
 };
@@ -63,7 +63,7 @@ private:
 public:
   InternalLinker(llvm::StringRef AlldPath);
 
-  llvm::Error link(const llvm::ArrayRef<llvm::StringRef> ObjectFilenames,
+  llvm::Error link(llvm::ArrayRef<llvm::StringRef> ObjectFilenames,
                    llvm::StringRef CrtBits,
                    llvm::StringRef OutFilename) const override;
 };
