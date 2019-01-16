@@ -33,6 +33,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 endif()
 
 set(MUSL_CFLAGS_EXTRA "${MUSL_CFLAGS_EXTRA} -fstack-protector-all")
+set(MUSL_CFLAGS_EXTRA "${MUSL_CFLAGS_EXTRA} -fno-sanitize=all")
 
 set(MUSL_CFLAGS "-fPIC ${MUSL_CFLAGS_EXTRA}" CACHE string "CFLAGS for building musl")
 
