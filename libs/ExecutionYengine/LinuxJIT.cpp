@@ -26,13 +26,9 @@ Error runHosted(ExecutionEngine &EE, ExecutionYengine::ExecutionInfo &Info) {
   assert(EE.isSymbolSearchingDisabled());
   assert(!EE.isCompilingLazily());
 
-  //EE.InstallLazyFunctionCreator([](auto &name) -> void * {
-  //  if (name == "__cxa_thread_atexit_impl" || name == "__cxa_thread_atexit") {
-  //     assert(0 && "atexit lazy");
-  //  }
-  //  assert(0 && "lazy function creator invoked ruhroh!");
-  //  return static_cast<void *>(nullptr);
-  //});
+  EE.InstallLazyFunctionCreator([](auto &name) -> void * {
+    report_fatal_error("Program used external function or symbol '" + name + "'? (lazy function creator callback invoked)");
+    });
 
   // Get the binary as a OwningBinary<object::Archive>
   auto Pair = BinaryOrErr.get().takeBinary();
