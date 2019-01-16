@@ -52,10 +52,10 @@ stdenv.mkDerivation {
   hardeningDisable = [ "all" ];
 
   NIX_CFLAGS_COMPILE = [
-    "-Wall" "-Wextra"
+    #"-Wall" "-Wextra"
     "-O1"
     "-g3"
-    "-fsanitize=undefined"
+    "-fsanitize=address"
   ];
 
   # Check formatting, not parallel for more readable output
