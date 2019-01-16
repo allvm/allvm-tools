@@ -13,7 +13,7 @@
 using namespace llvm;
 
 int main(int Argc, const char **Argv) {
-  //InitLLVM X(Argc, Argv);
+  // InitLLVM X(Argc, Argv);
 
   ArrayRef<const char *> Args(Argv, Argv + Argc);
   return !lld::elf::link(Args, /* CanExitEarly */ true);

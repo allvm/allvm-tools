@@ -27,10 +27,9 @@ Error runHosted(ExecutionEngine &EE, ExecutionYengine::ExecutionInfo &Info) {
   assert(!EE.isCompilingLazily());
 
   EE.InstallLazyFunctionCreator([](auto &name) -> void * {
-    report_fatal_error("Program used external function or symbol '" + name + "'?" +
-       "(lazy function creator callback invoked)"
-       );
-    });
+    report_fatal_error("Program used external function or symbol '" + name +
+                       "'?" + "(lazy function creator callback invoked)");
+  });
 
   // Get the binary as a OwningBinary<object::Archive>
   auto Pair = BinaryOrErr.get().takeBinary();

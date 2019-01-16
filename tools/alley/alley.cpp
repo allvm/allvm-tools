@@ -8,13 +8,13 @@
 
 // XXX: Revisit this
 //#include <llvm/CodeGen/CommandFlags.h>
-#include <llvm/Support/InitLLVM.h>
 #include <llvm/ExecutionEngine/MCJIT.h>
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Module.h>
 #include <llvm/IRReader/IRReader.h>
 #include <llvm/Support/CommandLine.h>
 #include <llvm/Support/Compiler.h>
+#include <llvm/Support/InitLLVM.h>
 #include <llvm/Support/MemoryBuffer.h>
 #include <llvm/Support/Path.h>
 #include <llvm/Support/SourceMgr.h>

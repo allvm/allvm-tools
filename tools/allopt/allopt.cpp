@@ -87,8 +87,8 @@ int main(int argc, const char *argv[]) {
       sys::fs::getPotentiallyUniqueTempFileName("allopt-in", "bc", TempIn)));
   ExitOnErr(errorCodeToError(
       sys::fs::getPotentiallyUniqueTempFileName("allopt-out", "bc", TempOut)));
-  ExitOnErr(errorCodeToError(
-      sys::fs::getPotentiallyUniqueTempFileName("allopt-allexe", "allexe", TempExe)));
+  ExitOnErr(errorCodeToError(sys::fs::getPotentiallyUniqueTempFileName(
+      "allopt-allexe", "allexe", TempExe)));
   FileRemoverPlus InRemover(TempIn), OutRemover(TempOut), ExeRemover(TempExe);
 
   if (OutputFilename == "-" && !ForceOutput && !AnalyzeOnly &&
