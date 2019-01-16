@@ -45,7 +45,7 @@ Error ALLVMLinker::callLinkerAsExternalProcess(
   bool ExecutionFailed;
   std::string ErrorMsg;
   int Res = llvm::sys::ExecuteAndWait(LinkerProgram, LinkerArgv,
-                                      /*env*/ None, /*Redirects*/ {},
+                                      /*env*/ {}, /*Redirects*/ {},
                                       /*secondsToWait*/ 0, /*memoryLimit*/ 0,
                                       &ErrorMsg, &ExecutionFailed);
 
@@ -126,12 +126,10 @@ Error InternalLinker::link(ArrayRef<StringRef> ObjectFilenames,
                         LinkerArgs);
 
   SmallVector<StringRef, 10> LinkerArgv;
-  std::string AlldStr = Alld.str();
-  LinkerArgv.push_back(AlldStr.c_str());
-  // LinkerArgv.push_back(Alld);
+  LinkerArgv.push_back(AlldStr);
 
-  for (auto &Arg : LinkerArgs)
-    LinkerArgv.push_back(Arg);
+  for (const std::string &Arg : LinkerArgs) {
+    LinkerArgv.push_back(Arg.data());
 
   // Call linker as external process.
   return callLinkerAsExternalProcess(Alld, LinkerArgv);
