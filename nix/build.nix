@@ -50,9 +50,9 @@ stdenv.mkDerivation {
   ] ++ stdenv.lib.optional useClangWerrorFlags "-DUSE_CLANG_WERROR_FLAGS=ON";
 
   # Check formatting, not parallel for more readable output
-  #preCheck = ''
-  #  make check-format -j1
-  #'';
+  preCheck = ''
+    make check-format -j1
+  '';
 
   # if "paxmark" is available, use it
   postBuild = ''
