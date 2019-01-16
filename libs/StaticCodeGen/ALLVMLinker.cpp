@@ -130,6 +130,7 @@ Error InternalLinker::link(ArrayRef<StringRef> ObjectFilenames,
 
   for (const std::string &Arg : LinkerArgs) {
     LinkerArgv.push_back(Arg.data());
+  }
 
   // Call linker as external process.
   return callLinkerAsExternalProcess(Alld, LinkerArgv);
