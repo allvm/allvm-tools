@@ -72,7 +72,7 @@ if (USE_CLANG_WERROR_FLAGS)
   set(WARNING_FLAGS -Weverything
     -Wno-unknown-warning-option -Wno-c++98-compat -Wno-padded
     -Wno-global-constructors -Wno-exit-time-destructors -Wno-unused-macros)
-  add_compile_options(${WARNING_FLAGS})# -Werror)
+  add_compile_options(${WARNING_FLAGS} -Werror)
 endif()
 
 option(USE_QEMU_FEXECVE_WORKAROUND "Try to avoid using fexecve() as workaround for use with qemu user emulation. YMMV." OFF)
@@ -92,7 +92,7 @@ else()
 endif()
 
 
-option(USE_GOLD_LINKER_IF_AVAILABLE "use gold linker if supported" OFF)
+option(USE_GOLD_LINKER_IF_AVAILABLE "use gold linker if supported" ON)
 if(USE_GOLD_LINKER_IF_AVAILABLE)
   check_cxx_compiler_flag("-fuse-ld=gold" CXX_SUPPORTS_GOLD)
   append_if(CXX_SUPPORTS_GOLD "-fuse-ld=gold"
@@ -124,7 +124,9 @@ include_directories (BEFORE
   ${ALLVM_GEN_INCLUDE_DIR}
 )
 
-install(DIRECTORY ${ALLVM_INCLUDE_DIR}/allvm ${ALVM_GEN_INCLUDE_DIR}/allvm
+install(DIRECTORY
+    ${ALLVM_INCLUDE_DIR}/allvm
+    ${ALVM_GEN_INCLUDE_DIR}/allvm
   DESTINATION include
   COMPONENT allvm-headers
   FILES_MATCHING PATTERN "*.h"
