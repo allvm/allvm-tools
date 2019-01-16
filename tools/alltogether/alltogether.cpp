@@ -82,10 +82,12 @@ int main(int argc, const char **argv) {
   ExitOnErr.setBanner(std::string(argv[0]) + ": ");
 
   // Initialize the configured targets
+  InitializeAllTargetInfos();
   InitializeAllTargets();
   InitializeAllTargetMCs();
-  InitializeAllAsmPrinters();
   InitializeAllAsmParsers();
+  InitializeAllAsmPrinters();
+  InitializeAllDisassemblers();
 
   ResourcePaths RP = ResourcePaths::getAnchored(argv[0]);
   if (OutputFilename.empty()) {
