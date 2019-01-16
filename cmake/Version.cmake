@@ -12,10 +12,7 @@ else()
   message(STATUS "Detected ALLVM Tools source version: ${GITVERSION}")
 endif()
 
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/allvm/GitVersion.h.in
-  ${ALLVM_INCLUDE_DIR}/allvm/GitVersion.h
+configure_file(${ALLVM_INCLUDE_DIR}/allvm/GitVersion.h.in
+  ${ALLVM_GEN_INCLUDE_DIR}/allvm/GitVersion.h
 )
-
-include_directories(${ALLVM_INCLUDE_DIR})
-
 
