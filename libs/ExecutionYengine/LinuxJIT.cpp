@@ -24,7 +24,6 @@ Error runHosted(ExecutionEngine &EE, ExecutionYengine::ExecutionInfo &Info) {
   // EE->setProcessAllSections(true); // XXX: is this needed/useful?
 
   assert(EE.isSymbolSearchingDisabled());
-  //assert(!EE.isCompilingLazily());
 
   EE.InstallLazyFunctionCreator([](auto &name) -> void * {
     report_fatal_error("Program used external function or symbol '" + name +
