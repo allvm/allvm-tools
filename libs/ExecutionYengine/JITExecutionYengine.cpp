@@ -50,7 +50,7 @@ Error ExecutionYengine::doJITExec() {
   EE->setObjectCache(Cache.get());
   // Revisit this!
   // For now we simply don't support jumping back and forth, so disable
-  EE->DisableLazyCompilation(true);
+  // EE->DisableLazyCompilation(true);
 
   // Add supporting libraries
   for (size_t i = 1, e = allexe.getNumModules(); i != e; ++i) {
