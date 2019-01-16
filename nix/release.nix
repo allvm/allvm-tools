@@ -1,4 +1,4 @@
-{ nixpkgs ? import ./fetch-nixpkgs.nix }:
+{ nixpkgs ? import ./fetch-nixpkgs.nix, nixpkgsArgs ? {} }:
 
 let
   # Stack of overlays for building allvm-tools
@@ -44,17 +44,8 @@ let
 
   # Import the package set using our stack of overlays,
   # pull out the allvm-tools-variant attribute set
-  pkgsFun = nixpkgsArgs: import nixpkgs ({ inherit overlays; } // nixpkgsArgs);
-  getALLVMPkgs = nixpkgsArgs: (pkgsFun nixpkgsArgs).allvm-tools-variants;
-
-  # This is a lame way of generating the musl equivalent of the current system
-  lib = import (nixpkgs + "/lib");
-  gnuToMuslKludgery = builtins.replaceStrings [ "gnu" ] [ "musl" ];
-  defaultHostConfig = (pkgsFun {}).hostPlatform.config;
-  muslHostConfig = gnuToMuslKludgery defaultHostConfig;
+  pkgs = import nixpkgs (nixpkgsArgs // {inherit overlays;});
 in {
-  default = getALLVMPkgs {};
-  musl = getALLVMPkgs {
-    localSystem = { config = muslHostConfig; };
-  };
+  default = pkgs.allvm-tools-variants;
+  musl = pkgs.pkgsMusl.allvm-tools-variants;
 }

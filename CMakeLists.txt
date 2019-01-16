@@ -30,8 +30,8 @@ if( ${PYTHON_VERSION_STRING} VERSION_LESS 2.7 )
 endif()
 
 set(LLVM_BUILD_TOOLS ON)
-set(LLVM_ENABLE_ASSERTIONS ON)
-set(LLVM_ENABLE_WARNINGS ON)
+#set(LLVM_ENABLE_ASSERTIONS ON)
+#set(LLVM_ENABLE_WARNINGS ON)
 
 list(APPEND CMAKE_MODULE_PATH "${LLVM_CMAKE_DIR}")
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
@@ -72,7 +72,7 @@ if (USE_CLANG_WERROR_FLAGS)
   set(WARNING_FLAGS -Weverything
     -Wno-unknown-warning-option -Wno-c++98-compat -Wno-padded
     -Wno-global-constructors -Wno-exit-time-destructors -Wno-unused-macros)
-  add_compile_options(${WARNING_FLAGS} -Werror)
+  add_compile_options(${WARNING_FLAGS})# -Werror)
 endif()
 
 option(USE_QEMU_FEXECVE_WORKAROUND "Try to avoid using fexecve() as workaround for use with qemu user emulation. YMMV." OFF)
