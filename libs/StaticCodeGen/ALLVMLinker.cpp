@@ -126,7 +126,7 @@ Error InternalLinker::link(ArrayRef<StringRef> ObjectFilenames,
                         LinkerArgs);
 
   SmallVector<StringRef, 10> LinkerArgv;
-  LinkerArgv.push_back(AlldStr);
+  LinkerArgv.push_back(Alld);
 
   for (const std::string &Arg : LinkerArgs) {
     LinkerArgv.push_back(Arg.data());
