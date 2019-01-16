@@ -49,15 +49,6 @@ stdenv.mkDerivation {
     "-DCLANGFORMAT=${clang.cc}/bin/clang-format"
   ] ++ stdenv.lib.optional useClangWerrorFlags "-DUSE_CLANG_WERROR_FLAGS=ON";
 
-  hardeningDisable = [ "all" ];
-
-  NIX_CFLAGS_COMPILE = [
-    #"-Wall" "-Wextra"
-    "-O1"
-    "-g3"
-    "-fsanitize=address"
-  ];
-
   # Check formatting, not parallel for more readable output
   #preCheck = ''
   #  make check-format -j1
