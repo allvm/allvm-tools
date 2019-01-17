@@ -45,7 +45,7 @@ Error ALLVMLinker::callLinkerAsExternalProcess(
   bool ExecutionFailed;
   std::string ErrorMsg;
   int Res = llvm::sys::ExecuteAndWait(LinkerProgram, LinkerArgv,
-                                      /*env*/ {}, /*Redirects*/ {},
+                                      /*env*/ None, /*Redirects*/ {},
                                       /*secondsToWait*/ 0, /*memoryLimit*/ 0,
                                       &ErrorMsg, &ExecutionFailed);
 
