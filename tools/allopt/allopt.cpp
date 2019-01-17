@@ -54,8 +54,6 @@ Error runPipeline(StringRef Input, StringRef Output) {
   ArgStrs.push_back(Pipeline);
   llvm::copy(Args, std::back_inserter(ArgStrs));
 
-  // Empty environment
-  const char *env[] = {nullptr};
   Optional<StringRef> redirects[3] = {Input, Output, None};
 
   // XXX: Make these cl::opt's?
@@ -64,7 +62,7 @@ Error runPipeline(StringRef Input, StringRef Output) {
 
   std::string err;
   auto Prog = ExitOnErr(errorOrToExpected(sys::findProgramByName(Pipeline)));
-  auto ret = sys::ExecuteAndWait(Prog, ArgStrs, env, redirects, secondsToWait,
+  auto ret = sys::ExecuteAndWait(Prog, ArgStrs, {}, redirects, secondsToWait,
                                  memoryLimit, &err);
   if (ret < 0) {
     return make_error<StringError>(err, errc::invalid_argument);
