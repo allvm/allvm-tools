@@ -103,12 +103,10 @@ Error PathLinker::link(ArrayRef<StringRef> ObjectFilenames, StringRef CrtBits,
   }
   createLinkerArguments(ObjectFilenames, CrtBitsOption, OutFilename,
                         LinkerArgs);
+
   SmallVector<StringRef, 10> LinkerArgv;
-
   LinkerArgv.push_back(LinkerProgram);
-
-  for (auto &Arg : LinkerArgs)
-    LinkerArgv.push_back(Arg);
+  llvm::copy(LinkerArgs, std::back_inserter(LinkerArgv));
 
   // Call linker as external process.
   return callLinkerAsExternalProcess(LinkerProgram, LinkerArgv);
@@ -127,11 +125,7 @@ Error InternalLinker::link(ArrayRef<StringRef> ObjectFilenames,
 
   SmallVector<StringRef, 10> LinkerArgv;
   LinkerArgv.push_back(Alld);
-
-  for (const std::string &Arg : LinkerArgs) {
-    LinkerArgv.push_back(Arg.data());
-  }
-
+  llvm::copy(LinkerArgs, std::back_inserter(LinkerArgv));
   // Call linker as external process.
   return callLinkerAsExternalProcess(Alld, LinkerArgv);
 }

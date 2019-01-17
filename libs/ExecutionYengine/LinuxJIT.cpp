@@ -4,6 +4,7 @@
 #include <llvm/IR/Module.h>
 #include <llvm/Object/Archive.h>
 #include <llvm/Support/Errc.h>
+#include <llvm/Support/FormatVariadic.h>
 #include <llvm/Support/raw_ostream.h>
 
 #include <elf.h>
@@ -26,8 +27,8 @@ Error runHosted(ExecutionEngine &EE, ExecutionYengine::ExecutionInfo &Info) {
   assert(EE.isSymbolSearchingDisabled());
 
   EE.InstallLazyFunctionCreator([](auto &name) -> void * {
-    report_fatal_error("Program used external function or symbol '" + name +
-                       "'?" + "(lazy function creator callback invoked)");
+    auto msg = formatv("Program used external function or symbol '{}'", name);
+    report_fatal_error(msg.str());
   });
 
   // Get the binary as a OwningBinary<object::Archive>
