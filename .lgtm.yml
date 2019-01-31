@@ -19,11 +19,6 @@ extraction:
         - llvm-4.0
         - llvm-4.0-runtime
         - texlive-latex-recommended
-    after_prepare:
-      # Bit of a hack to stop LGTM.com from installing the wrong versions of llvm. We only want llvm 4.0.
-      - sed -i '/llvm-3/d' /opt/work/autobuild/deptrace-db.txt
-      - sed -i '/llvm-5/d' /opt/work/autobuild/deptrace-db.txt
-      - sed -i '/llvm-6/d' /opt/work/autobuild/deptrace-db.txt
       
     configure:
       command:
