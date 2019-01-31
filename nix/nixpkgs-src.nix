@@ -1,7 +1,7 @@
 {
   owner  = "dtzWill";
   repo = "nixpkgs";
-  rev = "nixos-dtz-2019-01-29-2";
-  sha256 = "151kz8qrs2xh644559075kdxl4pgc432yvdss5fy37x7igchm4yj";
+  rev = "nixos-dtz-2019-01-30";
+  sha256 = "1z3fbh5n3fbd38zw6lgp25jbi6f5g6qqkksgz8lsm0x82lgkylb1";
 }
 
