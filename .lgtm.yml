@@ -24,4 +24,5 @@ extraction:
       command:
         - mkdir -p _lgtm_build_dir
         - cd _lgtm_build_dir
-        - cmake -DBUILD_DOCS=OFF -DCMAKE_BUILD_TYPE=Release ..
+        # Kludge LLVM_DIR so LGTM's autobuild doesn't get confused and install all LLVM versions
+        - cmake .. -DBUILD_DOCS=OFF -DCMAKE_BUILD_TYPE=Release -DLLVM_DIR=/usr/lib/llvm-4.0/lib/cmake/llvm
