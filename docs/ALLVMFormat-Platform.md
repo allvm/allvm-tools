@@ -20,7 +20,7 @@ further optimize and analyze software.
 
 The platform interface helps define
 what interface(s) the software bitcode is able to use
-and defines their behavior.  This functionality
+and defines their behavior. This functionality
 defines what it means for any software to run
 on ALLVM and allows us to statically reason about
 program behavior in terms of these operations.
@@ -44,7 +44,6 @@ e.g., what about software that requires GNU-specific
 features in glibc, or software that uses other POSIX-compliant
 libc features not supported by `mustl` libc.
 
-
 ### Multithreaded Software
 
 All multithreaded software, in particular, must be able to run
@@ -56,12 +55,12 @@ to analyze or transform them effectively.
 Customized tools, however, should be able to do so, by building
 on core ALLVM compiler components.
 
-
 ### Other libraries
 
 TBD:
-* C++: libc++/libc++abi
-* compiler runtime: compiler-rt instead of libgcc
+
+- C++: libc++/libc++abi
+- compiler runtime: compiler-rt instead of libgcc
 
 ### System ABI
 
@@ -69,11 +68,11 @@ TODO
 
 ## Technical Details
 
-* Single entry point: `main.bc` defines function `main`.
-* Static constructors/destructors supported as usual.
-* Limited filesystem view
-* User may provide alternative definitions of system code,
+- Single entry point: `main.bc` defines function `main`.
+- Static constructors/destructors supported as usual.
+- Limited filesystem view
+- User may provide alternative definitions of system code,
   for example by providing their own `malloc` implementation.
   Note that we do not provide the equivalent of `RTLD_NEXT`
   to find the original system function.
-* No syscalls directly (no assembly), use musl interface
+- No syscalls directly (no assembly), use musl interface
