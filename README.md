@@ -9,15 +9,14 @@
 [cachix-cache]: https://allvm.cachix.org
 [cachix-cache-shield]: https://img.shields.io/badge/cachix-allvm-blue.svg
 
-
 ## Contact
 
 **Mailing List**: https://lists.cs.illinois.edu/lists/info/allvm-dev
 
 **Chat**: #allvm on [OFTC](https://www.oftc.net/)
-  (using any IRC client or chat in your browser using
-  [Webchat](https://webchat.oftc.net/?nick=&channels=%23allvm&uio=d4) or
-  [Riot](https://riot.im/app/#/room/#_oftc_#allvm:matrix.org))
+(using any IRC client or chat in your browser using
+[Webchat](https://webchat.oftc.net/?nick=&channels=%23allvm&uio=d4) or
+[Riot](https://riot.im/app/#/room/#_oftc_#allvm:matrix.org))
 
 Everyone is welcome to join!
 
@@ -26,7 +25,6 @@ Everyone is welcome to join!
 ## Introduction to ALLVM
 
 **FEAST'17 Keynote**: [Slides (pdf)](https://tc.gtisc.gatech.edu/feast17/papers/allvm.pdf) [Program (with talk abstract)](https://tc.gtisc.gatech.edu/feast17/program.html)
-
 
 ## Quickstart
 
@@ -44,6 +42,7 @@ $ nix-env -f . -i
 ```
 
 ### Building
+
 From the root of the source directory, run:
 
 ```console
@@ -63,6 +62,7 @@ $ nix-shell
 ## Building with allvm-nixpkgs
 
 ### Building
+
 If you just want a built version of this repository, run the following:
 
 ```console
@@ -95,6 +95,7 @@ ready to go:
 $ nix-shell '<allvm>' -A allvm-tools
 [nix-shell:~/allvm-tools]$ # easy as that
 ```
+
 This shell is 'impure' and retains elements of your normal shell,
 which usually is a good mix (so your editor/etc are still available).
 
@@ -111,7 +112,6 @@ as you would normally:
 [nix-shell:~/allvm-tools/build]$ make check -j
 ```
 
-
 ## How to build (without using Nix)
 
 ### Requirements
@@ -119,8 +119,8 @@ as you would normally:
 The main requirement is LLVM.
 To ensure your built LLVM will work and contains the required functionality:
 
-* Use a supported version.  The currently supported version is LLVM 4.0.
-* Enable the `LLVM_INSTALL_UTILS` CMake option to ensure required tools like `FileCheck` are also installed.
+- Use a supported version. The currently supported version is LLVM 4.0.
+- Enable the `LLVM_INSTALL_UTILS` CMake option to ensure required tools like `FileCheck` are also installed.
 
 ### Building ALLVM Tools
 
@@ -132,17 +132,17 @@ $ mkdir build && cd build
 $ cmake -DLLVM_DIR=YOUR_LLVM_PREFIX/lib/cmake/llvm ..
 $ make check -j$(nproc)
 ```
+
 You only need to set `-D LLVM_DIR=...` when cmake has trouble finding your LLVM installation.
 
 ## Troubleshooting
 
 See the [issues page](https://github.com/allvm/allvm-tools/issues) for known problems or to report a new one.
 
-
 ## Coding Style
 
 Canonical coding style reference is the [LLVM Coding Standards](http://llvm.org/docs/CodingStandards.html) document,
-and code should be formatted with an appropriate `clang-format`.  This process has been automated, as described below.
+and code should be formatted with an appropriate `clang-format`. This process has been automated, as described below.
 
 ### Automatic Formatting and Checking
 
@@ -150,5 +150,5 @@ Build the `check-format` target to check that all files pass format style applie
 
 If this fails, you may consider updating the source with the `update-format` target.
 
-All contributed code should pass these checks.  Currently using clang-format corresponding
+All contributed code should pass these checks. Currently using clang-format corresponding
 to LLVM version used to build the tools, we may pin a particular version in the future.

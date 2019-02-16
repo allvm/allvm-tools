@@ -10,4 +10,3 @@
 - [ ] Format specifiation versioning? (Separate from metadata? #21)
   - compliance checking, backwards-compat, etc.
 - [ ] Integrate documentation building with existing build system?
-

@@ -1,5 +1,4 @@
-ALLVM Package Format Design
-===========================
+# ALLVM Package Format Design
 
 # [Overview](ALLVMFormat-Overview.md)
 

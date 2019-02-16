@@ -20,18 +20,18 @@ For now anyway, this format is probably better called
 something other than a 'package', as it doesn't attempt to
 solve or be suitable for:
 
-* Installation
-* Expressing cross-package dependencies
-  * Other formats may address this, however.
-* Efficient distribution
+- Installation
+- Expressing cross-package dependencies
+  - Other formats may address this, however.
+- Efficient distribution
 
 That said, we hope that we can in future provide an ALLVM
-Package Manager around this format.  For example, an
+Package Manager around this format. For example, an
 efficient distribution system could be built to provide
 `allexe` files efficiently on-site, perhaps by using knowledge of
 individual bitcode files that appear in many packages,
 or by doing incremental updates.  
-Moreover, such a distribution system would take advantage of 
+Moreover, such a distribution system would take advantage of
 ALLVM tools to carry out install-time optimizations such as
 hardware-specific optimizations, software specialization, and autotuning.
 Format decisions
@@ -57,8 +57,5 @@ to ease analysis and transformations for 'most' software.
 
 That said, the ALLVM format and tools should enable system designers to
 build secure systems and to enforce rich security policies on top of a core
-ALLVM system, as noted earlier.  In fact, we consider this to be an
+ALLVM system, as noted earlier. In fact, we consider this to be an
 important research direction building on ALLVM.
-
-
-
