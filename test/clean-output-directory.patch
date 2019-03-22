@@ -218,12 +218,13 @@
      # If we had to run the test more than once, count it as a flaky pass. These
 --- a/utils/lit/lit/run.py
 +++ a/utils/lit/lit/run.py
-@@ -1,4 +1,5 @@
- import os
-+import shutil
- import sys
- import threading
+@@ -1,4 +1,6 @@
+ import multiprocessing
  import time
++import shutil
++import os
+
+ import lit.Test
 @@ -136,6 +137,25 @@ class Run(object):
          if not self.tests or jobs == 0:
              return
