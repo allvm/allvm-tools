@@ -1,7 +1,7 @@
 {
   owner  = "dtzWill";
   repo = "nixpkgs";
-  rev = "bb7e9e46a0dab2d272567df4b823019ff7d47de6";
-  sha256 = "143883d8nnzyb0wcbpc3nnf509gzpiaxr7597snf1haizhh3x53y";
+  rev = "078de9ce49771d66ad3ed004c9dc1c2cbaf8bf31";
+  sha256 = "06p80y2h946fnbdg68y548k4c0bml7bpcpivqvcj87c73ly3il64";
 }
 
