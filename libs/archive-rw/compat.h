@@ -3,7 +3,7 @@
 
 /*
   compat.h -- compatibility defines.
-  Copyright (C) 1999-2017 Dieter Baron and Thomas Klausner
+  Copyright (C) 1999-2018 Dieter Baron and Thomas Klausner
 
   This file is part of libzip, a library to manipulate ZIP archives.
   The authors can be contacted at <libzip@nih.at>
@@ -118,9 +118,6 @@ typedef char bool;
 #if !defined(HAVE_STRTOULL) && defined(HAVE__STRTOUI64)
 #define strtoull _strtoui64
 #endif
-#if defined(HAVE__UMASK)
-#define umask _umask
-#endif
 #if defined(HAVE__UNLINK)
 #define unlink _unlink
 #endif
@@ -132,11 +129,6 @@ typedef char bool;
 
 #ifndef HAVE_FTELLO
 #define ftello(s) ((long)ftell((s)))
-#endif
-
-#ifndef HAVE_MKSTEMP
-int _zip_mkstemp(char *);
-#define mkstemp _zip_mkstemp
 #endif
 
 #if !defined(HAVE_STRCASECMP)
