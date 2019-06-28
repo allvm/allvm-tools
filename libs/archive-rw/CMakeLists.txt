@@ -57,6 +57,7 @@ add_allvm_library(archive-rw
   zip_io_util.c
   zip_libzip_version.c
   zip_memdup.c
+  zip_mkstempm.c
   zip_name_locate.c
   zip_new.c
   zip_open.c
