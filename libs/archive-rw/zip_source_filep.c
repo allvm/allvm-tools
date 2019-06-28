@@ -409,7 +409,8 @@ read_file(void *state, void *data, zip_uint64_t len, zip_source_cmd_t cmd) {
 	// XXX: ALLVM: make output executable.
 	// TODO: Make this optional
 	(void)chmod(ctx->fname, (0777&~mask));
-#enfif
+#endif
+
 	free(ctx->tmpname);
 	ctx->tmpname = NULL;
 	return 0;
