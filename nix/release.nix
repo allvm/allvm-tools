@@ -39,7 +39,7 @@ let
   # Create the stack of overlays:
   overlays = [ overlay ]
     ++ (map overlayForLLVMV [ "4" "5" "6" "7" "8" ])
-    ++ (map overlayForGCCV [ /* "5" "6" */ "7" "8" ])
+    ++ (map overlayForGCCV [ /* "5" "6" */ "7" "8" "9" ])
     ;
 
   # Import the package set using our stack of overlays,
