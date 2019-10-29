@@ -38,7 +38,7 @@ let
 
   # Create the stack of overlays:
   overlays = [ overlay ]
-    ++ (map overlayForLLVMV [ "4" "5" "6" "7" "8" ])
+    ++ (map overlayForLLVMV [ "4" "5" "6" "7" "8" "9" ])
     ++ (map overlayForGCCV [ /* "5" "6" */ "7" "8" "9" ])
     ;
 
