@@ -18,8 +18,8 @@ jobs:
        compiler: [clang4, clang5, clang6, clang7, clang8, clang9, gcc7, gcc8, gcc9]
       max-parallel: 2
     runs-on: ubuntu-latest
+    name: Build+Test using toolchain ${{ matrix.variant }} ${{ matrix.compiler }}
     steps:
-    - name: Build+Test using toolchain ${{ matrix.variant }} ${{ matrix.compiler }}
     - uses: actions/checkout@v1
     - uses: cachix/install-nix-action@v3
     - uses: cachix/cachix-action@v2
