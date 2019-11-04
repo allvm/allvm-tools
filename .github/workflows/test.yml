@@ -2,8 +2,9 @@ name: "Test"
 on:
   pull_request:
   push:
+
 jobs:
-  tests:
+  default:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
@@ -11,5 +12,26 @@ jobs:
     - uses: cachix/cachix-action@v2
       with:
         name: allvm
+        signingKey: '${{ secrets.CACHIX_SIGNING_KEY }}'
+  build-with-glibc-toolchains:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - uses: cachix/install-nix-action@v3
+    - uses: cachix/cachix-action@v2
+      with:
+        name: allvm-build-glibc
         file: nix/release.nix
+        attributes: default
+        signingKey: '${{ secrets.CACHIX_SIGNING_KEY }}'
+  build-with-musl-toolchains:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - uses: cachix/install-nix-action@v3
+    - uses: cachix/cachix-action@v2
+      with:
+        name: allvm-build-musl
+        file: nix/release.nix
+        attributes: musl
         signingKey: '${{ secrets.CACHIX_SIGNING_KEY }}'
