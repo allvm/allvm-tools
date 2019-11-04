@@ -19,11 +19,12 @@ jobs:
       max-parallel: 2
     runs-on: ubuntu-latest
     steps:
+    - name: Build+Test using toolchain ${{ matrix.variant }} ${{ matrix.compiler }}
     - uses: actions/checkout@v1
     - uses: cachix/install-nix-action@v3
     - uses: cachix/cachix-action@v2
       with:
-        name: Build+Test using toolchain ${{ matrix.variant }} ${{ matrix.compiler }}
+        name: allvm
         file: nix/release.nix 
         attributes: '${{ matrix.variant }}.allvm-tools-${{ matrix.compiler }}'
         signingKey: '${{ secrets.CACHIX_SIGNING_KEY }}'
