@@ -13,25 +13,18 @@ jobs:
       with:
         name: allvm
         signingKey: '${{ secrets.CACHIX_SIGNING_KEY }}'
-  build-with-glibc-toolchains:
+  compiler-tests:
+    strategy:
+      matrix:
+       variant: [default, musl]
+       compiler: [clang4, clang5, clang6, clang7, clang8, clang9, gcc7, gcc8, gcc9]
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
     - uses: cachix/install-nix-action@v3
     - uses: cachix/cachix-action@v2
       with:
-        name: allvm-build-glibc
-        file: nix/release.nix
-        attributes: default
-        signingKey: '${{ secrets.CACHIX_SIGNING_KEY }}'
-  build-with-musl-toolchains:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v1
-    - uses: cachix/install-nix-action@v3
-    - uses: cachix/cachix-action@v2
-      with:
-        name: allvm-build-musl
-        file: nix/release.nix
-        attributes: musl
+        name: Build+Test using toolchain ${{ matrix.variant }} ${{ matrix.compiler }}
+        file: nix/release.nix 
+        attributes: '${{ matrix.variant }}.allvm-tools-${{ matrix.compiler }}'
         signingKey: '${{ secrets.CACHIX_SIGNING_KEY }}'
