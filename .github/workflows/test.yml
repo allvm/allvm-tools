@@ -12,6 +12,7 @@ jobs:
         name: allvm
         signingKey: '${{ secrets.CACHIX_SIGNING_KEY }}'
   compiler-tests:
+    needs: default
     strategy:
       matrix:
        variant: [default, musl]
