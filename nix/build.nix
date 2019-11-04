@@ -1,6 +1,6 @@
 # This file is usually 'default.nix'
 { stdenv
-, cmake, git, python2
+, cmake, git, python3
 , llvm, clang, lld, zlib
 # Only try to build docs on x86/x86_64,
 # to avoid haskell dependency elsewhere
@@ -38,7 +38,7 @@ stdenv.mkDerivation {
 
   inherit src;
 
-  nativeBuildInputs = [ cmake git python2 ] ++ lib.optionals buildDocs [ pandoc tex ];
+  nativeBuildInputs = [ cmake git python3 ] ++ lib.optionals buildDocs [ pandoc tex ];
   buildInputs = [ llvm lld zlib ];
 
   outputs = [ "out" /* "dev" */ ] ++ stdenv.lib.optional buildDocs "doc";
