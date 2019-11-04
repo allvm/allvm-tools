@@ -1,9 +1,8 @@
 name: "Test"
-on:
-  pull_request:
-  push:
+on: [push, pull_request]
+
 jobs:
-  tests:
+  default:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
@@ -11,5 +10,19 @@ jobs:
     - uses: cachix/cachix-action@v2
       with:
         name: allvm
-        file: nix/release.nix
+        signingKey: '${{ secrets.CACHIX_SIGNING_KEY }}'
+  compiler-tests:
+    needs: default
+    strategy:
+      matrix:
+       variant: [default, musl]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - uses: cachix/install-nix-action@v3
+    - uses: cachix/cachix-action@v2
+      with:
+        name: allvm
+        file: nix/release.nix 
+        attributes: '${{ matrix.variant }}'
         signingKey: '${{ secrets.CACHIX_SIGNING_KEY }}'
