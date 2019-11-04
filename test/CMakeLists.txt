@@ -24,7 +24,7 @@ set(ALLVM_TEST_PARAMS
   allvm_site_config=${CMAKE_CURRENT_BINARY_DIR}/lit.site.cfg
 )
 set(LIT_REPORT ${CMAKE_CURRENT_BINARY_DIR}/report.xml)
-set(ALLVM_TEST_EXTRA_ARGS -sv --xunit-xml-output=${LIT_REPORT})
+set(ALLVM_TEST_EXTRA_ARGS --no-progress-bar -v --xunit-xml-output=${LIT_REPORT})
 
 # try to find 'lit'
 find_program(LIT_COMMAND llvm-lit)
