@@ -9,7 +9,7 @@ jobs:
     - uses: cachix/install-nix-action@v6
     - name: Print nix config
       run: nix show-config
-    - uses: cachix/cachix-action@v2
+    - uses: cachix/cachix-action@v3
       with:
         name: allvm
         signingKey: '${{ secrets.CACHIX_SIGNING_KEY }}'
@@ -22,7 +22,7 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - uses: cachix/install-nix-action@v6
-    - uses: cachix/cachix-action@v2
+    - uses: cachix/cachix-action@v3
       with:
         name: allvm
         file: nix/release.nix 
