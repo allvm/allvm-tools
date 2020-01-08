@@ -39,7 +39,10 @@ let
   # Create the stack of overlays:
   overlays = [ overlay ]
     ++ (map overlayForLLVMV [ "4" "5" "6" "7" "8" "9" ])
-    ++ (map overlayForGCCV [ /* "5" "6" */ "7" "8" "9" ])
+    # Only use gcc >= default, for ABI compat with LLVM used
+    # (llvm built w/gcc9 "may" require symbols only in libstdc++ from gcc9+)
+    # Not a problem for clang toolchains as they use libstdc++ from default gcc.
+    ++ (map overlayForGCCV [ /* "5" "6" "7" "8" */ "9" ])
     ;
 
   # Import the package set using our stack of overlays,
