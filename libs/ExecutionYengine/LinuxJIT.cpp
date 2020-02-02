@@ -41,8 +41,8 @@ Error runHosted(ExecutionEngine &EE, ExecutionYengine::ExecutionInfo &Info) {
       return reinterpret_cast<void *>(
           reinterpret_cast<uintptr_t>(cxa_thread_atexit_dummy));
     }
-    assert(0);
-    abort();
+    report_fatal_error("Program used external function '" + name +
+                       "' which could not be resolved!");
     return static_cast<void *>(nullptr);
   });
 
