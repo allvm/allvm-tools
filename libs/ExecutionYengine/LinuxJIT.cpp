@@ -41,6 +41,8 @@ Error runHosted(ExecutionEngine &EE, ExecutionYengine::ExecutionInfo &Info) {
       return reinterpret_cast<void *>(
           reinterpret_cast<uintptr_t>(cxa_thread_atexit_dummy));
     }
+    assert(0);
+    abort();
     return static_cast<void *>(nullptr);
   });
 
