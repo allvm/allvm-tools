@@ -9,7 +9,7 @@
 # Whoops, our tests attempt to execute x86_64 allexe's,
 # which of course doesn't work on other platforms.
 # Only run tests on x86 (and non-cross, handled by default automagic)
-, doCheck ? false # stdenv.hostPlatform.isx86
+, doCheck ? stdenv.hostPlatform.isx86
 , pandoc, texlive
 , useClangWerrorFlags ? stdenv.cc.isClang
 }:
