@@ -47,8 +47,8 @@ cl::opt<std::string> Linker("linker",
 #endif
                             AT.getCat());
 
-cl::opt<std::string> InputFilename(cl::Positional, cl::Required,
-                                   cl::desc("<input allvm file>"), AT.getCat());
+cl::list<std::string> InputFiles(cl::Positional, cl::OneOrMore,
+                                 cl::desc("<input allexes>"), AT.getCat());
 
 allvm::ExitOnError ExitOnErr;
 } // end anonymous namespace
@@ -67,8 +67,6 @@ int main(int argc, const char **argv) {
 
   ExitOnErr.setBanner(std::string(argv[0]) + ": ");
 
-  auto allexe = ExitOnErr(Allexe::openForReading(InputFilename, RP));
-
   const CompilationOptions Options; // TODO: Let user specify these?
   StaticBinaryCache Cache;
   std::unique_ptr<ALLVMLinker> TheLinker;
@@ -76,11 +74,15 @@ int main(int argc, const char **argv) {
     TheLinker = llvm::make_unique<InternalLinker>(RP.AlldPath);
   else
     TheLinker = llvm::make_unique<PathLinker>(Linker);
-  ExitOnErr(AOTCompileIfNeeded(Cache, *allexe, LibNone, CrtBits, *TheLinker,
-                               Options));
 
-  outs() << "Successfully cached static binary for '" << InputFilename
-         << "'.\n";
+  for (auto &I : InputFiles) {
+    auto allexe = ExitOnErr(Allexe::openForReading(I, RP));
+
+    ExitOnErr(AOTCompileIfNeeded(Cache, *allexe, LibNone, CrtBits, *TheLinker,
+                                 Options));
+
+    outs() << "Successfully cached static binary for '" << I << "'.\n";
+  }
 
   return 0;
 }
