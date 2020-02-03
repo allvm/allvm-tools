@@ -54,7 +54,6 @@ allvm::ExitOnError ExitOnErr;
 } // end anonymous namespace
 
 int main(int argc, const char **argv) {
-  // w
   // Link in necessary libraries
   InitializeNativeTarget();
   InitializeNativeTargetAsmPrinter();
@@ -70,7 +69,7 @@ int main(int argc, const char **argv) {
 
   auto allexe = ExitOnErr(Allexe::openForReading(InputFilename, RP));
 
-  const CompilationOptions Options; // TODO: Let use specify these?
+  const CompilationOptions Options; // TODO: Let user specify these?
   StaticBinaryCache Cache;
   std::unique_ptr<ALLVMLinker> TheLinker;
   if (Linker.empty())
