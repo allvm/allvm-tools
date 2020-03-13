@@ -6,10 +6,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
-    - uses: cachix/install-nix-action@v6
+    - uses: cachix/install-nix-action@v8
     - name: Print nix config
       run: nix show-config
-    - uses: cachix/cachix-action@v3
+    - uses: cachix/cachix-action@v5
       with:
         name: allvm
         signingKey: '${{ secrets.CACHIX_SIGNING_KEY }}'
@@ -21,8 +21,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
-    - uses: cachix/install-nix-action@v6
-    - uses: cachix/cachix-action@v3
+    - uses: cachix/install-nix-action@v8
+    - uses: cachix/cachix-action@v5
       with:
         name: allvm
         file: nix/release.nix 
