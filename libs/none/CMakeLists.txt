@@ -71,18 +71,39 @@ add_custom_command(OUTPUT ${MUSL}/lib/libc.a
 add_custom_target(musl DEPENDS ${MUSL}/lib/libc.a)
 set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "${MUSL}")
 
-# Compile our little assembly bits into a library, then merge in musl's libc.a.
+# Find the compiler-rt builtins library.
+find_library(COMPILER_RT_BUILTINS
+  NAMES libclang_rt.builtins-x86_64.a
+  PATH_SUFFIXES linux clang/${LLVM_PACKAGE_VERSION}/lib/linux
+)
+if(NOT COMPILER_RT_BUILTINS)
+  message(WARNING "compiler-rt library not found; certain allexes may fail to link")
+endif()
+
+# Compile our little assembly bits into a library, then merge in musl's libc.a
+# and compiler-rt's builtins.
+
 add_library(none STATIC unwind/UnwindRegistersRestore.S unwind/UnwindRegistersSave.S dso_handle.S dynamic.S)
 install(TARGETS none DESTINATION lib)
 set_output_directory(none BINARY_DIR ${LLVM_RUNTIME_OUTPUT_INTDIR} LIBRARY_DIR ${LLVM_LIBRARY_OUTPUT_INTDIR})
 add_dependencies(none musl)
+
 # http://stackoverflow.com/questions/3821916/how-to-merge-two-ar-static-libraries-into-one
-configure_file(merge.ar.in merge.ar)
+set(merge_ar_path ${CMAKE_CURRENT_BINARY_DIR}/merge.ar)
+file(WRITE ${merge_ar_path}
+  "create libnone.a.merged\n"
+  "addlib ${LLVM_LIBRARY_OUTPUT_INTDIR}/libnone.a\n"
+  "addlib ${MUSL}/lib/libc.a\n"
+)
+if(COMPILER_RT_BUILTINS)
+  file(APPEND ${merge_ar_path} "addlib ${COMPILER_RT_BUILTINS}\n")
+endif()
+file(APPEND ${merge_ar_path} "save\nend\n")
+
 add_custom_command(TARGET none POST_BUILD
   COMMAND ${CMAKE_AR} -M <merge.ar
   COMMAND mv libnone.a.merged ${LLVM_LIBRARY_OUTPUT_INTDIR}/libnone.a
   COMMAND ${CMAKE_STRIP} --strip-debug --strip-unneeded ${LLVM_LIBRARY_OUTPUT_INTDIR}/libnone.a
-  DEPENDS merge.ar
 )
 
 # Install crt bits from musl, since they are useful for static linking.
