@@ -3,5 +3,5 @@
 let
   release = import ./nix/release.nix args;
 in {
-  allvm-tools = release.musl.allvm-tools-clang4;
+  allvm-tools = release.default.allvm-tools-clang4;
 }
