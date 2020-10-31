@@ -11,6 +11,7 @@ set(MUSL "musl-${MUSL_VERSION}")
 set(MUSL_PATCHES
   ${MUSL_PATCHES_DIR}/0009-configure-don-t-force-disable-unwind-tables-let-TC-d.patch
   ${MUSL_PATCHES_DIR}/0010-configure-don-t-add-fomit-frame-pointer.patch
+  ${MUSL_PATCHES_DIR}/0001-musl-handle-NULL-AT_RANDOM.patch
 )
 
 set(MUSL_CFLAGS_EXTRA "")
