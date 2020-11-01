@@ -6,7 +6,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
-    - uses: cachix/install-nix-action@v8
+    - uses: cachix/install-nix-action@v11
+      with:
+        skip_adding_nixpkgs_channel: true
     - name: Print nix config
       run: nix show-config
     - uses: cachix/cachix-action@v5
@@ -21,7 +23,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
-    - uses: cachix/install-nix-action@v8
+    - uses: cachix/install-nix-action@v11
+      with:
+        skip_adding_nixpkgs_channel: true
     - uses: cachix/cachix-action@v5
       with:
         name: allvm
