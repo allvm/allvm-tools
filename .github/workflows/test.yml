@@ -5,7 +5,9 @@ jobs:
   default:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
     - uses: cachix/install-nix-action@v11
       with:
         skip_adding_nixpkgs_channel: true
@@ -23,7 +25,9 @@ jobs:
        variant: [default, musl]
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
     - uses: cachix/install-nix-action@v11
       with:
         skip_adding_nixpkgs_channel: true
