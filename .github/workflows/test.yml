@@ -9,8 +9,6 @@ jobs:
       with:
         fetch-depth: 0
     - uses: cachix/install-nix-action@v11
-    - name: Print nix config
-      run: nix show-config
     - uses: cachix/cachix-action@v6
       with:
         name: allvm
