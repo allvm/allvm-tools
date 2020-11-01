@@ -11,10 +11,11 @@ jobs:
         skip_adding_nixpkgs_channel: true
     - name: Print nix config
       run: nix show-config
-    - uses: cachix/cachix-action@v5
+    - uses: cachix/cachix-action@v6
       with:
         name: allvm
         signingKey: '${{ secrets.CACHIX_SIGNING_KEY }}'
+    - run: nix-build
   compiler-tests:
     needs: default
     strategy:
@@ -26,9 +27,8 @@ jobs:
     - uses: cachix/install-nix-action@v11
       with:
         skip_adding_nixpkgs_channel: true
-    - uses: cachix/cachix-action@v5
+    - uses: cachix/cachix-action@v6
       with:
         name: allvm
-        file: nix/release.nix 
-        attributes: '${{ matrix.variant }}'
         signingKey: '${{ secrets.CACHIX_SIGNING_KEY }}'
+    - run: nix-build nix/release.nix -A '${{ matrix.variant }}'
