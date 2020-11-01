@@ -9,8 +9,6 @@ jobs:
       with:
         fetch-depth: 0
     - uses: cachix/install-nix-action@v11
-      with:
-        skip_adding_nixpkgs_channel: true
     - name: Print nix config
       run: nix show-config
     - uses: cachix/cachix-action@v6
@@ -29,8 +27,6 @@ jobs:
       with:
         fetch-depth: 0
     - uses: cachix/install-nix-action@v11
-      with:
-        skip_adding_nixpkgs_channel: true
     - uses: cachix/cachix-action@v6
       with:
         name: allvm
