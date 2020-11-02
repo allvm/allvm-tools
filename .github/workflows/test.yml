@@ -5,26 +5,28 @@ jobs:
   default:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v1
-    - uses: cachix/install-nix-action@v8
-    - name: Print nix config
-      run: nix show-config
-    - uses: cachix/cachix-action@v5
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+    - uses: cachix/install-nix-action@v11
+    - uses: cachix/cachix-action@v6
       with:
         name: allvm
         signingKey: '${{ secrets.CACHIX_SIGNING_KEY }}'
+    - run: nix-build
   compiler-tests:
     needs: default
     strategy:
       matrix:
-       variant: [default, musl]
+       variant: [default, musl.allvm-tools, musl.allvm-tools-gcc9]
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v1
-    - uses: cachix/install-nix-action@v8
-    - uses: cachix/cachix-action@v5
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+    - uses: cachix/install-nix-action@v11
+    - uses: cachix/cachix-action@v6
       with:
         name: allvm
-        file: nix/release.nix 
-        attributes: '${{ matrix.variant }}'
         signingKey: '${{ secrets.CACHIX_SIGNING_KEY }}'
+    - run: nix-build nix/release.nix -A '${{ matrix.variant }}'
