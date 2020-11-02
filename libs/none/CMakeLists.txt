@@ -13,9 +13,8 @@ set(MUSL_PATCHES
   ${MUSL_PATCHES_DIR}/0010-configure-don-t-add-fomit-frame-pointer.patch
   ${MUSL_PATCHES_DIR}/0001-musl-handle-NULL-AT_RANDOM.patch
 
-  # Upstream fixes as used by Alpine
-  ${MUSL_PATCHES_DIR}/mt-fork-v2.patch
-  ${MUSL_PATCHES_DIR}/revert-faccessat2.patch
+  # From mailing list
+  ${MUSL_PATCHES_DIR}/upstream/mt-fork-v2.patch
 )
 
 set(MUSL_CFLAGS_EXTRA "")
