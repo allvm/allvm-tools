@@ -1,0 +1,24 @@
+From: Will Dietz <w@wdtz.org>
+Date: Sat, 31 Oct 2020 15:54:36 -0500
+Subject: [PATCH] musl: handle NULL AT_RANDOM
+
+---
+ src/malloc/mallocng/glue.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/malloc/mallocng/glue.h b/src/malloc/mallocng/glue.h
+index 16acd1ea3b..86bf429bbd 100644
+--- a/src/malloc/mallocng/glue.h
++++ b/src/malloc/mallocng/glue.h
+@@ -39,7 +39,7 @@ static inline uint64_t get_random_secret()
+ {
+ 	uint64_t secret = (uintptr_t)&secret * 1103515245;
+ 	for (size_t i=0; libc.auxv[i]; i+=2)
+-		if (libc.auxv[i]==AT_RANDOM)
++		if (libc.auxv[i]==AT_RANDOM && libc.auxv[i+1])
+ 			memcpy(&secret, (char *)libc.auxv[i+1]+8, sizeof secret);
+ 	return secret;
+ }
+-- 
+2.28.0
+
