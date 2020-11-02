@@ -13,10 +13,9 @@ set(MUSL_PATCHES
   ${MUSL_PATCHES_DIR}/0010-configure-don-t-add-fomit-frame-pointer.patch
   ${MUSL_PATCHES_DIR}/0001-musl-handle-NULL-AT_RANDOM.patch
 
-  # Upstream fixes as selected by Alpine
-  ${MUSL_PATCHES_DIR}/upstream/0001-make-h_errno-thread-local.patch
-  ${MUSL_PATCHES_DIR}/upstream/0001-report-res_query-failures-including-nxdomain-nodata-.patch
-  ${MUSL_PATCHES_DIR}/upstream/0001-restore-h_errno-ABI-compatibility-with-ancient-binar.patch
+  # Upstream fixes as used by Alpine
+  ${MUSL_PATCHES_DIR}/mt-fork-v2.patch
+  ${MUSL_PATCHES_DIR}/revert-faccessat2.patch
 )
 
 set(MUSL_CFLAGS_EXTRA "")
