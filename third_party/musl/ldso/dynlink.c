@@ -78,7 +78,7 @@ struct dso {
 	struct dso **deps, *needed_by;
 	size_t ndeps_direct;
 	size_t next_dep;
-	int ctor_visitor;
+	pthread_t ctor_visitor;
 	char *rpath_orig, *rpath;
 	struct tls_module tls;
 	size_t tls_id;
@@ -1378,7 +1378,7 @@ void __libc_exit_fini()
 {
 	struct dso *p;
 	size_t dyn[DYN_CNT];
-	int self = __pthread_self()->tid;
+	pthread_t self = __pthread_self();
 
 	/* Take both locks before setting shutting_down, so that
 	 * either lock is sufficient to read its value. The lock
@@ -1470,7 +1470,7 @@ static void do_init_fini(struct dso **queue)
 {
 	struct dso *p;
 	size_t dyn[DYN_CNT], i;
-	int self = __pthread_self()->tid;
+	pthread_t self = __pthread_self();
 
 	pthread_mutex_lock(&init_fini_lock);
 	for (i=0; (p=queue[i]); i++) {
@@ -1579,7 +1579,7 @@ static void install_new_tls(void)
 
 	/* Install new dtv for each thread. */
 	for (j=0, td=self; !j || td!=self; j++, td=td->next) {
-		td->dtv = td->dtv_copy = newdtv[j];
+		td->dtv = newdtv[j];
 	}
 
 	__tl_unlock();
@@ -1947,7 +1947,7 @@ void __dls3(size_t *sp, size_t *auxv)
 	debug.bp = dl_debug_state;
 	debug.head = head;
 	debug.base = ldso.base;
-	debug.state = 0;
+	debug.state = RT_CONSISTENT;
 	_dl_debug_state();
 
 	if (replace_argv0) argv[0] = replace_argv0;
@@ -1995,6 +1995,9 @@ void *dlopen(const char *file, int mode)
 	pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, &cs);
 	pthread_rwlock_wrlock(&lock);
 	__inhibit_ptc();
+
+	debug.state = RT_ADD;
+	_dl_debug_state();
 
 	p = 0;
 	if (shutting_down) {
@@ -2055,8 +2058,9 @@ void *dlopen(const char *file, int mode)
 	load_deps(p);
 	extend_bfs_deps(p);
 	pthread_mutex_lock(&init_fini_lock);
-	if (!p->constructed) ctor_queue = queue_ctors(p);
+	int constructed = p->constructed;
 	pthread_mutex_unlock(&init_fini_lock);
+	if (!constructed) ctor_queue = queue_ctors(p);
 	if (!p->relocated && (mode & RTLD_LAZY)) {
 		prepare_lazy(p);
 		for (i=0; p->deps[i]; i++)
@@ -2088,9 +2092,10 @@ void *dlopen(const char *file, int mode)
 	update_tls_size();
 	if (tls_cnt != orig_tls_cnt)
 		install_new_tls();
-	_dl_debug_state();
 	orig_tail = tail;
 end:
+	debug.state = RT_CONSISTENT;
+	_dl_debug_state();
 	__release_ptc();
 	if (p) gencnt++;
 	pthread_rwlock_unlock(&lock);
