@@ -14,8 +14,10 @@
 #include "allvm/ResourceAnchor.h"
 #include "allvm/ToolCommon.h"
 
+// XXX: Revisit this!
+#include <llvm/CodeGen/CommandFlags.def>
+
 #include <llvm/ADT/SmallString.h>
-#include <llvm/CodeGen/CommandFlags.h>
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Module.h>
 #include <llvm/IRReader/IRReader.h>

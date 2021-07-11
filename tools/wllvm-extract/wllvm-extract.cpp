@@ -86,9 +86,9 @@ static std::string getDefaultSuffix(OutputKind K) {
 
 static Error writeAsSingleBC(const WLLVMFile &File, StringRef Filename) {
   // Initialize output file, error early if unavailable
-  std::unique_ptr<tool_output_file> Out;
+  std::unique_ptr<ToolOutputFile> Out;
   std::error_code EC;
-  Out.reset(new tool_output_file(Filename, EC, sys::fs::F_None));
+  Out.reset(new ToolOutputFile(Filename, EC, sys::fs::F_None));
   if (EC)
     return make_error<StringError>(
         "error opening output file '" + Filename + "'", EC);
@@ -109,7 +109,7 @@ static Error writeAsSingleBC(const WLLVMFile &File, StringRef Filename) {
                      false,   // ShouldPreserveUseListOrder
                      nullptr, // ModuleSummaryIndex (ThinLTO)
                      true     // Generate Hash
-                     );
+  );
   // We made it this far without error, keep the result.
   Out->keep();
   return Error::success();
@@ -136,13 +136,8 @@ static Error writeAsBitcodeArchive(const WLLVMFile &File, StringRef Filename) {
         Twine(unique_id++) + "-" + sys::path::filename(BCFilename));
     Members.push_back(std::move(*Member));
   }
-  auto result =
-      writeArchive(Filename, Members, true /* writeSymTab */, Archive::K_GNU,
-                   true /* deterministic */, false /* thin */);
-  if (result.second)
-    return make_error<StringError>(result.first, result.second);
-
-  return Error::success();
+  return writeArchive(Filename, Members, true /* writeSymTab */, Archive::K_GNU,
+                      true /* deterministic */, false /* thin */);
 }
 
 static Error writeAsAllexe(const WLLVMFile &File, StringRef Filename,

@@ -20,11 +20,8 @@ class ALLVMTool {
   llvm::cl::OptionCategory ALLVMOptCat{CatName};
 
   auto getVersionPrinter() {
-    static std::string CapturedName = Name;
-    return []() {
-      llvm::raw_ostream &OS = llvm::outs();
-      OS << CapturedName << " (ALLVM Tools) " << allvm::getALLVMVersion()
-         << "\n";
+    return [Name = this->Name](auto &OS) {
+      OS << Name << " (ALLVM Tools) " << allvm::getALLVMVersion() << "\n";
       OS << "  ALLVM Project (http://allvm.org)\n";
       OS << "  LLVM version " << LLVM_VERSION_STRING << "\n";
 
@@ -44,18 +41,16 @@ class ALLVMTool {
       OS << ".\n"
          << "  Default target: " << llvm::sys::getDefaultTargetTriple() << '\n'
          << "  Host CPU: " << CPU << '\n';
-
     };
   }
 
 public:
   ALLVMTool(llvm::StringRef _Name, llvm::StringRef _Overview = "")
-      : Name(_Name), Overview(_Overview) {
-    llvm::cl::SetVersionPrinter(getVersionPrinter());
-  }
+      : Name(_Name), Overview(_Overview) {}
 
   bool parseCLOpts(int argc, const char *const *argv) {
     llvm::cl::HideUnrelatedOptions(ALLVMOptCat);
+    llvm::cl::SetVersionPrinter(getVersionPrinter());
     return llvm::cl::ParseCommandLineOptions(argc, argv, Overview);
   }
 

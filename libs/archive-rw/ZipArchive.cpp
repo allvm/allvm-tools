@@ -56,7 +56,7 @@ std::unique_ptr<MemoryBuffer> ZipArchive::getEntry(size_t index,
   zip_stat_t statinfo;
   zip_stat_index(archive, index, 0, &statinfo);
   std::unique_ptr<MemoryBuffer> buf =
-      MemoryBuffer::getNewUninitMemBuffer(statinfo.size, files[index]);
+      WritableMemoryBuffer::getNewUninitMemBuffer(statinfo.size, files[index]);
 
   // Decompress the file into the buffer.
   zip_file_t *fd = zip_fopen_index(archive, index, 0);

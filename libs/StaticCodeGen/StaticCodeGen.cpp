@@ -28,6 +28,27 @@ using namespace allvm;
 using namespace llvm;
 using namespace object;
 
+namespace {
+struct LLCDiagnosticHandler : public DiagnosticHandler {
+  bool *HasError;
+  LLCDiagnosticHandler(bool *HasErrorPtr) : HasError(HasErrorPtr) {}
+  bool handleDiagnostics(const DiagnosticInfo &DI) override {
+    if (DI.getSeverity() == DS_Error)
+      *HasError = true;
+
+    if (auto *Remark = dyn_cast<DiagnosticInfoOptimizationBase>(&DI))
+      if (!Remark->isEnabled())
+        return true;
+
+    DiagnosticPrinterRawOStream DP(errs());
+    errs() << LLVMContext::getDiagnosticMessagePrefix(DI.getSeverity()) << ": ";
+    DI.print(DP);
+    errs() << "\n";
+    return true;
+  }
+};
+} // end anonymous namespace
+
 static inline std::string getCPUStr(StringRef MCPU) {
   // If user asked for the 'native' CPU, autodetect here. If autodection fails,
   // this will set the CPU to an empty string which tells the target to
@@ -67,29 +88,25 @@ static inline void setFunctionAttributes(StringRef CPU, StringRef Features,
                                          Module &M) {
   for (auto &F : M) {
     auto &Ctx = F.getContext();
-    AttributeSet Attrs = F.getAttributes(), NewAttrs;
+    AttributeList Attrs = F.getAttributes();
+    AttrBuilder NewAttrs;
 
     if (!CPU.empty())
-      NewAttrs = NewAttrs.addAttribute(Ctx, AttributeSet::FunctionIndex,
-                                       "target-cpu", CPU);
+      NewAttrs.addAttribute("target-cpu", CPU);
 
     if (!Features.empty())
-      NewAttrs = NewAttrs.addAttribute(Ctx, AttributeSet::FunctionIndex,
-                                       "target-features", Features);
+      NewAttrs.addAttribute("target-features", Features);
 
     if (DisableFPElim.hasValue())
-      NewAttrs = NewAttrs.addAttribute(
-          Ctx, AttributeSet::FunctionIndex, "no-frame-pointer-elim",
-          DisableFPElim.getValue() ? "true" : "false");
+      NewAttrs.addAttribute("no-frame-pointer-elim",
+                            DisableFPElim.getValue() ? "true" : "false");
 
     if (DisableTailCalls.hasValue())
-      NewAttrs = NewAttrs.addAttribute(
-          Ctx, AttributeSet::FunctionIndex, "disable-tail-calls",
-          toStringRef(DisableTailCalls.getValue()));
+      NewAttrs.addAttribute("disable-tail-calls",
+                            toStringRef(DisableTailCalls.getValue()));
 
     if (StackRealign)
-      NewAttrs = NewAttrs.addAttribute(Ctx, AttributeSet::FunctionIndex,
-                                       "stackrealign");
+      NewAttrs.addAttribute("stackrealign");
 
     if (TrapFuncName.hasValue())
       for (auto &B : F)
@@ -98,13 +115,13 @@ static inline void setFunctionAttributes(StringRef CPU, StringRef Features,
             if (const auto *Callee = Call->getCalledFunction())
               if (Callee->getIntrinsicID() == Intrinsic::debugtrap ||
                   Callee->getIntrinsicID() == Intrinsic::trap)
-                Call->addAttribute(AttributeSet::FunctionIndex,
+                Call->addAttribute(AttributeList::FunctionIndex,
                                    Attribute::get(Ctx, "trap-func-name",
                                                   TrapFuncName.getValue()));
 
     // Let NewAttrs override Attrs.
-    NewAttrs = Attrs.addAttributes(Ctx, AttributeSet::FunctionIndex, NewAttrs);
-    F.setAttributes(NewAttrs);
+    F.setAttributes(
+        Attrs.addAttributes(Ctx, AttributeList::FunctionIndex, NewAttrs));
   }
 }
 
@@ -184,28 +201,12 @@ static Error compileModule(std::unique_ptr<Module> &M, raw_pwrite_stream &OS,
   // Run passes to do compilation.
   PM.run(*M);
 
-  auto HasError = *static_cast<bool *>(Context.getDiagnosticContext());
-  // TODO: Produce better error message?
-  if (HasError) {
+  auto HasError =
+      ((const LLCDiagnosticHandler *)(Context.getDiagHandlerPtr()))->HasError;
+  if (*HasError)
     return makeStaticCodeGenError("unknown error compiling to object file");
-  }
 
   return Error::success();
-}
-
-static void DiagnosticHandler(const DiagnosticInfo &DI, void *Context) {
-  bool *HasError = static_cast<bool *>(Context);
-  if (DI.getSeverity() == DS_Error)
-    *HasError = true;
-
-  if (auto *Remark = dyn_cast<DiagnosticInfoOptimizationBase>(&DI))
-    if (!Remark->isEnabled())
-      return;
-
-  DiagnosticPrinterRawOStream DP(errs());
-  errs() << LLVMContext::getDiagnosticMessagePrefix(DI.getSeverity()) << ": ";
-  DI.print(DP);
-  errs() << "\n";
 }
 
 namespace allvm {
@@ -217,7 +218,8 @@ Error compileAllexe(Allexe &Input, raw_pwrite_stream &OS,
 
   // Set a diagnostic handler that doesn't exit on the first error.
   bool HasError = false;
-  Context.setDiagnosticHandler(DiagnosticHandler, &HasError);
+  Context.setDiagnosticHandler(
+      llvm::make_unique<LLCDiagnosticHandler>(&HasError));
 
   // Get module to be compiled.
   auto ExpM = Input.getModule(0, Context);
@@ -233,7 +235,7 @@ Error compileAllexe(Allexe &Input, raw_pwrite_stream &OS,
 
 // Initialize compilation flags to the llc default values.
 CompilationOptions::CompilationOptions()
-    : CMModel(CodeModel::Default), RelocModel(None), OLvl(CodeGenOpt::Default),
+    : CMModel(CodeModel::Small), RelocModel(None), OLvl(CodeGenOpt::Default),
       NoVerify(false), DisableSimplifyLibCalls(false), DisableFPElim(None),
       DisableTailCalls(None), StackRealign(false), TrapFuncName(None) {
 
@@ -271,9 +273,15 @@ std::string CompilationOptions::serializeCompilationOptions() const {
   }
   // Serialize OLvl
   buffer += std::to_string(OLvl);
+#ifdef __x86_64__
+  errs() << "Using incomplete serialization of compilation options, FIXME!\n";
+#else
+#warning                                                                       \
+    "Unable to emit runtime warning that serialization of compilation options is incomplete!"
+#endif
   // Serialize TargetOptions
   buffer += std::to_string(TOptions.PrintMachineCode);
-  buffer += std::to_string(TOptions.LessPreciseFPMADOption);
+  // buffer += std::to_string(TOptions.LessPreciseFPMADOption);
   buffer += std::to_string(TOptions.UnsafeFPMath);
   buffer += std::to_string(TOptions.NoInfsFPMath);
   buffer += std::to_string(TOptions.NoNaNsFPMath);
@@ -286,7 +294,7 @@ std::string CompilationOptions::serializeCompilationOptions() const {
   buffer += std::to_string(TOptions.EnableFastISel);
   buffer += std::to_string(TOptions.UseInitArray);
   buffer += std::to_string(TOptions.DisableIntegratedAS);
-  buffer += std::to_string(TOptions.CompressDebugSections);
+  buffer += std::to_string(static_cast<int>(TOptions.CompressDebugSections));
   buffer += std::to_string(TOptions.RelaxELFRelocations);
   buffer += std::to_string(TOptions.FunctionSections);
   buffer += std::to_string(TOptions.DataSections);
@@ -351,7 +359,7 @@ compileAllexe(Allexe &Input, StringRef Filename,
     // Open the output file.
     std::error_code EC;
     sys::fs::OpenFlags OpenFlags = sys::fs::F_None;
-    auto FDOut = llvm::make_unique<tool_output_file>(Filename, EC, OpenFlags);
+    auto FDOut = llvm::make_unique<ToolOutputFile>(Filename, EC, OpenFlags);
     if (EC) {
       return makeStaticCodeGenError("error opening compilation output", EC);
     }

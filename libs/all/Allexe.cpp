@@ -25,7 +25,7 @@ static std::unique_ptr<MemoryBuffer> moduleToBuffer(const Module *M) {
                      false,   // ShouldPreserveUseListOrder
                      nullptr, // ModuleSummaryIndex (ThinLTO)
                      true     // Generate Hash
-                     );
+  );
   return MemoryBuffer::getMemBufferCopy(OS.str());
 }
 

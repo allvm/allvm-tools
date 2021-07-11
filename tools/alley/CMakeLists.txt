@@ -16,6 +16,7 @@ add_llvm_tool(alley
   alley.cpp
 )
 target_link_libraries(alley
+  PRIVATE
   liball
   AOTCompile
   Cache

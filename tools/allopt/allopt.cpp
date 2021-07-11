@@ -60,7 +60,7 @@ Error runPipeline(StringRef Input, StringRef Output) {
   // Empty environment
   const char *env[] = {nullptr};
 
-  const StringRef *redirects[] = {&Input, &Output, nullptr};
+  Optional<StringRef> redirects[3] = {Input, Output, None};
 
   // XXX: Make these cl::opt's?
   unsigned secondsToWait = 0;
@@ -155,7 +155,7 @@ int main(int argc, const char *argv[]) {
       outs().write(OutData->getBufferStart(), OutData->getBufferSize());
     }
   } else {
-    tool_output_file out(OutputFilename, EC, sys::fs::F_None);
+    ToolOutputFile out(OutputFilename, EC, sys::fs::F_None);
     ExitOnErr(errorCodeToError(EC));
 
     auto OutData = ExitOnErr(errorOrToExpected(MemoryBuffer::getFile(TempOut)));
