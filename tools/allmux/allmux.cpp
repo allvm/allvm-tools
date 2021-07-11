@@ -155,7 +155,7 @@ Expected<std::unique_ptr<Module>> genMain(ArrayRef<Entry> Es, LLVMContext &C,
     assert(AtExit);
 
     auto getCtorDtorFn = [&](auto FName) {
-      return MuxMain->getOrInsertFunction(FName, Builder.getVoidTy(), nullptr);
+      return MuxMain->getOrInsertFunction(FName, Builder.getVoidTy());
     };
     auto callCtor = [&](auto FName) {
       Builder.CreateCall(getCtorDtorFn(FName));
