@@ -29,7 +29,7 @@ class ZipArchive final {
   std::vector<std::unique_ptr<llvm::MemoryBuffer>> writeBuffers;
 
   // helper function to write `buf` to an archive entry
-  // if `idx` is ZIP_INDEX_LAST, it wlil append the buf as a new entry.
+  // if `idx` is ZIP_INDEX_LAST, it will append the buf as a new entry.
   bool writeBufferToEntry(size_t idx, std::unique_ptr<llvm::MemoryBuffer> buf,
                           llvm::StringRef);
 
