@@ -87,7 +87,7 @@ StringRef Allexe::getModuleName(size_t idx) const {
   return archive->listFiles()[idx];
 }
 
-uint64_t Allexe::getModuleSize(size_t idx) {
+uint64_t Allexe::getModuleSize(size_t idx) const {
   assert(idx < getNumModules() && "invalid module idx");
   return archive->getEntryUncompressedSize(idx);
 }
