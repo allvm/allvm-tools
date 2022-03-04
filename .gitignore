@@ -25,6 +25,7 @@
 
 # LLVM bitcode files
 *.bc
+!tools/allmux/main/mux_main.bc
 
 # Python byte code files
 *.pyc
