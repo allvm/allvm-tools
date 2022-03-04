@@ -36,7 +36,7 @@ public:
             bool shouldLoadLazyMetaData = true) const;
 
   uint32_t getModuleCRC(size_t idx) const;
-  uint64_t getModuleSize(size_t idx);
+  uint64_t getModuleSize(size_t idx) const;
 
   llvm::StringRef getModuleName(size_t idx) const;
 
