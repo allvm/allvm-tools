@@ -27,7 +27,7 @@ let
   gitshort = if src.shortRev != "0000000" then src.shortRev
              else assert builtins.pathExists ../.git; builtins.substring 0 7 (lib.commitIdFromGitRepo ../.git);
 
-  tex = texlive.combined.scheme-medium;
+  tex = texlive.combined.scheme-small;
 in
 
 stdenv.mkDerivation {
