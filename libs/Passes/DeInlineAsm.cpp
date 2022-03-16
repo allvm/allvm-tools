@@ -36,8 +36,9 @@ public:
       // Handle "compiler barrier" idiom
       StringRef constraintString = inlineAsm->getConstraintString();
       if (constraintString == "~{memory},~{dirflag},~{fpsr},~{flags}") {
-        replacement = new FenceInst(
-            M->getContext(), AtomicOrdering::AcquireRelease, SingleThread, &I);
+        replacement =
+            new FenceInst(M->getContext(), AtomicOrdering::AcquireRelease,
+                          SyncScope::SingleThread, &I);
       }
     } else {
       SmallVector<StringRef, 3> asmPieces;
