@@ -26,14 +26,12 @@ class Allexe {
 public:
   size_t getNumModules() const;
 
-  std::unique_ptr<llvm::MemoryBuffer>
-  getModuleBuffer(size_t idx, uint32_t *crc = nullptr) const {
-    return archive->getEntry(idx, crc);
-  }
-
   llvm::Expected<std::unique_ptr<llvm::Module>>
   getModule(size_t i, llvm::LLVMContext &, uint32_t *crc = nullptr,
             bool shouldLoadLazyMetaData = true) const;
+
+  std::unique_ptr<llvm::MemoryBuffer>
+  getModuleBuffer(size_t idx, uint32_t *crc = nullptr) const;
 
   uint32_t getModuleCRC(size_t idx) const;
   uint64_t getModuleSize(size_t idx) const;

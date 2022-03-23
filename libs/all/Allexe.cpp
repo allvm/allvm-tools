@@ -77,6 +77,12 @@ Allexe::getModule(size_t idx, LLVMContext &ctx, uint32_t *crc,
                                     shouldLoadLazyMetaData);
 }
 
+std::unique_ptr<llvm::MemoryBuffer>
+Allexe::getModuleBuffer(size_t idx, uint32_t *crc) const {
+  assert(idx < getNumModules() && "invalid module idx");
+  return archive->getEntry(idx, crc);
+}
+
 uint32_t Allexe::getModuleCRC(size_t idx) const {
   assert(idx < getNumModules() && "invalid module idx");
   return archive->getEntryCRC(idx);
