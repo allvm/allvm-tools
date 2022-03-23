@@ -31,7 +31,9 @@ using namespace allvm;
 using namespace llvm;
 
 namespace {
-ALLVMTool AT("allopt");
+ALLVMTool
+    AT("allopt",
+       "Invoke custom external pipeline on bitcode contents of an allexe");
 cl::opt<std::string> InputFilename("i", cl::init("-"),
                                    cl::desc("<input allexe>"), AT.getCat());
 cl::opt<std::string> OutputFilename("o", cl::init("-"),

@@ -34,7 +34,7 @@ Allexe::Allexe(std::unique_ptr<ZipArchive> zipArchive)
 
 size_t Allexe::getNumModules() const { return archive->listFiles().size(); }
 
-Expected<std::unique_ptr<Allexe>>
+Expected<std::unique_ptr<const Allexe>>
 Allexe::openForReading(StringRef filename, const ResourcePaths &RP) {
   auto Allexe = Allexe::open(filename, RP, false);
   if (!Allexe)
@@ -75,6 +75,12 @@ Allexe::getModule(size_t idx, LLVMContext &ctx, uint32_t *crc,
   // TODO: Give error here more context about module that caused the error
   return getOwningLazyBitcodeModule(std::move(bitcode), ctx,
                                     shouldLoadLazyMetaData);
+}
+
+std::unique_ptr<llvm::MemoryBuffer>
+Allexe::getModuleBuffer(size_t idx, uint32_t *crc) const {
+  assert(idx < getNumModules() && "invalid module idx");
+  return archive->getEntry(idx, crc);
 }
 
 uint32_t Allexe::getModuleCRC(size_t idx) const {

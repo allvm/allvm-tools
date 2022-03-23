@@ -32,7 +32,8 @@ using namespace allvm;
 using namespace llvm;
 
 namespace {
-ALLVMTool AT("wllvm-extract");
+ALLVMTool AT("wllvm-extract",
+             "Extract bitcode mentioned by a file built with WLLVM");
 
 enum class OutputKind { SingleBitcode, BitcodeArchive, Allexe };
 

@@ -37,7 +37,8 @@ using namespace allvm;
 using namespace llvm;
 
 namespace {
-ALLVMTool AT("alltogether");
+ALLVMTool AT("alltogether",
+             "Convert allexe:{main.bc,...} -> allexe:{combined.bc}");
 cl::opt<bool> Overwrite("f", cl::desc("overwrite existing alltogether'd file"),
                         cl::init(false), AT.getCat());
 cl::opt<std::string> InputFilename(cl::Positional, cl::Required,

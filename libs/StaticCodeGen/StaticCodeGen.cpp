@@ -210,7 +210,7 @@ static void DiagnosticHandler(const DiagnosticInfo &DI, void *Context) {
 
 namespace allvm {
 
-Error compileAllexe(Allexe &Input, raw_pwrite_stream &OS,
+Error compileAllexe(const Allexe &Input, raw_pwrite_stream &OS,
                     const CompilationOptions &Options, LLVMContext &Context) {
   assert(Input.getNumModules() == 1 &&
          "attempted static code gen for allexe with more than one modules");
@@ -337,14 +337,14 @@ std::string CompilationOptions::serializeCompilationOptions() const {
   return buffer;
 }
 
-Error compileAllexeWithLlcDefaults(Allexe &Input, raw_pwrite_stream &OS,
+Error compileAllexeWithLlcDefaults(const Allexe &Input, raw_pwrite_stream &OS,
                                    LLVMContext &Context) {
   CompilationOptions Options;
   return compileAllexe(Input, OS, Options, Context);
 }
 
 Expected<std::unique_ptr<ObjectFile>>
-compileAllexe(Allexe &Input, StringRef Filename,
+compileAllexe(const Allexe &Input, StringRef Filename,
               const CompilationOptions &Options, LLVMContext &Context) {
 
   {
@@ -375,14 +375,14 @@ compileAllexe(Allexe &Input, StringRef Filename,
 }
 
 Expected<std::unique_ptr<ObjectFile>>
-compileAllexeWithLlcDefaults(Allexe &Input, StringRef Filename,
+compileAllexeWithLlcDefaults(const Allexe &Input, StringRef Filename,
                              LLVMContext &Context) {
   CompilationOptions Options;
   return compileAllexe(Input, Filename, Options, Context);
 }
 
 Expected<std::unique_ptr<Binary>>
-compileAndLinkAllexe(Allexe &Input, StringRef LibNone, StringRef CrtBits,
+compileAndLinkAllexe(const Allexe &Input, StringRef LibNone, StringRef CrtBits,
                      const ALLVMLinker &Linker, StringRef Filename,
                      const CompilationOptions &Options, LLVMContext &Context) {
   std::string ObjectFilename(Filename);
@@ -414,7 +414,7 @@ compileAndLinkAllexe(Allexe &Input, StringRef LibNone, StringRef CrtBits,
 }
 
 Expected<std::unique_ptr<Binary>> compileAndLinkAllexeWithLlcDefaults(
-    Allexe &Input, StringRef LibNone, StringRef CrtBits,
+    const Allexe &Input, StringRef LibNone, StringRef CrtBits,
     const ALLVMLinker &Linker, StringRef Filename, LLVMContext &Context) {
   CompilationOptions Options;
   return compileAndLinkAllexe(Input, LibNone, CrtBits, Linker, Filename,

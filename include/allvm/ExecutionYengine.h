@@ -14,7 +14,7 @@ class ExecutionYengine final {
 
 public:
   struct ExecutionInfo {
-    allvm::Allexe &allexe;
+    const allvm::Allexe &allexe;
     llvm::ArrayRef<std::string> Args;
     const char **envp;
     llvm::StringRef LibNone;

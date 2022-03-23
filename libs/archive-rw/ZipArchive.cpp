@@ -38,7 +38,7 @@ ErrorOr<std::unique_ptr<ZipArchive>> ZipArchive::open(const Twine &filename,
 }
 
 std::unique_ptr<MemoryBuffer> ZipArchive::getEntry(const Twine &entryName,
-                                                   uint32_t *crcOut) {
+                                                   uint32_t *crcOut) const {
   SmallVector<char, 256> str;
   StringRef name = entryName.toStringRef(str);
   auto entry = std::find_if(files.begin(), files.end(),
@@ -51,7 +51,7 @@ std::unique_ptr<MemoryBuffer> ZipArchive::getEntry(const Twine &entryName,
 }
 
 std::unique_ptr<MemoryBuffer> ZipArchive::getEntry(size_t index,
-                                                   uint32_t *crcOut) {
+                                                   uint32_t *crcOut) const {
   // Find the size of the file entry, and make a new MemoryBuffer of that size.
   zip_stat_t statinfo;
   zip_stat_index(archive, index, 0, &statinfo);
@@ -68,14 +68,14 @@ std::unique_ptr<MemoryBuffer> ZipArchive::getEntry(size_t index,
   return buf;
 }
 
-uint32_t ZipArchive::getEntryCRC(size_t index) {
+uint32_t ZipArchive::getEntryCRC(size_t index) const {
   zip_stat_t statinfo;
   zip_stat_index(archive, index, 0, &statinfo);
 
   return statinfo.crc;
 }
 
-uint64_t ZipArchive::getEntryUncompressedSize(size_t index) {
+uint64_t ZipArchive::getEntryUncompressedSize(size_t index) const {
   zip_stat_t statinfo;
   zip_stat_index(archive, index, 0, &statinfo);
 

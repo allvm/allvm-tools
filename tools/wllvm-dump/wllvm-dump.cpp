@@ -20,7 +20,7 @@ using namespace allvm;
 using namespace llvm;
 
 namespace {
-ALLVMTool AT("wllvm-dump");
+ALLVMTool AT("wllvm-dump", "Dump information about a file built with WLLVM");
 cl::opt<std::string> InputFilename(cl::Positional, cl::Required,
                                    cl::desc("<input file built with wllvm>"),
                                    AT.getCat());

@@ -49,7 +49,7 @@ class ALLVMTool {
   }
 
 public:
-  ALLVMTool(llvm::StringRef _Name, llvm::StringRef _Overview = "")
+  ALLVMTool(llvm::StringRef _Name, llvm::StringRef _Overview)
       : Name(_Name), Overview(_Overview) {
     llvm::cl::SetVersionPrinter(getVersionPrinter());
   }

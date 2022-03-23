@@ -84,7 +84,7 @@ struct CompilationOptions {
 /// bitcode module.
 ///
 /// \returns Error::success() on success.
-llvm::Error compileAllexe(Allexe &Input, llvm::raw_pwrite_stream &OS,
+llvm::Error compileAllexe(const Allexe &Input, llvm::raw_pwrite_stream &OS,
                           const CompilationOptions &Options,
                           llvm::LLVMContext &Context);
 
@@ -95,7 +95,7 @@ llvm::Error compileAllexe(Allexe &Input, llvm::raw_pwrite_stream &OS,
 /// module.
 ///
 /// \returns Error::success() on success.
-llvm::Error compileAllexeWithLlcDefaults(Allexe &Input,
+llvm::Error compileAllexeWithLlcDefaults(const Allexe &Input,
                                          llvm::raw_pwrite_stream &OS,
                                          llvm::LLVMContext &Context);
 
@@ -106,7 +106,7 @@ llvm::Error compileAllexeWithLlcDefaults(Allexe &Input,
 ///
 /// \returns an llvm ObjectFile object on success.
 llvm::Expected<std::unique_ptr<llvm::object::ObjectFile>>
-compileAllexe(Allexe &Input, llvm::StringRef Filename,
+compileAllexe(const Allexe &Input, llvm::StringRef Filename,
               const CompilationOptions &Options, llvm::LLVMContext &Context);
 
 /// Compiles the module contained in the given allexe and writes the
@@ -117,7 +117,7 @@ compileAllexe(Allexe &Input, llvm::StringRef Filename,
 ///
 /// \returns an llvm ObjectFile object on success.
 llvm::Expected<std::unique_ptr<llvm::object::ObjectFile>>
-compileAllexeWithLlcDefaults(Allexe &Input, llvm::StringRef Filename,
+compileAllexeWithLlcDefaults(const Allexe &Input, llvm::StringRef Filename,
                              llvm::LLVMContext &Context);
 
 /// Compiles the module contained in the given allexe with the given options,
@@ -128,7 +128,7 @@ compileAllexeWithLlcDefaults(Allexe &Input, llvm::StringRef Filename,
 ///
 /// \returns an llvm Binary object on success.
 llvm::Expected<std::unique_ptr<llvm::object::Binary>> compileAndLinkAllexe(
-    Allexe &Input, llvm::StringRef LibNone, llvm::StringRef CrtBits,
+    const Allexe &Input, llvm::StringRef LibNone, llvm::StringRef CrtBits,
     const ALLVMLinker &Linker, llvm::StringRef Filename,
     const CompilationOptions &Options, llvm::LLVMContext &Context);
 
@@ -140,7 +140,8 @@ llvm::Expected<std::unique_ptr<llvm::object::Binary>> compileAndLinkAllexe(
 ///
 /// \returns an llvm Binary object on success.
 llvm::Expected<std::unique_ptr<llvm::object::Binary>>
-compileAndLinkAllexeWithLlcDefaults(Allexe &Input, llvm::StringRef LibNone,
+compileAndLinkAllexeWithLlcDefaults(const Allexe &Input,
+                                    llvm::StringRef LibNone,
                                     llvm::StringRef CrtBits,
                                     const ALLVMLinker &Linker,
                                     llvm::StringRef Filename,
