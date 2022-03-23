@@ -41,14 +41,14 @@ public:
   static llvm::ErrorOr<std::unique_ptr<ZipArchive>>
   open(const llvm::Twine &Filename, bool overwrite);
 
-  std::unique_ptr<llvm::MemoryBuffer> getEntry(const llvm::Twine &Entry,
-                                               uint32_t *CrcOut = nullptr);
+  std::unique_ptr<llvm::MemoryBuffer>
+  getEntry(const llvm::Twine &Entry, uint32_t *CrcOut = nullptr) const;
 
-  std::unique_ptr<llvm::MemoryBuffer> getEntry(size_t index,
-                                               uint32_t *CrcOut = nullptr);
+  std::unique_ptr<llvm::MemoryBuffer>
+  getEntry(size_t index, uint32_t *CrcOut = nullptr) const;
 
-  uint32_t getEntryCRC(size_t index);
-  uint64_t getEntryUncompressedSize(size_t index);
+  uint32_t getEntryCRC(size_t index) const;
+  uint64_t getEntryUncompressedSize(size_t index) const;
 
   llvm::ArrayRef<std::string> listFiles() const;
 
