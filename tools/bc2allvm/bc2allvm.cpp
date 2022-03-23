@@ -32,7 +32,7 @@ using namespace allvm;
 using namespace llvm;
 
 namespace {
-ALLVMTool AT("bc2allvm");
+ALLVMTool AT("bc2allvm", "Create an ALLVM executable from bitcode");
 cl::opt<std::string> MainFile(cl::Positional, cl::Required,
                               cl::desc("<main LLVM bitcode file (or ll)>"),
                               AT.getCat());

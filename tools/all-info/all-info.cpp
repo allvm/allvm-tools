@@ -12,7 +12,7 @@ using namespace llvm;
 using namespace allvm;
 
 namespace {
-ALLVMTool AT("all-info");
+ALLVMTool AT("all-info", "Show information about an allexe");
 cl::opt<std::string>
     InputFilename(cl::Positional, cl::desc("<input Allexe file>"), AT.getCat());
 allvm::ExitOnError ExitOnErr;

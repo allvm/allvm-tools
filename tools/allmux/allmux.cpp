@@ -40,7 +40,9 @@ using namespace allvm;
 using namespace llvm;
 
 namespace {
-ALLVMTool AT("allmux");
+ALLVMTool AT("allmux",
+             "allvm software multiplexing tool\n\n"
+             "\tCombine multiple allexe's into a single multicall allexe\n");
 // TODO: "two-or-more"
 cl::list<std::string> InputFiles(cl::Positional, cl::OneOrMore,
                                  cl::desc("<input allexes>"), AT.getCat());
