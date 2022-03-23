@@ -9,7 +9,7 @@
 using namespace allvm;
 using namespace llvm;
 
-Error allvm::AOTCompileIfNeeded(StaticBinaryCache &Cache, Allexe &allexe,
+Error allvm::AOTCompileIfNeeded(StaticBinaryCache &Cache, const Allexe &allexe,
                                 StringRef LibNone, StringRef CrtBits,
                                 const ALLVMLinker &Linker,
                                 const CompilationOptions &Options) {

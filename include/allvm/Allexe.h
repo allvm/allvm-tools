@@ -26,8 +26,8 @@ class Allexe {
 public:
   size_t getNumModules() const;
 
-  std::unique_ptr<llvm::MemoryBuffer> getModuleBuffer(size_t idx,
-                                                      uint32_t *crc = nullptr) {
+  std::unique_ptr<llvm::MemoryBuffer>
+  getModuleBuffer(size_t idx, uint32_t *crc = nullptr) const {
     return archive->getEntry(idx, crc);
   }
 
@@ -52,7 +52,7 @@ public:
   llvm::Error updateModule(size_t idx, std::unique_ptr<llvm::Module>);
 
   /// open a allexe for reading only
-  static llvm::Expected<std::unique_ptr<Allexe>>
+  static llvm::Expected<std::unique_ptr<const Allexe>>
   openForReading(llvm::StringRef, const ResourcePaths &);
 
   /// open a allexe for reading and writing

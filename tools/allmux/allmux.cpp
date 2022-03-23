@@ -55,7 +55,7 @@ cl::opt<bool> NoInternalize("no-internalize",
 allvm::ExitOnError ExitOnErr;
 
 struct Entry {
-  std::unique_ptr<Allexe> A;
+  std::unique_ptr<const Allexe> A;
   std::unique_ptr<Module> Main;
   StringRef Filename;
   StringRef Base;
@@ -64,7 +64,7 @@ struct Entry {
   std::string getDtorsName() const { return formatv("dtors_{0}", Base); }
 };
 
-std::string getModName(Allexe &A, size_t i) {
+std::string getModName(const Allexe &A, size_t i) {
   auto CRC = formatv("{0:X-}", A.getModuleCRC(i)).str();
   StringRef Name = A.getModuleName(i);
   if (sys::path::has_filename(Name))
@@ -72,10 +72,10 @@ std::string getModName(Allexe &A, size_t i) {
   return CRC;
 }
 
-std::string getLibCtorsName(Allexe &A, size_t i) {
+std::string getLibCtorsName(const Allexe &A, size_t i) {
   return formatv("ctors_{0}", getModName(A, i));
 }
-std::string getLibDtorsName(Allexe &A, size_t i) {
+std::string getLibDtorsName(const Allexe &A, size_t i) {
   return formatv("dtors_{0}", getModName(A, i));
 }
 

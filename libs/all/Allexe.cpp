@@ -34,7 +34,7 @@ Allexe::Allexe(std::unique_ptr<ZipArchive> zipArchive)
 
 size_t Allexe::getNumModules() const { return archive->listFiles().size(); }
 
-Expected<std::unique_ptr<Allexe>>
+Expected<std::unique_ptr<const Allexe>>
 Allexe::openForReading(StringRef filename, const ResourcePaths &RP) {
   auto Allexe = Allexe::open(filename, RP, false);
   if (!Allexe)
