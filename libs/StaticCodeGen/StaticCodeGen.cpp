@@ -67,29 +67,25 @@ static inline void setFunctionAttributes(StringRef CPU, StringRef Features,
                                          Module &M) {
   for (auto &F : M) {
     auto &Ctx = F.getContext();
-    AttributeSet Attrs = F.getAttributes(), NewAttrs;
+    AttributeList Attrs = F.getAttributes();
+    AttrBuilder NewAttrs;
 
     if (!CPU.empty())
-      NewAttrs = NewAttrs.addAttribute(Ctx, AttributeSet::FunctionIndex,
-                                       "target-cpu", CPU);
+      NewAttrs.addAttribute("target-cpu", CPU);
 
     if (!Features.empty())
-      NewAttrs = NewAttrs.addAttribute(Ctx, AttributeSet::FunctionIndex,
-                                       "target-features", Features);
+      NewAttrs.addAttribute("target-features", Features);
 
     if (DisableFPElim.hasValue())
-      NewAttrs = NewAttrs.addAttribute(
-          Ctx, AttributeSet::FunctionIndex, "no-frame-pointer-elim",
-          DisableFPElim.getValue() ? "true" : "false");
+      NewAttrs.addAttribute("no-frame-pointer-elim",
+                            DisableFPElim.getValue() ? "true" : "false");
 
     if (DisableTailCalls.hasValue())
-      NewAttrs = NewAttrs.addAttribute(
-          Ctx, AttributeSet::FunctionIndex, "disable-tail-calls",
-          toStringRef(DisableTailCalls.getValue()));
+      NewAttrs.addAttribute("disable-tail-calls",
+                            toStringRef(DisableTailCalls.getValue()));
 
     if (StackRealign)
-      NewAttrs = NewAttrs.addAttribute(Ctx, AttributeSet::FunctionIndex,
-                                       "stackrealign");
+      NewAttrs.addAttribute("stackrealign");
 
     if (TrapFuncName.hasValue())
       for (auto &B : F)
@@ -98,13 +94,13 @@ static inline void setFunctionAttributes(StringRef CPU, StringRef Features,
             if (const auto *Callee = Call->getCalledFunction())
               if (Callee->getIntrinsicID() == Intrinsic::debugtrap ||
                   Callee->getIntrinsicID() == Intrinsic::trap)
-                Call->addAttribute(AttributeSet::FunctionIndex,
+                Call->addAttribute(AttributeList::FunctionIndex,
                                    Attribute::get(Ctx, "trap-func-name",
                                                   TrapFuncName.getValue()));
 
     // Let NewAttrs override Attrs.
-    NewAttrs = Attrs.addAttributes(Ctx, AttributeSet::FunctionIndex, NewAttrs);
-    F.setAttributes(NewAttrs);
+    F.setAttributes(
+        Attrs.addAttributes(Ctx, AttributeList::FunctionIndex, NewAttrs));
   }
 }
 
@@ -271,9 +267,15 @@ std::string CompilationOptions::serializeCompilationOptions() const {
   }
   // Serialize OLvl
   buffer += std::to_string(OLvl);
+#ifdef __x86_64__
+  errs() << "Using incomplete serialization of compilation options, FIXME!\n";
+#else
+#warning                                                                       \
+    "Unable to emit runtime warning that serialization of compilation options is incomplete!"
+#endif
   // Serialize TargetOptions
   buffer += std::to_string(TOptions.PrintMachineCode);
-  buffer += std::to_string(TOptions.LessPreciseFPMADOption);
+  // buffer += std::to_string(TOptions.LessPreciseFPMADOption);
   buffer += std::to_string(TOptions.UnsafeFPMath);
   buffer += std::to_string(TOptions.NoInfsFPMath);
   buffer += std::to_string(TOptions.NoNaNsFPMath);
@@ -286,7 +288,7 @@ std::string CompilationOptions::serializeCompilationOptions() const {
   buffer += std::to_string(TOptions.EnableFastISel);
   buffer += std::to_string(TOptions.UseInitArray);
   buffer += std::to_string(TOptions.DisableIntegratedAS);
-  buffer += std::to_string(TOptions.CompressDebugSections);
+  buffer += std::to_string(static_cast<int>(TOptions.CompressDebugSections));
   buffer += std::to_string(TOptions.RelaxELFRelocations);
   buffer += std::to_string(TOptions.FunctionSections);
   buffer += std::to_string(TOptions.DataSections);

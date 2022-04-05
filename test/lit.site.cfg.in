@@ -17,6 +17,7 @@ curpath = os.environ.get('PATH', '')
 if curpath:
     newpath += ":" + curpath
 config.environment['PATH'] = newpath
+config.environment['XDG_CACHE_HOME'] = config.test_exec_root + "/cache";
 
 # TODO: Get this more reliably/directly: " = @LIBNONE_PATH@" or something
 libnone = "@LLVM_LIBRARY_OUTPUT_INTDIR@/libnone.a"
